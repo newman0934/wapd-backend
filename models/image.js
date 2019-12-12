@@ -8,13 +8,14 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true
       },
-      url: DataTypes.STRING
+      url: DataTypes.STRING,
+      ProductId: DataTypes.INTEGER
     },
     {}
   )
   Image.associate = function(models) {
     // associations can be defined here
-    Image.hasMany(models.Product)
+    Image.belongsTo(models.Product)
   }
   return Image
 }

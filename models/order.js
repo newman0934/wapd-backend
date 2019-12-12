@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true
       },
       amount: DataTypes.INTEGER,
-      status: DataTypes.STRING,
+      shipping_status: DataTypes.STRING,
       payment_status: DataTypes.STRING,
       phone: DataTypes.STRING,
       payment_method: DataTypes.STRING,

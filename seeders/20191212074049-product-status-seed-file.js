@@ -8,6 +8,8 @@ module.exports = {
         id: index + 1,
         sales: faker.commerce.price(),
         stock: faker.random.number(),
+        cost: faker.commerce.price(),
+        price: faker.commerce.price(),
         ColorId: Math.floor(Math.random() * 3) + 1,
         ProductId: Math.floor(Math.random() * 3) + 1,
         SizeId: Math.floor(Math.random() * 3) + 1,

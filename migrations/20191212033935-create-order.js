@@ -11,7 +11,7 @@ module.exports = {
       amount: {
         type: Sequelize.INTEGER
       },
-      status: {
+      shipping_status: {
         type: Sequelize.STRING
       },
       payment_status: {

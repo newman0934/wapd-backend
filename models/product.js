@@ -10,10 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       name: DataTypes.STRING,
       description: DataTypes.STRING,
-      cost: DataTypes.INTEGER,
-      price: DataTypes.INTEGER,
       status: DataTypes.STRING,
-      ImageId: DataTypes.INTEGER,
       CategoryId: DataTypes.INTEGER
     },
     {}
@@ -35,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       foreignKey: 'ProductId'
     })
-    Product.belongsTo(models.Image)
+    Product.hasMany(models.Image)
     Product.hasMany(models.ProductStatus)
   }
   return Product
