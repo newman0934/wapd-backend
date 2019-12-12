@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
   )
   ProductColor.associate = function(models) {
     // associations can be defined here
+    ProductColor.hasMany(models.ProductStatus)
   }
   return ProductColor
 }

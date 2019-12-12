@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   )
   Coupon.associate = function(models) {
     // associations can be defined here
+    Coupon.belongsTo(models.Order)
   }
   return Coupon
 }

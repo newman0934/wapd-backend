@@ -19,6 +19,13 @@ module.exports = (sequelize, DataTypes) => {
   )
   User.associate = function(models) {
     // associations can be defined here
+    User.hasMany(models.CartItem)
+    User.belongsToMany(models.Product, {
+      through: models.Favorite,
+      foreignKey: 'UserId',
+      as: 'FavoritedProducts'
+    })
+    User.hasMany(models.Order)
   }
   return User
 }

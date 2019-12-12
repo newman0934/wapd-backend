@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
   )
   ProductSize.associate = function(models) {
     // associations can be defined here
+    ProductSize.hasMany(models.ProductStatus)
   }
   return ProductSize
 }
