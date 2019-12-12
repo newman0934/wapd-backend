@@ -10,8 +10,8 @@ module.exports = (sequelize, DataTypes) => {
       },
       sn: DataTypes.INTEGER,
       amount: DataTypes.INTEGER,
-      paymentMethod: DataTypes.STRING,
-      paidAt: DataTypes.DATE,
+      payment_method: DataTypes.STRING,
+      paid_at: DataTypes.DATE,
       params: DataTypes.TEXT,
       OrderId: DataTypes.INTEGER
     },

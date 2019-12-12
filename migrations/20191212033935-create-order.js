@@ -14,23 +14,29 @@ module.exports = {
       status: {
         type: Sequelize.STRING
       },
-      paymentStatus: {
+      payment_status: {
         type: Sequelize.STRING
       },
       phone: {
         type: Sequelize.STRING
       },
-      paymentMethod: {
+      payment_method: {
         type: Sequelize.STRING
       },
       address: {
         type: Sequelize.STRING
       },
-      receiverName: {
+      receiver_name: {
         type: Sequelize.STRING
       },
       comment: {
         type: Sequelize.STRING
+      },
+      sn: {
+        type: Sequelize.INTEGER
+      },
+      UserId: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,

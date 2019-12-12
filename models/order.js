@@ -10,12 +10,13 @@ module.exports = (sequelize, DataTypes) => {
       },
       amount: DataTypes.INTEGER,
       status: DataTypes.STRING,
-      paymentStatus: DataTypes.STRING,
+      payment_status: DataTypes.STRING,
       phone: DataTypes.STRING,
-      paymentMethod: DataTypes.STRING,
+      payment_method: DataTypes.STRING,
       address: DataTypes.STRING,
-      receiverName: DataTypes.STRING,
+      receiver_name: DataTypes.STRING,
       comment: DataTypes.STRING,
+      sn: DataTypes.INTEGER,
       UserId: DataTypes.INTEGER
     },
     {}
