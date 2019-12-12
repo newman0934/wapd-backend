@@ -8,10 +8,10 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      couponCode: {
+      coupon_code: {
         type: Sequelize.STRING
       },
-      discountAmount: {
+      discount_amount: {
         type: Sequelize.INTEGER
       },
       OrderId: {
