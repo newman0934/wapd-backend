@@ -1,0 +1,29 @@
+'use strict'
+const faker = require('faker')
+module.exports = {
+  up: (queryInterface, Sequelize) => {
+    return queryInterface.bulkInsert(
+      'Orders',
+      Array.from({ length: 10 }).map((item, index) => ({
+        id: index + 1,
+        amount: faker.random.number(),
+        status: Math.floor(Math.random() * 2),
+        payment_status: Math.round(Math.random() * 1),
+        UserId: Math.floor(Math.random() * 3),
+        phone: faker.phone.phoneNumber(),
+        payment_method: Math.round(Math.random() * 1),
+        address: faker.address.streetAddress(),
+        receiver_name: faker.lorem.word(),
+        comment: faker.lorem.sentence(),
+        sn: faker.random.number(),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })),
+      {}
+    )
+  },
+
+  down: (queryInterface, Sequelize) => {
+    return queryInterface.bulkDelete('Orders', null, {})
+  }
+}
