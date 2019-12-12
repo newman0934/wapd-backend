@@ -3,6 +3,11 @@ module.exports = (sequelize, DataTypes) => {
   const Order = sequelize.define(
     'Order',
     {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      },
       amount: DataTypes.INTEGER,
       status: DataTypes.STRING,
       paymentStatus: DataTypes.STRING,

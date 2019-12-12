@@ -1,14 +1,23 @@
-'use strict';
+'use strict'
 module.exports = (sequelize, DataTypes) => {
-  const Payment = sequelize.define('Payment', {
-    sn: DataTypes.INTEGER,
-    amount: DataTypes.INTEGER,
-    paymentMethod: DataTypes.STRING,
-    paidAt: DataTypes.DATE,
-    params: DataTypes.TEXT
-  }, {});
+  const Payment = sequelize.define(
+    'Payment',
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      },
+      sn: DataTypes.INTEGER,
+      amount: DataTypes.INTEGER,
+      paymentMethod: DataTypes.STRING,
+      paidAt: DataTypes.DATE,
+      params: DataTypes.TEXT
+    },
+    {}
+  )
   Payment.associate = function(models) {
     // associations can be defined here
-  };
-  return Payment;
-};
+  }
+  return Payment
+}

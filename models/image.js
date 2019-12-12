@@ -1,10 +1,19 @@
-'use strict';
+'use strict'
 module.exports = (sequelize, DataTypes) => {
-  const Image = sequelize.define('Image', {
-    url: DataTypes.STRING
-  }, {});
+  const Image = sequelize.define(
+    'Image',
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      },
+      url: DataTypes.STRING
+    },
+    {}
+  )
   Image.associate = function(models) {
     // associations can be defined here
-  };
-  return Image;
-};
+  }
+  return Image
+}

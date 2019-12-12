@@ -3,6 +3,11 @@ module.exports = (sequelize, DataTypes) => {
   const Coupon = sequelize.define(
     'Coupon',
     {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      },
       couponCode: DataTypes.STRING,
       discountAmount: DataTypes.INTEGER,
       OrderId: DataTypes.INTEGER
