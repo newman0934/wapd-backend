@@ -29,9 +29,6 @@ module.exports = {
       receiverName: {
         type: Sequelize.STRING
       },
-      sn: {
-        type: Sequelize.INTEGER
-      },
       comment: {
         type: Sequelize.STRING
       },
