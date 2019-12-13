@@ -21,8 +21,8 @@ module.exports = (sequelize, DataTypes) => {
   ProductStatus.associate = function(models) {
     // associations can be defined here
     ProductStatus.belongsTo(models.Product)
-    ProductStatus.belongsTo(models.ProductColor)
-    ProductStatus.belongsTo(models.ProductSize)
+    ProductStatus.belongsTo(models.Color)
+    ProductStatus.belongsTo(models.Size)
   }
   return ProductStatus
 }

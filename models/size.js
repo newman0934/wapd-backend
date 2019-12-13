@@ -1,7 +1,7 @@
 'use strict'
 module.exports = (sequelize, DataTypes) => {
-  const ProductSize = sequelize.define(
-    'ProductSize',
+  const Size = sequelize.define(
+    'Size',
     {
       id: {
         type: DataTypes.INTEGER,
@@ -12,9 +12,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {}
   )
-  ProductSize.associate = function(models) {
+  Size.associate = function(models) {
     // associations can be defined here
-    ProductSize.hasMany(models.ProductStatus)
+    Size.hasMany(models.ProductStatus)
   }
-  return ProductSize
+  return Size
 }

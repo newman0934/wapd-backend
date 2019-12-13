@@ -1,7 +1,7 @@
 'use strict'
 module.exports = (sequelize, DataTypes) => {
-  const ProductColor = sequelize.define(
-    'ProductColor',
+  const Color = sequelize.define(
+    'Color',
     {
       id: {
         type: DataTypes.INTEGER,
@@ -12,9 +12,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {}
   )
-  ProductColor.associate = function(models) {
+  Color.associate = function(models) {
     // associations can be defined here
-    ProductColor.hasMany(models.ProductStatus)
+    Color.hasMany(models.ProductStatus)
   }
-  return ProductColor
+  return Color
 }
