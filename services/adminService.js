@@ -2,7 +2,7 @@ const db = require('../models')
 const Product = db.Product
 const Category = db.Category
 
-const productService = {
+const adminService = {
   getProducts: async (req, res, callback) => {
     let whereQuery = {}
     let categoryId = ''
@@ -32,4 +32,4 @@ const productService = {
   }
 }
 
-module.exports = productService
+module.exports = adminService
