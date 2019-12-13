@@ -13,7 +13,7 @@ const productService = {
       categoryId = Number(req.query.categoryId)
       whereQuery['CategoryId'] = categoryId
     }
-
+    // 若有 categoryId 會查詢對應類別的商品
     const productResult = await ProductStatus.findAll({
       include: [{ model: Product, where: whereQuery }, Color, Size]
     })
