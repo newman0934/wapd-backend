@@ -7,17 +7,15 @@ const Size = db.Size
 
 const productService = {
   getProducts: async (req, res, callback) => {
-    // let whereQuery = {}
-    // if (req.query.categoryId) {
-    //   categoryId = Number(req.query.categoryId)
-    //   whereQuery['CategoryId'] = categoryId
-    // }
-
+    let whereQuery = {}
     let categoryId = ''
+    if (req.query.categoryId) {
+      categoryId = Number(req.query.categoryId)
+      whereQuery['CategoryId'] = categoryId
+    }
 
     const productResult = await ProductStatus.findAll({
-      include: [Product, Color, Size]
-      // where: whereQuery
+      include: [{ model: Product, where: whereQuery }, Color, Size]
     })
     const categories = await Category.findAll()
 
@@ -37,10 +35,6 @@ const productService = {
       createdAt: data.dataValues.Product.createdAt,
       updatedAt: data.dataValues.Product.updatedAt
     }))
-    // 使用者點擊類別，回傳對應商品
-    if (req.query.categoryId) {
-      products = products.filter(d => d.CategoryId === +req.query.categoryId)
-    }
 
     return callback({
       products,
