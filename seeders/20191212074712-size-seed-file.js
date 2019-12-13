@@ -3,7 +3,7 @@ const faker = require('faker')
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert(
-      'ProductSizes',
+      'Sizes',
       Array.from({ length: 3 }).map((item, index) => ({
         id: index + 1,
         size: ['S', 'M', 'L'][index],
@@ -15,6 +15,6 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.bulkDelete('ProductSizes', null, {})
+    return queryInterface.bulkDelete('Sizes', null, {})
   }
 }
