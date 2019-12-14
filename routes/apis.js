@@ -10,5 +10,7 @@ router.get('/products/:id', productController.getProduct)
 
 router.get('/admins/products', adminController.getProducts)
 router.get('/admins/products/:id', adminController.getProduct)
+router.get('/admins/orders', adminController.getOrders)
+router.get('/admins/orders/:id', adminController.getOrder)
 
 module.exports = router
