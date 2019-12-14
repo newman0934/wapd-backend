@@ -2,6 +2,7 @@ const db = require('../models')
 const Product = db.Product
 const Category = db.Category
 const Order = db.Order
+const User = db.User
 
 const adminService = {
   getProducts: async (req, res, callback) => {
@@ -81,6 +82,26 @@ const adminService = {
     const orderResult = await Order.findByPk(req.params.id)
 
     return callback({ orderResult })
+  },
+
+  getCategories: async (req, res, callback) => {
+    const categoryResult = await Category.findAll()
+
+    return callback({ categoryResult })
+  },
+
+  getUsers: async (req, res, callback) => {
+    const userResult = await User.findAll()
+
+    return callback({ userResult })
+  },
+
+  getUserOrders: async (req, res, callback) => {
+    const userOrderResult = await User.findByPk(req.params.id, {
+      include: Order
+    })
+
+    return callback({ userOrderResult })
   }
 }
 
