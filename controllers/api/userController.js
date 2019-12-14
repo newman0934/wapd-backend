@@ -17,6 +17,12 @@ const userController = {
     userService.getUserFavorite(req, res, data => {
       return res.json(data)
     })
+  },
+
+  getUserCart: (req, res) => {
+    userService.getUserCart(req, res, data => {
+      return res.json(data)
+    })
   }
 }
 

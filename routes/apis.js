@@ -12,6 +12,7 @@ router.get('/products/:id', productController.getProduct)
 router.get('/users/:id/orders', userController.getUserOrders)
 router.get('/users/:id/orders/:order_id', userController.getUserOrder)
 router.get('/users/:id/wishlist', userController.getUserFavorite)
+router.get('/users/:id/cart', userController.getUserCart)
 
 router.get('/admins/products', adminController.getProducts)
 router.get('/admins/products/:id', adminController.getProduct)
