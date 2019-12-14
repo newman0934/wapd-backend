@@ -6,6 +6,7 @@ module.exports = {
       'Users',
       [
         {
+          id: 1,
           email: 'root@example.com',
           password: '12345678',
           name: 'root',
@@ -16,9 +17,10 @@ module.exports = {
           updatedAt: new Date()
         },
         {
+          id: 2,
           email: 'user1@example.com',
           password: '12345678',
-          name: 'user1',
+          name: 'Caesar',
           role: '',
           phone: faker.phone.phoneNumber(),
           address: faker.address.streetAddress(),
@@ -26,9 +28,10 @@ module.exports = {
           updatedAt: new Date()
         },
         {
+          id: 3,
           email: 'user2@example.com',
           password: '12345678',
-          name: 'user2',
+          name: 'Vivian',
           role: '',
           phone: faker.phone.phoneNumber(),
           address: faker.address.streetAddress(),
