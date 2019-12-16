@@ -34,7 +34,7 @@ const userController = {
         token: token,
         user: {
           id: user.id,
-          name: user.name,
+          // name: user.name,
           email: user.email,
           role: user.role
         }
@@ -51,7 +51,7 @@ const userController = {
           return res.json({ status: 'error', message: '信箱重複！' })
         } else {
           User.create({
-            name: req.body.name,
+            // name: req.body.name,
             email: req.body.email,
             password: bcrypt.hashSync(
               req.body.password,
