@@ -1,6 +1,9 @@
 const db = require('../models')
 const Product = db.Product
+const ProductStatus = db.ProductStatus
 const Category = db.Category
+const Color = db.Color
+const Size = db.Size
 const Order = db.Order
 const User = db.User
 

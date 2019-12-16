@@ -1,5 +1,6 @@
 'use strict'
 const faker = require('faker')
+const bcrypt = require('bcryptjs')
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert(
@@ -8,7 +9,7 @@ module.exports = {
         {
           id: 1,
           email: 'root@example.com',
-          password: '12345678',
+          password: bcrypt.hashSync('12345678', bcrypt.genSaltSync(10), null),
           name: 'root',
           role: 'admin',
           phone: faker.phone.phoneNumber(),
@@ -19,7 +20,7 @@ module.exports = {
         {
           id: 2,
           email: 'user1@example.com',
-          password: '12345678',
+          password: bcrypt.hashSync('12345678', bcrypt.genSaltSync(10), null),
           name: 'Caesar',
           role: '',
           phone: faker.phone.phoneNumber(),
@@ -30,7 +31,7 @@ module.exports = {
         {
           id: 3,
           email: 'user2@example.com',
-          password: '12345678',
+          password: bcrypt.hashSync('12345678', bcrypt.genSaltSync(10), null),
           name: 'Vivian',
           role: '',
           phone: faker.phone.phoneNumber(),
