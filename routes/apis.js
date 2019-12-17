@@ -23,6 +23,16 @@ router.post('/signin', userController.signIn)
 router.post('/signup', userController.signUp)
 router.get('/products', productController.getProducts)
 router.get('/products/:id', productController.getProduct)
+router.post(
+  '/products/:id/wishlist',
+  authenticated,
+  productController.addWishlist
+)
+router.delete(
+  '/products/:id/wishlist',
+  authenticated,
+  productController.deleteWishlist
+)
 
 router.get('/users/:id/orders', userController.getUserOrders)
 router.get('/users/:id/orders/:order_id', userController.getUserOrder)
