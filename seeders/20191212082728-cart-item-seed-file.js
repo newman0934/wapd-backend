@@ -7,6 +7,7 @@ module.exports = {
     return queryInterface.bulkInsert(
       'CartItems',
       Array.from({ length: 20 }).map((item, index) => ({
+        id: index + 1,
         CartId: Math.floor(Math.random() * 3) + 1,
         ProductId: Math.floor(Math.random() * 10) + 1,
         UserId: Math.floor(Math.random() * 3) + 1,

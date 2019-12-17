@@ -9,7 +9,7 @@ module.exports = {
         amount: faker.random.number(),
         shipping_status: Math.floor(Math.random() * 2),
         payment_status: Math.round(Math.random()),
-        UserId: Math.floor(Math.random() * 3),
+        UserId: Math.floor(Math.random() * 3) + 1,
         phone: faker.phone.phoneNumber(),
         payment_method: Math.round(Math.random()),
         address: faker.address.streetAddress(),
