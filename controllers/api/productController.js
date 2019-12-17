@@ -11,6 +11,18 @@ const productController = {
     productService.getProduct(req, res, data => {
       return res.json(data)
     })
+  },
+
+  addWishlist: (req, res) => {
+    productService.addWishlist(req, res, data => {
+      return res.json(data)
+    })
+  },
+
+  deleteWishlist: (req, res) => {
+    productService.deleteWishlist(req, res, data => {
+      return res.json(data)
+    })
   }
 }
 
