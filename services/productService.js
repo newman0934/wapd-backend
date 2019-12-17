@@ -67,6 +67,19 @@ const productService = {
   },
 
   addWishlist: async (req, res, callback) => {
+    const favorite = await Favorite.findOne({
+      where: {
+        UserId: req.user.id,
+        ProductId: req.params.id
+      }
+    })
+    if (favorite) {
+      return callback({
+        status: 'error',
+        message: "already in user's favorite list",
+        ProductId: req.params.id
+      })
+    }
     await Favorite.create({
       UserId: req.user.id,
       ProductId: req.params.id

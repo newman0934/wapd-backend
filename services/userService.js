@@ -60,6 +60,10 @@ const userService = {
     }
 
     return callback({ userCart })
+  },
+
+  postOrder: async (req, res, callback) => {
+    // TODO: 新增一筆自己的訂單
   }
 }
 
