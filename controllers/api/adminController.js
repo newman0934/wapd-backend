@@ -13,6 +13,18 @@ const adminController = {
     })
   },
 
+  getProductStocks: (req, res) => {
+    adminService.getProductStocks(req, res, data => {
+      return res.json(data)
+    })
+  },
+
+  getProductStock: (req, res) => {
+    adminService.getProductStock(req, res, data => {
+      return res.json(data)
+    })
+  },
+
   getOrders: (req, res) => {
     adminService.getOrders(req, res, data => {
       return res.json(data)

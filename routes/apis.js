@@ -42,11 +42,16 @@ router.get('/users/:id/cart', userController.getUserCart)
 router.get(
   //testing auth in /admins/products
   '/admins/products',
-  authenticated,
-  authenticatedAdmin,
+  // authenticated,
+  // authenticatedAdmin,
   adminController.getProducts
 )
 router.get('/admins/products/:id', adminController.getProduct)
+router.get('/admins/products/:id/stocks', adminController.getProductStocks)
+router.get(
+  '/admins/products/:id/stocks/:stock_id',
+  adminController.getProductStock
+)
 router.get('/admins/orders', adminController.getOrders)
 router.get('/admins/orders/:id', adminController.getOrder)
 router.get('/admins/categories', adminController.getCategories)
