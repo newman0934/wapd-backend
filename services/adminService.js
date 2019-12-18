@@ -6,73 +6,148 @@ const Color = db.Color
 const Size = db.Size
 const Order = db.Order
 const User = db.User
+const Image = db.Image
+const pageLimit = 12
 
 const adminService = {
   getProducts: async (req, res, callback) => {
+    let offset = 0
     let whereQuery = {}
     let categoryId = ''
+    if (req.query.page) {
+      offset = (req.query.page - 1) * pageLimit
+    }
     if (req.query.categoryId) {
       categoryId = Number(req.query.categoryId)
       whereQuery['CategoryId'] = categoryId
     }
     // 若有 categoryId 會查詢對應類別的商品
-    const productResult = await ProductStatus.findAll({
+    const productResult = await Product.findAndCountAll({
       include: [
-        { model: Product, where: whereQuery, include: Category },
-        Color,
-        Size
-      ]
+        Image,
+        Category,
+        { model: ProductStatus, include: [Color, Size] }
+      ],
+      where: whereQuery,
+      offset: offset,
+      limit: pageLimit,
+      // avoid counting associated data
+      distinct: true
     })
+    let page = Number(req.query.page) || 1
+    let pages = Math.ceil(productResult.count / pageLimit)
+    let totalPage = Array.from({ length: pages }).map(
+      (item, index) => index + 1
+    )
+    let prev = page - 1 < 1 ? 1 : page - 1
+    let next = page + 1 > pages ? pages : page + 1
+
     const categories = await Category.findAll()
 
-    let products = productResult.map(data => ({
-      id: data.dataValues.id,
-      name: data.dataValues.Product.name,
-      description: data.dataValues.Product.description,
-      status: data.dataValues.Product.status,
-      sales: data.dataValues.sales,
-      stock: data.dataValues.stock,
-      cost: data.dataValues.cost,
-      price: data.dataValues.price,
-      color: data.dataValues.Color.color,
-      size: data.dataValues.Size.size,
-      category: data.dataValues.Product.Category.category,
-      CategoryId: data.dataValues.Product.CategoryId,
-      ProductId: data.dataValues.ProductId,
-      createdAt: data.dataValues.Product.createdAt,
-      updatedAt: data.dataValues.Product.updatedAt
-    }))
-
     return callback({
-      products,
+      productResult,
       categories,
-      categoryId: +req.query.categoryId
+      categoryId: +req.query.categoryId,
+      page,
+      totalPage,
+      prev,
+      next
     })
   },
+
   getProduct: async (req, res, callback) => {
-    const productResult = await ProductStatus.findByPk(req.params.id, {
-      include: [{ model: Product, include: Category }, Color, Size]
+    const productResult = await Product.findByPk(req.params.id, {
+      include: [
+        Image,
+        Category,
+        { model: ProductStatus, include: [Color, Size] }
+      ]
     })
 
-    const product = {
-      id: productResult.id,
-      name: productResult.Product.name,
-      description: productResult.Product.description,
-      status: productResult.Product.status,
-      sales: productResult.sales,
-      stock: productResult.stock,
-      cost: productResult.cost,
-      price: productResult.price,
-      color: productResult.Color.color,
-      size: productResult.Size.size,
-      category: productResult.Product.Category.category,
-      CategoryId: productResult.Product.CategoryId,
-      ProductId: productResult.ProductId,
-      createdAt: productResult.Product.createdAt,
-      updatedAt: productResult.Product.updatedAt
+    return callback({ productResult })
+  },
+
+  getProductStocks: async (req, res, callback) => {
+    const productResult = await Product.findByPk(req.params.id, {
+      include: [
+        Image,
+        Category,
+        { model: ProductStatus, include: [Color, Size] }
+      ]
+    })
+
+    return callback({ productResult })
+  },
+
+  getProductStock: async (req, res, callback) => {
+    const productResult = await Product.findByPk(req.params.id, {
+      include: [
+        Image,
+        Category,
+        {
+          model: ProductStatus,
+          include: [Color, Size]
+        }
+      ]
+    })
+    const productStock = {
+      ...productResult.dataValues,
+      updateStockInfo: productResult.ProductStatuses.filter(
+        item => item.id === +req.params.stock_id
+      )
     }
 
-    return callback({ product })
+    return callback({ productStock })
+  },
+
+  addProductStockProps: async (req, res, callback) => {
+    if (!req.body.color || !req.body.size) {
+      return callback({ status: 'error', message: 'missing props!!' })
+    }
+    const product = await Product.findByPk(req.params.id, {
+      include: ProductStatus
+    })
+    const defaultProductInfo = product.ProductStatuses[0]
+    const color = await Color.findOrCreate({
+      where: {
+        color: req.body.color
+      }
+    })
+    const size = await Size.findOrCreate({
+      where: {
+        size: req.body.size
+      }
+    })
+    // TODO: 確認有沒有符合的商品，如果有就不新增
+    await ProductStatus.findOrCreate({
+      where: {
+        ProductId: req.params.id
+      },
+      include: [
+        {
+          model: Color,
+          where: {
+            color: req.body.color
+          }
+        },
+        {
+          model: Size,
+          where: {
+            size: req.body.size
+          }
+        }
+      ],
+      defaults: {
+        sales: 0,
+        stock: 0,
+        ProductId: req.params.id,
+        ColorId: color[0].id,
+        SizeId: size[0].id,
+        cost: defaultProductInfo.cost,
+        price: defaultProductInfo.price
+      }
+    })
+    return callback({ status: 'OK' })
   },
 
   getOrders: async (req, res, callback) => {
@@ -85,12 +160,6 @@ const adminService = {
     const orderResult = await Order.findByPk(req.params.id)
 
     return callback({ orderResult })
-  },
-
-  getCategories: async (req, res, callback) => {
-    const categoryResult = await Category.findAll()
-
-    return callback({ categoryResult })
   },
 
   getUsers: async (req, res, callback) => {
