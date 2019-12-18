@@ -112,12 +112,6 @@ const adminService = {
     return callback({ orderResult })
   },
 
-  getCategories: async (req, res, callback) => {
-    const categoryResult = await Category.findAll()
-
-    return callback({ categoryResult })
-  },
-
   getUsers: async (req, res, callback) => {
     const userResult = await User.findAll()
 

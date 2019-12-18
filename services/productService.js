@@ -12,7 +12,9 @@ const pageLimit = 12
 const productService = {
   getProducts: async (req, res, callback) => {
     let offset = 0
-    let whereQuery = {}
+    let whereQuery = {
+      status: 'on'
+    }
     let categoryId = ''
     if (req.query.page) {
       offset = (req.query.page - 1) * pageLimit
@@ -43,7 +45,6 @@ const productService = {
     let next = page + 1 > pages ? pages : page + 1
 
     const categories = await Category.findAll()
-
     return callback({
       productResult,
       categories,

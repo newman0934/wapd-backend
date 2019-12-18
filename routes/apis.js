@@ -4,6 +4,7 @@ const passport = require('../config/passport')
 const productController = require('../controllers/api/productController')
 const adminController = require('../controllers/api/adminController')
 const userController = require('../controllers/api/userController')
+const categoryController = require('../controllers/api/categoryController')
 
 const authenticated = passport.authenticate('jwt', { session: false })
 
@@ -54,7 +55,13 @@ router.get(
 )
 router.get('/admins/orders', adminController.getOrders)
 router.get('/admins/orders/:id', adminController.getOrder)
-router.get('/admins/categories', adminController.getCategories)
+
+router.get('/admins/categories', categoryController.getCategories)
+router.get('/admins/categories/:id', categoryController.getCategories)
+router.post('/admins/categories/', categoryController.addCategory)
+router.put('/admins/categories/:id', categoryController.putCategory)
+router.delete('/admins/categories/:id', categoryController.deleteCategory)
+
 router.get('/admins/users', adminController.getUsers)
 router.get('/admins/users/:id/orders', adminController.getUserOrders)
 
