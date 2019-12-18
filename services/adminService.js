@@ -162,6 +162,26 @@ const adminService = {
     return callback({ orderResult })
   },
 
+  putOrder: async (req, res, callback) => {
+    const order = await Order.findByPk(req.params.id)
+    await order.update({
+      amount: +req.body.amount,
+      shipping_status: req.body.shipping_status,
+      payment_status: req.body.payment_status,
+      phone: req.body.phone,
+      payment_method: req.body.payment_method,
+      address: req.body.address,
+      receiver_name: req.body.receiver_name,
+      comment: req.body.comment
+    })
+
+    return callback({
+      status: 'OK',
+      message: 'update successful',
+      OrderId: req.params.id
+    })
+  },
+
   getUsers: async (req, res, callback) => {
     const userResult = await User.findAll()
 
