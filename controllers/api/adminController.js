@@ -25,6 +25,12 @@ const adminController = {
     })
   },
 
+  addProductStockProps: (req, res) => {
+    adminService.addProductStockProps(req, res, data => {
+      return res.json(data)
+    })
+  },
+
   getOrders: (req, res) => {
     adminService.getOrders(req, res, data => {
       return res.json(data)

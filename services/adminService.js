@@ -100,6 +100,56 @@ const adminService = {
     return callback({ productStock })
   },
 
+  addProductStockProps: async (req, res, callback) => {
+    if (!req.body.color || !req.body.size) {
+      return callback({ status: 'error', message: 'missing props!!' })
+    }
+    const product = await Product.findByPk(req.params.id, {
+      include: ProductStatus
+    })
+    const defaultProductInfo = product.ProductStatuses[0]
+    const color = await Color.findOrCreate({
+      where: {
+        color: req.body.color
+      }
+    })
+    const size = await Size.findOrCreate({
+      where: {
+        size: req.body.size
+      }
+    })
+    // TODO: 確認有沒有符合的商品，如果有就不新增
+    await ProductStatus.findOrCreate({
+      where: {
+        ProductId: req.params.id
+      },
+      include: [
+        {
+          model: Color,
+          where: {
+            color: req.body.color
+          }
+        },
+        {
+          model: Size,
+          where: {
+            size: req.body.size
+          }
+        }
+      ],
+      defaults: {
+        sales: 0,
+        stock: 0,
+        ProductId: req.params.id,
+        ColorId: color[0].id,
+        SizeId: size[0].id,
+        cost: defaultProductInfo.cost,
+        price: defaultProductInfo.price
+      }
+    })
+    return callback({ status: 'OK' })
+  },
+
   getOrders: async (req, res, callback) => {
     const orderResult = await Order.findAll()
 
