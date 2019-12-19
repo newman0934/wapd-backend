@@ -14,9 +14,6 @@ module.exports = {
       discount_amount: {
         type: Sequelize.INTEGER
       },
-      OrderId: {
-        type: Sequelize.INTEGER
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

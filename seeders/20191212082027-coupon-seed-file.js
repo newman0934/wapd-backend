@@ -8,7 +8,6 @@ module.exports = {
         id: index + 1,
         coupon_code: faker.lorem.word(),
         discount_amount: faker.commerce.price(),
-        OrderId: Math.floor(Math.random() * 10) + 1,
         createdAt: new Date(),
         updatedAt: new Date()
       })),

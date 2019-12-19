@@ -6,6 +6,7 @@ const Color = db.Color
 const Size = db.Size
 const Order = db.Order
 const User = db.User
+const Coupon = db.Coupon
 const Image = db.Image
 const pageLimit = 12
 
@@ -23,11 +24,7 @@ const adminService = {
     }
     // 若有 categoryId 會查詢對應類別的商品
     const productResult = await Product.findAndCountAll({
-      include: [
-        Image,
-        Category,
-        { model: ProductStatus, include: [Color, Size] }
-      ],
+      include: [Image, Category],
       where: whereQuery,
       offset: offset,
       limit: pageLimit,
@@ -44,8 +41,16 @@ const adminService = {
 
     const categories = await Category.findAll()
 
+    const products = productResult.rows.map(d => ({
+      id: d.dataValues.id,
+      cost: d.dataValues.cost,
+      sell_price: d.dataValues.sell_price,
+      status: d.dataValues.status,
+      images: d.dataValues.Images
+    }))
+
     return callback({
-      productResult,
+      products,
       categories,
       categoryId: +req.query.categoryId,
       page,
@@ -57,26 +62,37 @@ const adminService = {
 
   getProduct: async (req, res, callback) => {
     const productResult = await Product.findByPk(req.params.id, {
-      include: [
-        Image,
-        Category,
-        { model: ProductStatus, include: [Color, Size] }
-      ]
+      include: Category
     })
 
-    return callback({ productResult })
+    const product = {
+      id: productResult.dataValues.id,
+      name: productResult.dataValues.name,
+      description: productResult.dataValues.description,
+      cost: productResult.dataValues.cost,
+      origin_price: productResult.dataValues.origin_price,
+      sell_price: productResult.dataValues.sell_price,
+      CategoryId: productResult.dataValues.CategoryId,
+      category: productResult.dataValues.Category.category
+    }
+
+    return callback({ product })
   },
 
   getProductStocks: async (req, res, callback) => {
-    const productResult = await Product.findByPk(req.params.id, {
-      include: [
-        Image,
-        Category,
-        { model: ProductStatus, include: [Color, Size] }
-      ]
+    const result = await ProductStatus.findByPk(req.params.id, {
+      include: [Size, Color]
     })
 
-    return callback({ productResult })
+    const productStatus = {
+      id: result.dataValues.id,
+      stock: result.dataValues.stock,
+      size: result.dataValues.Size.size,
+      color: result.dataValues.Color.color,
+      ProductId: result.dataValues.ProductId
+    }
+
+    return callback({ productStatus })
   },
 
   getProductStock: async (req, res, callback) => {
@@ -152,14 +168,45 @@ const adminService = {
 
   getOrders: async (req, res, callback) => {
     const orderResult = await Order.findAll()
-
-    return callback({ orderResult })
+    const orders = orderResult.map(d => ({
+      id: d.dataValues.id,
+      sn: d.dataValues.sn,
+      receiver_name: d.dataValues.receiver_name,
+      phone: d.dataValues.phone,
+      address: d.dataValues.address,
+      payment_status: d.dataValues.payment_status,
+      payment_method: d.dataValues.payment_method
+    }))
+    return callback({ orders })
   },
 
   getOrder: async (req, res, callback) => {
-    const orderResult = await Order.findByPk(req.params.id)
+    const orderResult = await Order.findByPk(req.params.id, {
+      include: [Coupon, { model: Product, as: 'items' }]
+    })
+    const order = {
+      id: orderResult.dataValues.id,
+      UserId: orderResult.dataValues.UserId,
+      receiver_name: orderResult.dataValues.receiver_name,
+      phone: orderResult.dataValues.phone,
+      address: orderResult.dataValues.address,
+      payment_status: orderResult.dataValues.payment_status,
+      payment_method: orderResult.dataValues.payment_method,
+      orderItems: orderResult.dataValues.items.map(d => ({
+        ProductId: d.dataValues.id,
+        ProductName: d.dataValues.name,
+        size: d.dataValues.OrderItem.size,
+        color: d.dataValues.OrderItem.color,
+        SellPrice: d.dataValues.OrderItem.price
+      })),
+      coupon: {
+        id: orderResult.dataValues.Coupon.id,
+        coupon_code: orderResult.dataValues.Coupon.coupon_code,
+        discount_amount: orderResult.dataValues.Coupon.discount_amount
+      }
+    }
 
-    return callback({ orderResult })
+    return callback({ order })
   },
 
   putOrder: async (req, res, callback) => {

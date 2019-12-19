@@ -9,14 +9,13 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true
       },
       coupon_code: DataTypes.STRING,
-      discount_amount: DataTypes.INTEGER,
-      OrderId: DataTypes.INTEGER
+      discount_amount: DataTypes.INTEGER
     },
     {}
   )
   Coupon.associate = function(models) {
     // associations can be defined here
-    Coupon.belongsTo(models.Order)
+    Coupon.hasMany(models.Order)
   }
   return Coupon
 }

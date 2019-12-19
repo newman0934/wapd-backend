@@ -17,13 +17,14 @@ module.exports = (sequelize, DataTypes) => {
       receiver_name: DataTypes.STRING,
       comment: DataTypes.STRING,
       sn: DataTypes.INTEGER,
-      UserId: DataTypes.INTEGER
+      UserId: DataTypes.INTEGER,
+      CouponId: DataTypes.INTEGER
     },
     {}
   )
   Order.associate = function(models) {
     // associations can be defined here
-    Order.hasMany(models.Coupon)
+    Order.belongsTo(models.Coupon)
     Order.belongsToMany(models.Product, {
       as: 'items',
       through: {
