@@ -49,6 +49,8 @@ const adminService = {
       images: d.dataValues.Images
     }))
 
+    console.log(req.user)
+
     return callback({
       products,
       categories,

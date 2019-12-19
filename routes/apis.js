@@ -41,10 +41,10 @@ router.get('/users/:id/wishlist', userController.getUserFavorite)
 router.get('/users/:id/cart', userController.getUserCart)
 
 router.get(
-  //testing auth in /admins/products
+  //testing auth and get req.user object in /admins/products
   '/admins/products',
-  // authenticated,
-  // authenticatedAdmin,
+  authenticated,
+  authenticatedAdmin,
   adminController.getProducts
 )
 router.get('/admins/products/:id', adminController.getProduct)
