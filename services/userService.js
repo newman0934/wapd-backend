@@ -2,9 +2,11 @@ const db = require('../models')
 const User = db.User
 const Order = db.Order
 const Favorite = db.Favorite
+const OrderItem = db.OrderItem
 const Product = db.Product
 const CartItem = db.CartItem
 const Cart = db.Cart
+const Coupon = db.Coupon
 
 const userService = {
   getUserOrders: async (req, res, callback) => {
@@ -16,11 +18,11 @@ const userService = {
   },
 
   getUserOrder: async (req, res, callback) => {
-    const userOrderResult = await User.findByPk(req.params.id, {
-      include: { model: Order, where: { id: req.params.order_id } }
+    const orderResult = await Order.findByPk(req.params.order_id, {
+      include: [Coupon, { model: Product, as: 'items' }]
     })
 
-    return callback({ userOrderResult })
+    return callback({ orderResult })
   },
 
   getUserFavorite: async (req, res, callback) => {

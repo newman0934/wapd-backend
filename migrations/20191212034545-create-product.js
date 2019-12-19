@@ -17,6 +17,15 @@ module.exports = {
       status: {
         type: Sequelize.STRING
       },
+      cost: {
+        type: Sequelize.INTEGER
+      },
+      origin_price: {
+        type: Sequelize.INTEGER
+      },
+      sell_price: {
+        type: Sequelize.INTEGER
+      },
       CategoryId: {
         type: Sequelize.INTEGER
       },

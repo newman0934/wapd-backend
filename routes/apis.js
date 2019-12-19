@@ -57,8 +57,10 @@ router.post(
   '/admins/products/:id/stocks/',
   adminController.addProductStockProps
 )
+
 router.get('/admins/orders', adminController.getOrders)
 router.get('/admins/orders/:id', adminController.getOrder)
+router.put('/admins/orders/:id', adminController.putOrder)
 
 router.get('/admins/categories', categoryController.getCategories)
 router.get('/admins/categories/:id', categoryController.getCategories)

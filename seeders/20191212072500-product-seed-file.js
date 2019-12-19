@@ -10,6 +10,9 @@ module.exports = {
         description:
           faker.commerce.product() + '/' + faker.commerce.productName(),
         status: ['on', 'off'][Math.round(Math.random())],
+        sell_price: faker.commerce.price(),
+        cost: faker.commerce.price(),
+        origin_price: faker.commerce.price(),
         CategoryId: Math.floor(Math.random() * 3) + 1,
         createdAt: new Date(),
         updatedAt: new Date()

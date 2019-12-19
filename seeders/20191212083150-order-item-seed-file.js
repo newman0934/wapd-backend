@@ -11,6 +11,8 @@ module.exports = {
         ProductId: Math.floor(Math.random() * 10) + 1,
         price: Math.floor(Math.random() * 500) + 1,
         quantity: Math.floor(Math.random() * 10) + 1,
+        color: faker.lorem.word(),
+        size: ['S', 'M', 'L'][Math.floor(Math.random() * 3)],
         createdAt: new Date(),
         updatedAt: new Date()
       })),

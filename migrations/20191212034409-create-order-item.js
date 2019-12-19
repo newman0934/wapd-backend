@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('OrderItems', {
@@ -14,6 +14,12 @@ module.exports = {
       quantity: {
         type: Sequelize.INTEGER
       },
+      color: {
+        type: Sequelize.STRING
+      },
+      size: {
+        type: Sequelize.STRING
+      },
       OrderId: {
         type: Sequelize.INTEGER
       },
@@ -28,9 +34,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
-    });
+    })
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('OrderItems');
+    return queryInterface.dropTable('OrderItems')
   }
-};
+}
