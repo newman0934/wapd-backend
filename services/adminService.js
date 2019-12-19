@@ -170,6 +170,7 @@ const adminService = {
     const orderResult = await Order.findAll()
     const orders = orderResult.map(d => ({
       id: d.dataValues.id,
+      UserId: d.dataValues.UserId,
       sn: d.dataValues.sn,
       receiver_name: d.dataValues.receiver_name,
       phone: d.dataValues.phone,
@@ -197,7 +198,7 @@ const adminService = {
         ProductName: d.dataValues.name,
         size: d.dataValues.OrderItem.size,
         color: d.dataValues.OrderItem.color,
-        SellPrice: d.dataValues.OrderItem.price
+        SellPrice: d.dataValues.OrderItem.sell_price
       })),
       coupon: {
         id: orderResult.dataValues.Coupon.id,
@@ -230,17 +231,30 @@ const adminService = {
   },
 
   getUsers: async (req, res, callback) => {
-    const userResult = await User.findAll()
+    const users = await User.findAll()
 
-    return callback({ userResult })
+    return callback({ users })
   },
 
   getUserOrders: async (req, res, callback) => {
     const userOrderResult = await User.findByPk(req.params.id, {
       include: Order
     })
+    const users = {
+      id: userOrderResult.dataValues.id,
+      email: userOrderResult.dataValues.email,
+      name: userOrderResult.dataValues.name,
+      phone: userOrderResult.dataValues.phone,
+      address: userOrderResult.dataValues.address,
+      role: userOrderResult.dataValues.role,
+      orders: userOrderResult.dataValues.Orders.map(d => ({
+        total_price: d.dataValues.total_price,
+        payment_status: d.dataValues.payment_status,
+        shipping_status: d.dataValues.shipping_status
+      }))
+    }
 
-    return callback({ userOrderResult })
+    return callback({ users })
   }
 }
 

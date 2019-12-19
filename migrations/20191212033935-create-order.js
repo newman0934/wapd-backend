@@ -8,7 +8,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      amount: {
+      total_price: {
         type: Sequelize.INTEGER
       },
       shipping_status: {
