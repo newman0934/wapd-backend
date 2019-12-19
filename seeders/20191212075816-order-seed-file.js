@@ -16,6 +16,7 @@ module.exports = {
         receiver_name: faker.lorem.word(),
         comment: faker.lorem.sentence(),
         sn: faker.random.number(),
+        CouponId: Math.floor(Math.random() * 3) + 1,
         createdAt: new Date(),
         updatedAt: new Date()
       })),

@@ -35,6 +35,9 @@ module.exports = {
       sn: {
         type: Sequelize.INTEGER
       },
+      CouponId: {
+        type: Sequelize.INTEGER
+      },
       UserId: {
         type: Sequelize.INTEGER
       },
