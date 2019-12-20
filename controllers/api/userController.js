@@ -80,8 +80,8 @@ const userController = {
     })
   },
 
-  getUserFavorite: (req, res) => {
-    userService.getUserFavorite(req, res, data => {
+  getUserWishlist: (req, res) => {
+    userService.getUserWishlist(req, res, data => {
       return res.json(data)
     })
   },

@@ -45,7 +45,7 @@ const userService = {
     return callback({ orders })
   },
 
-  getUserFavorite: async (req, res, callback) => {
+  getUserWishlist: async (req, res, callback) => {
     const userFavoriteResult = await User.findByPk(req.params.id, {
       include: {
         model: Product,
@@ -71,12 +71,11 @@ const userService = {
         return d.Size.size
       }),
       origin_price: d.dataValues.origin_price,
-      sell_price: d.dataValues.sell_price
+      sell_price: d.dataValues.sell_price,
+      isFavorited: req.user.FavoritedProducts.map(d => d.id).includes(
+        d.dataValues.id
+      )
     }))
-
-    userFavoriteResult.dataValues.FavoritedProducts.map(d => {
-      d.ProductStatuses.map(d => console.log(d.Color.color))
-    })
 
     return callback({ products })
   },

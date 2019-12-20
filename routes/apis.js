@@ -37,11 +37,10 @@ router.delete(
 
 router.get('/users/:id/orders', userController.getUserOrders)
 router.get('/users/:id/orders/:order_id', userController.getUserOrder)
-router.get('/users/:id/wishlist', userController.getUserFavorite)
+router.get('/users/:id/wishlist', authenticated, userController.getUserWishlist)
 router.get('/users/:id/cart', userController.getUserCart)
 
 router.get(
-  //testing auth and get req.user object in /admins/products
   '/admins/products',
   authenticated,
   authenticatedAdmin,
