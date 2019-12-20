@@ -96,6 +96,12 @@ const userController = {
     userService.getPasswordChange(req, res, data => {
       return res.json(data)
     })
+  },
+
+  getUserEdit: (req, res) => {
+    userService.getUserEdit(req, res, data => {
+      return res.json(data)
+    })
   }
 }
 

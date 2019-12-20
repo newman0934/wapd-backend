@@ -44,6 +44,7 @@ router.get(
   authenticated,
   userController.getPasswordChange
 )
+router.get('/users/:id/edit', authenticated, userController.getUserEdit)
 
 router.get(
   '/admins/products',
