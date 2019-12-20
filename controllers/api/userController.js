@@ -90,6 +90,12 @@ const userController = {
     userService.getUserCart(req, res, data => {
       return res.json(data)
     })
+  },
+
+  getPasswordChange: (req, res) => {
+    userService.getPasswordChange(req, res, data => {
+      return res.json(data)
+    })
   }
 }
 

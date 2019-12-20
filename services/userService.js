@@ -113,6 +113,18 @@ const userService = {
 
   postOrder: async (req, res, callback) => {
     // TODO: 新增一筆自己的訂單
+  },
+
+  getPasswordChange: async (req, res, callback) => {
+    const user = await User.findByPk(req.params.id)
+    if (user.id !== req.user.id) {
+      return callback({
+        status: 'error',
+        message: 'permission denied, user id does not match!!',
+        currentUserId: req.user.id
+      })
+    }
+    return callback({ user })
   }
 }
 
