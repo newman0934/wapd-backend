@@ -64,7 +64,52 @@ const productService = {
       ]
     })
 
-    return callback({ productResult })
+    if (productResult.status === 'off') {
+      callback({
+        status: 'error',
+        message: 'this product is currently not sale',
+        ProductId: productResult.id
+      })
+    }
+
+    const product = {
+      id: productResult.dataValues.id,
+      name: productResult.dataValues.name,
+      description: productResult.dataValues.description,
+      status: productResult.dataValues.status,
+      CategoryId: productResult.dataValues.CategoryId,
+      images: productResult.dataValues.Images,
+      size: productResult.dataValues.ProductStatuses.map(d => d.Size.size),
+      color: productResult.dataValues.ProductStatuses.map(d => d.Color.color),
+      stock: productResult.dataValues.ProductStatuses.map(d => d.stock),
+      origin_price: productResult.dataValues.origin_price,
+      sell_price: productResult.dataValues.sell_price,
+      isFavorited:
+        false ||
+        req.user.FavoritedProducts.map(d => d.id).includes(
+          productResult.dataValues.id
+        )
+    }
+
+    console.log(req.user)
+
+    /*
+    product:{
+      id
+      name
+      description
+      status
+      categoryId
+      image
+      size:[]
+      color:[]
+      price
+      stock
+      isFavorited
+    },
+    */
+
+    return callback({ product })
   },
 
   addWishlist: async (req, res, callback) => {
