@@ -34,8 +34,26 @@ const productService = {
       offset: offset,
       limit: pageLimit,
       // avoid counting associated data
-      distinct: true
+      distinct: true,
+      order: [['createdAt', 'DESC']]
     })
+
+    const products = productResult.rows.map(data => ({
+      id: data.dataValues.id,
+      name: data.dataValues.name,
+      description: data.dataValues.description,
+      status: data.dataValues.status,
+      CategoryId: data.dataValues.CategoryId,
+      image: data.dataValues.Images,
+      size: data.dataValues.ProductStatuses.map(d => d.Size.size),
+      color: data.dataValues.ProductStatuses.map(d => d.Color.color),
+      sell_price: data.dataValues.sell_price,
+      origin_price: data.dataValues.origin_price,
+      isFavorited:
+        false ||
+        req.user.FavoritedProducts.map(d => d.id).includes(data.dataValues.id)
+    }))
+
     let page = Number(req.query.page) || 1
     let pages = Math.ceil(productResult.count / pageLimit)
     let totalPage = Array.from({ length: pages }).map(
@@ -46,7 +64,7 @@ const productService = {
 
     const categories = await Category.findAll()
     return callback({
-      productResult,
+      products,
       categories,
       categoryId: +req.query.categoryId,
       page,
@@ -64,7 +82,50 @@ const productService = {
       ]
     })
 
-    return callback({ productResult })
+    if (productResult.status === 'off') {
+      callback({
+        status: 'error',
+        message: 'this product is currently not sale',
+        ProductId: productResult.id
+      })
+    }
+
+    const product = {
+      id: productResult.dataValues.id,
+      name: productResult.dataValues.name,
+      description: productResult.dataValues.description,
+      status: productResult.dataValues.status,
+      CategoryId: productResult.dataValues.CategoryId,
+      images: productResult.dataValues.Images,
+      size: productResult.dataValues.ProductStatuses.map(d => d.Size.size),
+      color: productResult.dataValues.ProductStatuses.map(d => d.Color.color),
+      stock: productResult.dataValues.ProductStatuses.map(d => d.stock),
+      origin_price: productResult.dataValues.origin_price,
+      sell_price: productResult.dataValues.sell_price,
+      isFavorited:
+        false ||
+        req.user.FavoritedProducts.map(d => d.id).includes(
+          productResult.dataValues.id
+        )
+    }
+
+    /*
+    product:{
+      id
+      name
+      description
+      status
+      categoryId
+      image
+      size:[]
+      color:[]
+      price
+      stock
+      isFavorited
+    },
+    */
+
+    return callback({ product })
   },
 
   addWishlist: async (req, res, callback) => {

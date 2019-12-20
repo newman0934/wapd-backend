@@ -22,8 +22,12 @@ const authenticatedAdmin = (req, res, next) => {
 router.get('/', (req, res) => res.redirect('/api/products'))
 router.post('/signin', userController.signIn)
 router.post('/signup', userController.signUp)
-router.get('/products', productController.getProducts)
-router.get('/products/:id', productController.getProduct)
+router.get('/products', authenticated, productController.getProducts)
+router.get(
+  '/products/:id',
+  // authenticated,
+  productController.getProduct
+)
 router.post(
   '/products/:id/wishlist',
   authenticated,
@@ -39,6 +43,12 @@ router.get('/users/:id/orders', userController.getUserOrders)
 router.get('/users/:id/orders/:order_id', userController.getUserOrder)
 router.get('/users/:id/wishlist', authenticated, userController.getUserWishlist)
 router.get('/users/:id/cart', userController.getUserCart)
+router.get(
+  '/users/:id/password_change',
+  authenticated,
+  userController.getPasswordChange
+)
+router.get('/users/:id/edit', authenticated, userController.getUserEdit)
 
 router.get(
   '/admins/products',
