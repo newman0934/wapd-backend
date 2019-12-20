@@ -6,7 +6,7 @@ module.exports = {
       'Orders',
       Array.from({ length: 10 }).map((item, index) => ({
         id: index + 1,
-        amount: faker.random.number(),
+        total_price: faker.random.number(),
         shipping_status: Math.floor(Math.random() * 2),
         payment_status: Math.round(Math.random()),
         UserId: Math.floor(Math.random() * 3) + 1,

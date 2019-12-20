@@ -4,12 +4,8 @@ const Category = db.Category
 const categoryService = {
   getCategories: async (req, res, callback) => {
     const categories = await Category.findAll()
-    if (req.params.id) {
-      const category = await Category.findByPk(req.params.id)
-      return callback({ categories, category })
-    } else {
-      return callback({ categories })
-    }
+
+    return callback({ categories })
   },
   addCategory: async (req, res, callback) => {
     if (!req.body.category) {

@@ -2,6 +2,7 @@ const passport = require('passport')
 const LocalStrategy = require('passport-local')
 const db = require('../models')
 const User = db.User
+const Product = db.Product
 const jwt = require('jsonwebtoken')
 const passportJWT = require('passport-jwt')
 const ExtractJwt = passportJWT.ExtractJwt
@@ -14,7 +15,13 @@ jwtOptions.secretOrKey = process.env.JWT_SECRET
 let strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
   User.findByPk(jwt_payload.id, {
     include: [
-      // include needed associations here
+      {
+        model: Product,
+        as: 'FavoritedProducts',
+        where: {
+          status: 'on'
+        }
+      }
     ]
   }).then(user => {
     if (!user) return next(null, false)

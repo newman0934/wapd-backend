@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true
       },
-      price: DataTypes.INTEGER,
+      sell_price: DataTypes.INTEGER,
       quantity: DataTypes.INTEGER,
       color: DataTypes.STRING,
       size: DataTypes.STRING,

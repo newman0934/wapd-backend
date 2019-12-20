@@ -34,9 +34,11 @@ const userController = {
         token: token,
         user: {
           id: user.id,
-          // name: user.name,
+          name: user.name,
           email: user.email,
-          role: user.role
+          role: user.role,
+          phone: user.phone,
+          address: user.address
         }
       })
     })
@@ -78,8 +80,8 @@ const userController = {
     })
   },
 
-  getUserFavorite: (req, res) => {
-    userService.getUserFavorite(req, res, data => {
+  getUserWishlist: (req, res) => {
+    userService.getUserWishlist(req, res, data => {
       return res.json(data)
     })
   },
