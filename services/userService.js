@@ -27,10 +27,14 @@ const userService = {
       payment_method: d.dataValues.payment_method,
       comment: d.dataValues.comment,
       sn: d.dataValues.sn,
+      createdAt: d.dataValues.createdAt,
+      updatedAt: d.dataValues.updatedAt,
       OrderItems: d.dataValues.items.map(d => ({
         id: d.dataValues.OrderItem.id,
         sell_price: d.dataValues.OrderItem.sell_price,
-        quantity: d.dataValues.OrderItem.quantity
+        quantity: d.dataValues.OrderItem.quantity,
+        createdAt: d.dataValues.OrderItem.createdAt,
+        updatedAt: d.dataValues.OrderItem.updatedAt
       }))
     }))
 
