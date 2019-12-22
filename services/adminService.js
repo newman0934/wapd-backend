@@ -206,6 +206,7 @@ const adminService = {
       address: orderResult.dataValues.address,
       payment_status: orderResult.dataValues.payment_status,
       payment_method: orderResult.dataValues.payment_method,
+      comment: orderResult.dataValues.comment,
       orderItems: orderResult.dataValues.items.map(d => ({
         ProductId: d.dataValues.id,
         ProductName: d.dataValues.name,
