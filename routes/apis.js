@@ -23,11 +23,7 @@ router.get('/', (req, res) => res.redirect('/api/products'))
 router.post('/signin', userController.signIn)
 router.post('/signup', userController.signUp)
 router.get('/products', authenticated, productController.getProducts)
-router.get(
-  '/products/:id',
-  // authenticated,
-  productController.getProduct
-)
+router.get('/products/:id', authenticated, productController.getProduct)
 router.post(
   '/products/:id/wishlist',
   authenticated,

@@ -86,7 +86,19 @@ const userService = {
 
   getUserCart: async (req, res, callback) => {
     const userCartResult = await User.findByPk(req.params.id, {
-      include: { model: CartItem, include: [Product, Cart] }
+      include: {
+        model: CartItem,
+        include: [
+          {
+            model: Product,
+            where: {
+              status: 'on'
+            },
+            include: Image
+          },
+          Cart
+        ]
+      }
     })
 
     const userCart = {
@@ -103,6 +115,9 @@ const userService = {
         name: data.Product.name,
         description: data.Product.description,
         status: data.Product.status,
+        color: data.color,
+        size: data.size,
+        images: data.Product.Images,
         CategoryId: data.Product.CategoryId,
         ProductId: data.ProductId,
         CartId: data.CartId,

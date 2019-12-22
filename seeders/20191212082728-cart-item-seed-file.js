@@ -13,6 +13,8 @@ module.exports = {
         UserId: Math.floor(Math.random() * 3) + 1,
         stock: Math.floor(Math.random() * 5) + 1,
         quantity: Math.floor(Math.random() * 5) + 1,
+        color: faker.lorem.word(),
+        size: ['S', 'M', 'L'][Math.floor(Math.random() * 3)],
         createdAt: new Date(),
         updatedAt: new Date()
       })),

@@ -109,22 +109,6 @@ const productService = {
         )
     }
 
-    /*
-    product:{
-      id
-      name
-      description
-      status
-      categoryId
-      image
-      size:[]
-      color:[]
-      price
-      stock
-      isFavorited
-    },
-    */
-
     return callback({ product })
   },
 
