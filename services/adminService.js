@@ -43,6 +43,8 @@ const adminService = {
 
     const products = productResult.rows.map(d => ({
       id: d.dataValues.id,
+      name: d.dataValues.name,
+      category: d.dataValues.Category.category,
       cost: d.dataValues.cost,
       sell_price: d.dataValues.sell_price,
       status: d.dataValues.status,
