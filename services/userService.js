@@ -118,6 +118,8 @@ const userService = {
         color: data.color,
         size: data.size,
         images: data.Product.Images,
+        origin_price: data.Product.origin_price,
+        sell_price: data.Product.sell_price,
         CategoryId: data.Product.CategoryId,
         ProductId: data.ProductId,
         CartId: data.CartId,
