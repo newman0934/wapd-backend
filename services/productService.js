@@ -96,6 +96,7 @@ const productService = {
       description: productResult.dataValues.description,
       status: productResult.dataValues.status,
       CategoryId: productResult.dataValues.CategoryId,
+      category: productResult.dataValues.Category.category,
       images: productResult.dataValues.Images,
       size: productResult.dataValues.ProductStatuses.map(d => d.Size.size),
       color: productResult.dataValues.ProductStatuses.map(d => d.Color.color),
