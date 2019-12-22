@@ -146,6 +146,23 @@ const userService = {
     return callback({ user })
   },
 
+  postPasswordChange: async (req, res, callback) => {
+    const user = await User.findByPk(req.params.id)
+    if (user.id !== req.user.id) {
+      return callback({
+        status: 'error',
+        message: 'permission denied, user id does not match!!',
+        currentUserId: req.user.id
+      })
+    }
+    // TODO: 實作更改密碼
+
+    return callback({
+      status: 'success',
+      message: 'password successfully changed'
+    })
+  },
+
   getUserEdit: async (req, res, callback) => {
     const userResult = await User.findByPk(req.params.id)
     if (userResult.id !== req.user.id) {

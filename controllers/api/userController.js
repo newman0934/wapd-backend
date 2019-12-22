@@ -98,6 +98,12 @@ const userController = {
     })
   },
 
+  postPasswordChange: (req, res) => {
+    userService.postPasswordChange(req, res, data => {
+      return res.json(data)
+    })
+  },
+
   getUserEdit: (req, res) => {
     userService.getUserEdit(req, res, data => {
       return res.json(data)

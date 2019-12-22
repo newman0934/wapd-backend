@@ -40,9 +40,14 @@ router.get('/users/:id/orders/:order_id', userController.getUserOrder)
 router.get('/users/:id/wishlist', authenticated, userController.getUserWishlist)
 router.get('/users/:id/cart', userController.getUserCart)
 router.get(
-  '/users/:id/password_change',
+  '/users/password_change',
   authenticated,
   userController.getPasswordChange
+)
+router.post(
+  '/users/:id/password_change',
+  authenticated,
+  userController.postPasswordChange
 )
 router.get('/users/:id/edit', authenticated, userController.getUserEdit)
 
