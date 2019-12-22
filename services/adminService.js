@@ -66,7 +66,7 @@ const adminService = {
 
   getProduct: async (req, res, callback) => {
     const productResult = await Product.findByPk(req.params.id, {
-      include: Category
+      include: [Category, Image]
     })
 
     const product = {
@@ -77,7 +77,9 @@ const adminService = {
       origin_price: productResult.dataValues.origin_price,
       sell_price: productResult.dataValues.sell_price,
       CategoryId: productResult.dataValues.CategoryId,
-      category: productResult.dataValues.Category.category
+      category: productResult.dataValues.Category.category,
+      status: productResult.dataValues.status,
+      images: productResult.dataValues.Images
     }
 
     return callback({ product })
