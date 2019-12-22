@@ -84,17 +84,17 @@ const adminService = {
   },
 
   getProductStocks: async (req, res, callback) => {
-    const result = await ProductStatus.findByPk(req.params.id, {
-      include: [Size, Color]
+    const result = await Product.findByPk(req.params.id, {
+      include: { model: ProductStatus, include: [Size, Color] }
     })
 
-    const productStatus = {
-      id: result.dataValues.id,
-      stock: result.dataValues.stock,
-      size: result.dataValues.Size.size,
-      color: result.dataValues.Color.color,
-      ProductId: result.dataValues.ProductId
-    }
+    const productStatus = result.ProductStatuses.map(d => ({
+      id: d.dataValues.id,
+      stock: d.dataValues.stock,
+      size: d.dataValues.Size.size,
+      color: d.dataValues.Color.color,
+      ProductId: d.dataValues.ProductId
+    }))
 
     return callback({ productStatus })
   },
