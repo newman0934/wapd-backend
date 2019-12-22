@@ -174,6 +174,9 @@ const adminService = {
       id: d.dataValues.id,
       UserId: d.dataValues.UserId,
       sn: d.dataValues.sn,
+      total_price: d.dataValues.total_price,
+      shipping_status: d.dataValues.shipping_status,
+      shipping_method: d.dataValues.shipping_method,
       receiver_name: d.dataValues.receiver_name,
       phone: d.dataValues.phone,
       address: d.dataValues.address,
@@ -191,6 +194,10 @@ const adminService = {
       id: orderResult.dataValues.id,
       UserId: orderResult.dataValues.UserId,
       receiver_name: orderResult.dataValues.receiver_name,
+      total_price: orderResult.dataValues.total_price,
+      sn: orderResult.dataValues.sn,
+      shipping_status: orderResult.dataValues.shipping_status,
+      shipping_method: orderResult.dataValues.shipping_method,
       phone: orderResult.dataValues.phone,
       address: orderResult.dataValues.address,
       payment_status: orderResult.dataValues.payment_status,
@@ -252,7 +259,8 @@ const adminService = {
       orders: userOrderResult.dataValues.Orders.map(d => ({
         total_price: d.dataValues.total_price,
         payment_status: d.dataValues.payment_status,
-        shipping_status: d.dataValues.shipping_status
+        shipping_status: d.dataValues.shipping_status,
+        sn: d.dataValues.sn
       }))
     }
 
