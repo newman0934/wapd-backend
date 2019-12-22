@@ -11,6 +11,7 @@ const Image = db.Image
 const ProductStatus = db.ProductStatus
 const Color = db.Color
 const Size = db.Size
+const bcrypt = require('bcryptjs')
 
 const userService = {
   getUserOrders: async (req, res, callback) => {
@@ -157,7 +158,30 @@ const userService = {
         currentUserId: req.user.id
       })
     }
-    // TODO: 實作更改密碼
+    // 舊密碼輸入錯誤
+    if (!bcrypt.compareSync(req.body.usedPassword, user.password)) {
+      return callback({
+        status: 'error',
+        message: 'old password does not match!!',
+        currentUserId: req.user.id
+      })
+    }
+    // 新密碼不吻合
+    if (req.body.newPassword !== req.body.passwordCheck) {
+      return callback({
+        status: 'error',
+        message: 'new passwords does not match!!',
+        currentUserId: req.user.id
+      })
+    }
+    // 密碼更新
+    await user.update({
+      password: bcrypt.hashSync(
+        req.body.newPassword,
+        bcrypt.genSaltSync(10),
+        null
+      )
+    })
 
     return callback({
       status: 'success',
