@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       total_price: DataTypes.INTEGER,
       shipping_status: DataTypes.STRING,
+      shipping_method: DataTypes.STRING,
       payment_status: DataTypes.STRING,
       phone: DataTypes.STRING,
       payment_method: DataTypes.STRING,
