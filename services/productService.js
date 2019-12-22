@@ -49,9 +49,9 @@ const productService = {
       color: data.dataValues.ProductStatuses.map(d => d.Color.color),
       sell_price: data.dataValues.sell_price,
       origin_price: data.dataValues.origin_price,
-      isFavorited:
-        false ||
-        req.user.FavoritedProducts.map(d => d.id).includes(data.dataValues.id)
+      isFavorited: req.user
+        ? req.user.FavoritedProducts.map(d => d.id).includes(data.dataValues.id)
+        : false
     }))
 
     let page = Number(req.query.page) || 1
@@ -102,11 +102,11 @@ const productService = {
       stock: productResult.dataValues.ProductStatuses.map(d => d.stock),
       origin_price: productResult.dataValues.origin_price,
       sell_price: productResult.dataValues.sell_price,
-      isFavorited:
-        false ||
-        req.user.FavoritedProducts.map(d => d.id).includes(
-          productResult.dataValues.id
-        )
+      isFavorited: req.user
+        ? req.user.FavoritedProducts.map(d => d.id).includes(
+            productResult.dataValues.id
+          )
+        : false
     }
 
     return callback({ product })
