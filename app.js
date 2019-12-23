@@ -1,5 +1,6 @@
 const express = require('express')
 const session = require('express-session')
+const cookieParser = require('cookie-parser')
 const methodOverride = require('method-override')
 const flash = require('connect-flash')
 const db = require('./models')
@@ -17,8 +18,15 @@ app.use(cors())
 app.use(methodOverride('_method'))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
+app.use(cookieParser())
 app.use(
-  session({ secret: 'secret', resave: 'false', saveUninitialized: 'false' })
+  session({
+    secret: 'wapd',
+    name: 'wapd',
+    cookie: { maxAge: 8000000 },
+    resave: false,
+    saveUninitialized: true
+  })
 )
 app.use(flash())
 app.use(passport.initialize())
