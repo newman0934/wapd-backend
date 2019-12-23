@@ -61,8 +61,25 @@ const userController = {
               null
             )
           }).then(user => {
-            return res.json({ status: 'success', message: '成功註冊帳號！' })
+            const payload = { id: user.id }
+            const token = jwt.sign(payload, process.env.JWT_SECRET)
+            return res.json({
+              status: 'success',
+              message: '成功註冊帳號及登入！',
+              token: token,
+              user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                phone: user.phone,
+                address: user.address
+              }
+            })
           })
+          // .then(user => {
+          //   return res.json({ status: 'success', message: '成功註冊帳號！' })
+          // })
         }
       })
     }
