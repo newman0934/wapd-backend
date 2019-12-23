@@ -121,6 +121,28 @@ const adminService = {
     return callback({ productStatus })
   },
 
+  putProductStockProps: async (req, res, callback) => {
+    const color = await Color.findOrCreate({
+      where: { color: req.body.color }
+    })
+    const size = await Size.findOrCreate({
+      where: { size: req.body.size }
+    })
+    console.log(color[0].id)
+    const productStatus = await ProductStatus.findByPk(req.params.stock_id)
+    await productStatus.update({
+      stock: req.body.stock,
+      ColorId: color[0].id,
+      SizeId: size[0].id
+    })
+
+    return callback({
+      status: 'success',
+      message: 'successfully edited',
+      productId: req.params.id
+    })
+  },
+
   addProductStockProps: async (req, res, callback) => {
     if (!req.body.color || !req.body.size) {
       return callback({ status: 'error', message: 'missing props!!' })

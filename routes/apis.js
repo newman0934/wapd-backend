@@ -65,6 +65,10 @@ router.get(
   '/admins/products/:id/stocks/:stock_id',
   adminController.getProductStockEdit
 )
+router.put(
+  '/admins/products/:id/stocks/:stock_id',
+  adminController.putProductStockProps
+)
 router.post(
   '/admins/products/:id/stocks/',
   adminController.addProductStockProps
