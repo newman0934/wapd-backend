@@ -30,15 +30,17 @@ const userController = {
     const token = jwt.sign(payload, process.env.JWT_SECRET)
 
     // 建立未登入時使用的購物車關聯
-    const cartItems = await CartItem.findAll({
-      where: {
-        CartId: req.session.cartId
-      }
-    })
+    if (req.session.cartId) {
+      const cartItems = await CartItem.findAll({
+        where: {
+          CartId: req.session.cartId
+        }
+      })
 
-    cartItems.forEach(async function(instance) {
-      await instance.update({ UserId: user.id })
-    })
+      cartItems.forEach(async function(instance) {
+        await instance.update({ UserId: user.id })
+      })
+    }
 
     return res.json({
       status: 'success',
@@ -75,15 +77,17 @@ const userController = {
         const payload = { id: user.id }
         const token = jwt.sign(payload, process.env.JWT_SECRET)
         // 建立未登入時使用的購物車關聯
-        const cartItems = await CartItem.findAll({
-          where: {
-            CartId: req.session.cartId
-          }
-        })
+        if (req.session.cartId) {
+          const cartItems = await CartItem.findAll({
+            where: {
+              CartId: req.session.cartId
+            }
+          })
 
-        cartItems.forEach(async function(instance) {
-          await instance.update({ UserId: user.id })
-        })
+          cartItems.forEach(async function(instance) {
+            await instance.update({ UserId: user.id })
+          })
+        }
 
         return res.json({
           status: 'success',
