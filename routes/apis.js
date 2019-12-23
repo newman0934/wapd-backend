@@ -63,7 +63,7 @@ router.get('/admins/products/:id', adminController.getProduct)
 router.get('/admins/products/:id/stocks', adminController.getProductStocks)
 router.get(
   '/admins/products/:id/stocks/:stock_id',
-  adminController.getProductStock
+  adminController.getProductStockEdit
 )
 router.post(
   '/admins/products/:id/stocks/',

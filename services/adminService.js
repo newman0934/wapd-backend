@@ -101,24 +101,24 @@ const adminService = {
     return callback({ productStatus })
   },
 
-  getProductStock: async (req, res, callback) => {
+  getProductStockEdit: async (req, res, callback) => {
     const result = await Product.findByPk(req.params.id, {
-      include: { model: ProductStatus, include: [Size, Color] }
+      include: {
+        model: ProductStatus,
+        include: [Size, Color],
+        where: { id: +req.params.stock_id }
+      }
     })
 
-    const productStatus = result.ProductStatuses.map(d => ({
-      id: d.dataValues.id,
-      stock: d.dataValues.stock,
-      size: d.dataValues.Size.size,
-      color: d.dataValues.Color.color,
-      ProductId: d.dataValues.ProductId
-    }))
+    const productStatus = {
+      id: result.ProductStatuses[0].id,
+      stock: result.ProductStatuses[0].stock,
+      size: result.ProductStatuses[0].Size.size,
+      color: result.ProductStatuses[0].Color.color,
+      ProductId: result.ProductStatuses[0].ProductId
+    }
 
-    const chosenProductStock = productStatus.filter(
-      d => d.id === +req.params.stock_id
-    )[0].stock
-
-    return callback({ productStatus, chosenProductStock })
+    return callback({ productStatus })
   },
 
   addProductStockProps: async (req, res, callback) => {

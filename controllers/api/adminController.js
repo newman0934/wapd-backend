@@ -19,8 +19,8 @@ const adminController = {
     })
   },
 
-  getProductStock: (req, res) => {
-    adminService.getProductStock(req, res, data => {
+  getProductStockEdit: (req, res) => {
+    adminService.getProductStockEdit(req, res, data => {
       return res.json(data)
     })
   },
