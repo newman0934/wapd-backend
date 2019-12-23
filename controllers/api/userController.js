@@ -3,6 +3,7 @@ const db = require('../../models')
 const User = db.User
 const Cart = db.Cart
 const CartItem = db.CartItem
+const Product = db.Product
 const jwt = require('jsonwebtoken')
 const passportJWT = require('passport-jwt')
 const ExtractJwt = passportJWT.ExtractJwt
@@ -20,7 +21,18 @@ const userController = {
     let username = req.body.email
     let password = req.body.password
 
-    const user = await User.findOne({ where: { email: username } })
+    const user = await User.findOne({
+      where: { email: username },
+      include: [
+        {
+          model: Product,
+          as: 'FavoritedProducts',
+          where: {
+            status: 'on'
+          }
+        }
+      ]
+    })
     if (!user)
       return res.status(401).json({ status: 'error', message: '查無此使用者' })
     if (!bcrypt.compareSync(password, user.password)) {
@@ -41,6 +53,7 @@ const userController = {
         await instance.update({ UserId: user.id })
       })
     }
+    console.log(user.FavoritedProducts)
 
     return res.json({
       status: 'success',
@@ -52,7 +65,8 @@ const userController = {
         email: user.email,
         role: user.role,
         phone: user.phone,
-        address: user.address
+        address: user.address,
+        FavoritedProductsId: user.FavoritedProducts.map(d => d.id)
       }
     })
   },
@@ -99,7 +113,8 @@ const userController = {
             email: user.email,
             role: user.role,
             phone: user.phone,
-            address: user.address
+            address: user.address,
+            FavoritedProductsId: []
           }
         })
         // .then(user => {
