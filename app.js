@@ -23,7 +23,6 @@ app.use(
   session({
     secret: 'wapd',
     name: 'wapd',
-    cookie: { maxAge: 8000000 },
     resave: false,
     saveUninitialized: true
   })
