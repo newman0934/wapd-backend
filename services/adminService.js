@@ -102,24 +102,23 @@ const adminService = {
   },
 
   getProductStock: async (req, res, callback) => {
-    const productResult = await Product.findByPk(req.params.id, {
-      include: [
-        Image,
-        Category,
-        {
-          model: ProductStatus,
-          include: [Color, Size]
-        }
-      ]
+    const result = await Product.findByPk(req.params.id, {
+      include: { model: ProductStatus, include: [Size, Color] }
     })
-    const productStock = {
-      ...productResult.dataValues,
-      updateStockInfo: productResult.ProductStatuses.filter(
-        item => item.id === +req.params.stock_id
-      )
-    }
 
-    return callback({ productStock })
+    const productStatus = result.ProductStatuses.map(d => ({
+      id: d.dataValues.id,
+      stock: d.dataValues.stock,
+      size: d.dataValues.Size.size,
+      color: d.dataValues.Color.color,
+      ProductId: d.dataValues.ProductId
+    }))
+
+    const chosenProductStock = productStatus.filter(
+      d => d.id === +req.params.stock_id
+    )[0].stock
+
+    return callback({ productStatus, chosenProductStock })
   },
 
   addProductStockProps: async (req, res, callback) => {
@@ -227,15 +226,16 @@ const adminService = {
   putOrder: async (req, res, callback) => {
     const order = await Order.findByPk(req.params.id)
     await order.update({
-      amount: +req.body.amount,
-      shipping_status: req.body.shipping_status,
-      payment_status: req.body.payment_status,
+      receiver_name: req.body.receiverName,
+      shipping_method: req.body.shippingMethod,
       phone: req.body.phone,
-      payment_method: req.body.payment_method,
       address: req.body.address,
-      receiver_name: req.body.receiver_name,
-      comment: req.body.comment
+      payment_status: req.body.paymentStatus,
+      payment_method: req.body.paymentMethod,
+      CouponId: req.body.CouponId
     })
+
+    // TODO: 管理者刪除商品
 
     return callback({
       status: 'OK',
