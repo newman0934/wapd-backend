@@ -85,54 +85,6 @@ const userService = {
     return callback({ products })
   },
 
-  getUserCart: async (req, res, callback) => {
-    const userCartResult = await User.findByPk(req.params.id, {
-      include: {
-        model: CartItem,
-        include: [
-          {
-            model: Product,
-            where: {
-              status: 'on'
-            },
-            include: Image
-          },
-          Cart
-        ]
-      }
-    })
-
-    const userCart = {
-      id: userCartResult.id,
-      email: userCartResult.email,
-      name: userCartResult.name,
-      role: userCartResult.role,
-      phone: userCartResult.phone,
-      address: userCartResult.address,
-      cartItem: userCartResult.CartItems.map(data => ({
-        id: data.id,
-        stock: data.stock,
-        quantity: data.quantity,
-        name: data.Product.name,
-        description: data.Product.description,
-        status: data.Product.status,
-        color: data.color,
-        size: data.size,
-        images: data.Product.Images,
-        origin_price: data.Product.origin_price,
-        sell_price: data.Product.sell_price,
-        CategoryId: data.Product.CategoryId,
-        ProductId: data.ProductId,
-        CartId: data.CartId,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt
-      })),
-      cartId: null || userCartResult.CartItems[0].CartId
-    }
-
-    return callback({ userCart })
-  },
-
   postOrder: async (req, res, callback) => {
     // TODO: 新增一筆自己的訂單
   },
