@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs')
 const db = require('../../models')
 const User = db.User
+const Cart = db.Cart
+const CartItem = db.CartItem
 const jwt = require('jsonwebtoken')
 const passportJWT = require('passport-jwt')
 const ExtractJwt = passportJWT.ExtractJwt
@@ -8,7 +10,7 @@ const JwtStrategy = passportJWT.Strategy
 const userService = require('../../services/userService')
 
 const userController = {
-  signIn: (req, res) => {
+  signIn: async (req, res) => {
     if (!req.body.email || !req.body.password) {
       return res.json({
         status: 'error',
@@ -18,70 +20,88 @@ const userController = {
     let username = req.body.email
     let password = req.body.password
 
-    User.findOne({ where: { email: username } }).then(user => {
-      if (!user)
-        return res
-          .status(401)
-          .json({ status: 'error', message: '查無此使用者' })
-      if (!bcrypt.compareSync(password, user.password)) {
-        return res.status(401).json({ status: 'error', message: '密碼錯誤' })
+    const user = await User.findOne({ where: { email: username } })
+    if (!user)
+      return res.status(401).json({ status: 'error', message: '查無此使用者' })
+    if (!bcrypt.compareSync(password, user.password)) {
+      return res.status(401).json({ status: 'error', message: '密碼錯誤' })
+    }
+    const payload = { id: user.id }
+    const token = jwt.sign(payload, process.env.JWT_SECRET)
+
+    // 建立未登入時使用的購物車關聯
+    const cartItems = await CartItem.findAll({
+      where: {
+        CartId: req.session.cartId
       }
-      const payload = { id: user.id }
-      const token = jwt.sign(payload, process.env.JWT_SECRET)
-      return res.json({
-        status: 'success',
-        message: 'ok',
-        token: token,
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          phone: user.phone,
-          address: user.address
-        }
-      })
+    })
+
+    cartItems.forEach(async function(instance) {
+      await instance.update({ UserId: user.id })
+    })
+
+    return res.json({
+      status: 'success',
+      message: 'ok',
+      token: token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        address: user.address
+      }
     })
   },
 
-  signUp: (req, res) => {
+  signUp: async (req, res) => {
     if (req.body.passwordCheck !== req.body.password) {
       return res.json({ status: 'error', message: '兩次密碼輸入不同！' })
     } else {
-      User.findOne({ where: { email: req.body.email } }).then(user => {
-        if (user) {
-          return res.json({ status: 'error', message: '信箱重複！' })
-        } else {
-          User.create({
-            // name: req.body.name,
-            email: req.body.email,
-            password: bcrypt.hashSync(
-              req.body.password,
-              bcrypt.genSaltSync(10),
-              null
-            )
-          }).then(user => {
-            const payload = { id: user.id }
-            const token = jwt.sign(payload, process.env.JWT_SECRET)
-            return res.json({
-              status: 'success',
-              message: '成功註冊帳號及登入！',
-              token: token,
-              user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                phone: user.phone,
-                address: user.address
-              }
-            })
-          })
-          // .then(user => {
-          //   return res.json({ status: 'success', message: '成功註冊帳號！' })
-          // })
-        }
-      })
+      const user = await User.findOne({ where: { email: req.body.email } })
+      if (user) {
+        return res.json({ status: 'error', message: '信箱重複！' })
+      } else {
+        const user = await User.create({
+          // name: req.body.name,
+          email: req.body.email,
+          password: bcrypt.hashSync(
+            req.body.password,
+            bcrypt.genSaltSync(10),
+            null
+          )
+        })
+        const payload = { id: user.id }
+        const token = jwt.sign(payload, process.env.JWT_SECRET)
+        // 建立未登入時使用的購物車關聯
+        const cartItems = await CartItem.findAll({
+          where: {
+            CartId: req.session.cartId
+          }
+        })
+
+        cartItems.forEach(async function(instance) {
+          await instance.update({ UserId: user.id })
+        })
+
+        return res.json({
+          status: 'success',
+          message: '成功註冊帳號及登入！',
+          token: token,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            phone: user.phone,
+            address: user.address
+          }
+        })
+        // .then(user => {
+        //   return res.json({ status: 'success', message: '成功註冊帳號！' })
+        // })
+      }
     }
   },
 
