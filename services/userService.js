@@ -1,17 +1,24 @@
 const db = require('../models')
-const User = db.User
-const Order = db.Order
-const Favorite = db.Favorite
-const OrderItem = db.OrderItem
-const Product = db.Product
-const CartItem = db.CartItem
-const Cart = db.Cart
-const Coupon = db.Coupon
-const Image = db.Image
-const ProductStatus = db.ProductStatus
-const Color = db.Color
-const Size = db.Size
+const {
+  User,
+  Order,
+  Product,
+  Coupon,
+  Image,
+  ProductStatus,
+  Color,
+  Size,
+  Token
+} = db
 const bcrypt = require('bcryptjs')
+const nodemailer = require('nodemailer')
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_ACCOUNT,
+    pass: process.env.EMAIL_PASSWORD
+  }
+})
 
 const userService = {
   getUserOrders: async (req, res, callback) => {
@@ -102,7 +109,7 @@ const userService = {
   },
 
   postPasswordChange: async (req, res, callback) => {
-    const user = await User.findByPk(req.params.id)
+    const user = await User.findByPk(req.user.id)
     if (user.id !== req.user.id) {
       return callback({
         status: 'error',
@@ -138,6 +145,56 @@ const userService = {
     return callback({
       status: 'success',
       message: 'password successfully changed'
+    })
+  },
+
+  postPasswordReset: async (req, res, callback) => {
+    // 使用者填入的 email
+    const receiverEmail = req.body.email
+    const randomToken = Math.random()
+      .toString(32)
+      .slice(-8)
+
+    const user = await User.findOne({
+      where: {
+        email: receiverEmail
+      }
+    })
+    // 如果查無 email 就提示對方此信箱尚未註冊
+    if (!user) {
+      return callback({
+        status: 'error',
+        message: 'This email is not registered yet!!'
+      })
+    }
+    // 建立要發送至信箱的 token
+    const token = await Token.create({
+      token: randomToken,
+      UserId: user.id,
+      isUsed: false
+    })
+    // 信件內容
+    const mailOptions = {
+      from: `wapd official <${process.env.EMAIL_ACCOUNT}>`,
+      to: receiverEmail,
+      subject: `【wapd】忘記密碼認證函`,
+      text: `您好：
+      我們收到了您忘記密碼的請求，請點選以下連結重設密碼：
+      http://localhost:3000/users/password_reset/${token.id}/${randomToken}/
+      為了您帳號的安全，請勿將此連結洩漏給任何人，感謝您`
+    }
+    // 寄信
+    transporter.sendMail(mailOptions, function(error, info) {
+      if (error) {
+        console.log(error)
+      } else {
+        console.log('Email sent: ' + info.response)
+      }
+    })
+
+    return callback({
+      status: 'success',
+      message: 'email successfully sent to user'
     })
   },
 
