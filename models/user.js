@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       as: 'FavoritedProducts'
     })
     User.hasMany(models.Order)
+    User.hasMany(models.Token)
   }
   return User
 }

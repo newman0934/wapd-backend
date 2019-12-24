@@ -4,6 +4,7 @@ const User = db.User
 const Cart = db.Cart
 const CartItem = db.CartItem
 const Product = db.Product
+const Favorite = db.Favorite
 const jwt = require('jsonwebtoken')
 const passportJWT = require('passport-jwt')
 const ExtractJwt = passportJWT.ExtractJwt
@@ -20,8 +21,8 @@ const userController = {
     }
     let username = req.body.email
     let password = req.body.password
-
-    const user = await User.findOne({
+    // 嘗試尋找關聯
+    let user = await User.findOne({
       where: { email: username },
       include: [
         {
@@ -33,6 +34,13 @@ const userController = {
         }
       ]
     })
+    // 如果沒有關聯(user沒有favorite product)，就嘗試尋找 user
+    if (!user) {
+      user = await User.findOne({
+        where: { email: username }
+      })
+    }
+    // 還是找不到才回傳錯誤
     if (!user)
       return res.status(401).json({ status: 'error', message: '查無此使用者' })
     if (!bcrypt.compareSync(password, user.password)) {
@@ -53,7 +61,6 @@ const userController = {
         await instance.update({ UserId: user.id })
       })
     }
-    console.log(user.FavoritedProducts)
 
     return res.json({
       status: 'success',
@@ -66,7 +73,9 @@ const userController = {
         role: user.role,
         phone: user.phone,
         address: user.address,
-        FavoritedProductsId: user.FavoritedProducts.map(d => d.id)
+        FavoritedProductsId: user.FavoritedProducts
+          ? user.FavoritedProducts.map(d => d.id)
+          : []
       }
     })
   },
@@ -88,6 +97,12 @@ const userController = {
             null
           )
         })
+
+        // await Favorite.create({
+        //   UserId: user.id,
+        //   ProductId: 1
+        // })
+
         const payload = { id: user.id }
         const token = jwt.sign(payload, process.env.JWT_SECRET)
         // 建立未登入時使用的購物車關聯
@@ -150,6 +165,24 @@ const userController = {
 
   postPasswordChange: (req, res) => {
     userService.postPasswordChange(req, res, data => {
+      return res.json(data)
+    })
+  },
+
+  postPasswordForget: (req, res) => {
+    userService.postPasswordForget(req, res, data => {
+      return res.json(data)
+    })
+  },
+
+  getPasswordReset: (req, res) => {
+    userService.getPasswordReset(req, res, data => {
+      return res.json(data)
+    })
+  },
+
+  postPasswordReset: (req, res) => {
+    userService.postPasswordReset(req, res, data => {
       return res.json(data)
     })
   },

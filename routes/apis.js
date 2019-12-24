@@ -47,10 +47,16 @@ router.get(
   userController.getPasswordChange
 )
 router.post(
-  '/users/:id/password_change',
+  '/users/password_change',
   authenticated,
   userController.postPasswordChange
 )
+router.post('/users/password_forget', userController.postPasswordForget)
+router.get(
+  '/users/password_reset/:token_id/:token',
+  userController.getPasswordReset
+)
+router.post('/users/password_reset', userController.postPasswordReset)
 router.get('/users/:id/edit', authenticated, userController.getUserEdit)
 
 router.get(
