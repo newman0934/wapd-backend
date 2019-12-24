@@ -101,25 +101,46 @@ const adminService = {
     return callback({ productStatus })
   },
 
-  getProductStock: async (req, res, callback) => {
-    const productResult = await Product.findByPk(req.params.id, {
-      include: [
-        Image,
-        Category,
-        {
-          model: ProductStatus,
-          include: [Color, Size]
-        }
-      ]
+  getProductStockEdit: async (req, res, callback) => {
+    const result = await Product.findByPk(req.params.id, {
+      include: {
+        model: ProductStatus,
+        include: [Size, Color],
+        where: { id: +req.params.stock_id }
+      }
     })
-    const productStock = {
-      ...productResult.dataValues,
-      updateStockInfo: productResult.ProductStatuses.filter(
-        item => item.id === +req.params.stock_id
-      )
+
+    const productStatus = {
+      id: result.ProductStatuses[0].id,
+      stock: result.ProductStatuses[0].stock,
+      size: result.ProductStatuses[0].Size.size,
+      color: result.ProductStatuses[0].Color.color,
+      ProductId: result.ProductStatuses[0].ProductId
     }
 
-    return callback({ productStock })
+    return callback({ productStatus })
+  },
+
+  putProductStockProps: async (req, res, callback) => {
+    const color = await Color.findOrCreate({
+      where: { color: req.body.color }
+    })
+    const size = await Size.findOrCreate({
+      where: { size: req.body.size }
+    })
+    console.log(color[0].id)
+    const productStatus = await ProductStatus.findByPk(req.params.stock_id)
+    await productStatus.update({
+      stock: req.body.stock,
+      ColorId: color[0].id,
+      SizeId: size[0].id
+    })
+
+    return callback({
+      status: 'success',
+      message: 'successfully edited',
+      productId: req.params.id
+    })
   },
 
   addProductStockProps: async (req, res, callback) => {
@@ -227,15 +248,16 @@ const adminService = {
   putOrder: async (req, res, callback) => {
     const order = await Order.findByPk(req.params.id)
     await order.update({
-      amount: +req.body.amount,
-      shipping_status: req.body.shipping_status,
-      payment_status: req.body.payment_status,
+      receiver_name: req.body.receiverName,
+      shipping_method: req.body.shippingMethod,
       phone: req.body.phone,
-      payment_method: req.body.payment_method,
       address: req.body.address,
-      receiver_name: req.body.receiver_name,
-      comment: req.body.comment
+      payment_status: req.body.paymentStatus,
+      payment_method: req.body.paymentMethod,
+      CouponId: req.body.CouponId
     })
+
+    // TODO: 管理者刪除商品
 
     return callback({
       status: 'OK',

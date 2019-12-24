@@ -5,6 +5,7 @@ const productController = require('../controllers/api/productController')
 const adminController = require('../controllers/api/adminController')
 const userController = require('../controllers/api/userController')
 const categoryController = require('../controllers/api/categoryController')
+const cartController = require('../controllers/api/cartController')
 
 const authenticated = passport.authenticate('jwt', { session: false })
 
@@ -38,7 +39,8 @@ router.delete(
 router.get('/users/:id/orders', userController.getUserOrders)
 router.get('/users/:id/orders/:order_id', userController.getUserOrder)
 router.get('/users/:id/wishlist', authenticated, userController.getUserWishlist)
-router.get('/users/:id/cart', userController.getUserCart)
+router.get('/users/:id/cart', cartController.getUserCart)
+router.post('/products/:id/cart', cartController.postCart)
 router.get(
   '/users/password_change',
   authenticated,
@@ -61,7 +63,11 @@ router.get('/admins/products/:id', adminController.getProduct)
 router.get('/admins/products/:id/stocks', adminController.getProductStocks)
 router.get(
   '/admins/products/:id/stocks/:stock_id',
-  adminController.getProductStock
+  adminController.getProductStockEdit
+)
+router.put(
+  '/admins/products/:id/stocks/:stock_id',
+  adminController.putProductStockProps
 )
 router.post(
   '/admins/products/:id/stocks/',
