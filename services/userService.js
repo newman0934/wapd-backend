@@ -218,8 +218,8 @@ const userService = {
     return callback({
       status: 'success',
       message: 'token is valid!!',
-      UserId: token.UserId,
-      Token: token.token
+      userId: token.UserId,
+      token: token.token
     })
   },
 

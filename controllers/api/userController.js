@@ -21,8 +21,8 @@ const userController = {
     }
     let username = req.body.email
     let password = req.body.password
-
-    const user = await User.findOne({
+    // 嘗試尋找關聯
+    let user = await User.findOne({
       where: { email: username },
       include: [
         {
@@ -34,7 +34,13 @@ const userController = {
         }
       ]
     })
-    console.log(user)
+    // 如果沒有關聯(user沒有favorite product)，就嘗試尋找 user
+    if (!user) {
+      user = await User.findOne({
+        where: { email: username }
+      })
+    }
+    // 還是找不到才回傳錯誤
     if (!user)
       return res.status(401).json({ status: 'error', message: '查無此使用者' })
     if (!bcrypt.compareSync(password, user.password)) {
@@ -55,7 +61,6 @@ const userController = {
         await instance.update({ UserId: user.id })
       })
     }
-    console.log(user.FavoritedProducts)
 
     return res.json({
       status: 'success',
@@ -68,7 +73,9 @@ const userController = {
         role: user.role,
         phone: user.phone,
         address: user.address,
-        FavoritedProductsId: user.FavoritedProducts.map(d => d.id)
+        FavoritedProductsId: user.FavoritedProducts
+          ? user.FavoritedProducts.map(d => d.id)
+          : []
       }
     })
   },
@@ -91,10 +98,10 @@ const userController = {
           )
         })
 
-        await Favorite.create({
-          UserId: user.id,
-          ProductId: 1
-        })
+        // await Favorite.create({
+        //   UserId: user.id,
+        //   ProductId: 1
+        // })
 
         const payload = { id: user.id }
         const token = jwt.sign(payload, process.env.JWT_SECRET)
