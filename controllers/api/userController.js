@@ -4,6 +4,7 @@ const User = db.User
 const Cart = db.Cart
 const CartItem = db.CartItem
 const Product = db.Product
+const Favorite = db.Favorite
 const jwt = require('jsonwebtoken')
 const passportJWT = require('passport-jwt')
 const ExtractJwt = passportJWT.ExtractJwt
@@ -33,6 +34,7 @@ const userController = {
         }
       ]
     })
+    console.log(user)
     if (!user)
       return res.status(401).json({ status: 'error', message: '查無此使用者' })
     if (!bcrypt.compareSync(password, user.password)) {
@@ -88,6 +90,12 @@ const userController = {
             null
           )
         })
+
+        await Favorite.create({
+          UserId: user.id,
+          ProductId: 1
+        })
+
         const payload = { id: user.id }
         const token = jwt.sign(payload, process.env.JWT_SECRET)
         // 建立未登入時使用的購物車關聯
@@ -150,6 +158,18 @@ const userController = {
 
   postPasswordChange: (req, res) => {
     userService.postPasswordChange(req, res, data => {
+      return res.json(data)
+    })
+  },
+
+  postPasswordForget: (req, res) => {
+    userService.postPasswordForget(req, res, data => {
+      return res.json(data)
+    })
+  },
+
+  getPasswordReset: (req, res) => {
+    userService.getPasswordReset(req, res, data => {
       return res.json(data)
     })
   },

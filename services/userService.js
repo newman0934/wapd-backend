@@ -148,7 +148,7 @@ const userService = {
     })
   },
 
-  postPasswordReset: async (req, res, callback) => {
+  postPasswordForget: async (req, res, callback) => {
     // 使用者填入的 email
     const receiverEmail = req.body.email
     const randomToken = Math.random()
@@ -195,6 +195,74 @@ const userService = {
     return callback({
       status: 'success',
       message: 'email successfully sent to user'
+    })
+  },
+
+  getPasswordReset: async (req, res, callback) => {
+    // 透過 params 尋找 token
+    const token = await Token.findOne({
+      where: {
+        id: req.params.token_id,
+        token: req.params.token,
+        isUsed: false
+      }
+    })
+    // 如果不符合就回傳 error
+    if (!token) {
+      return callback({
+        status: 'error',
+        message: 'No valid token found!!'
+      })
+    }
+    // 如果符合就回傳 UserId
+    return callback({
+      status: 'success',
+      message: 'token is valid!!',
+      UserId: token.UserId,
+      Token: token.token
+    })
+  },
+
+  postPasswordReset: async (req, res, callback) => {
+    // 檢查 req.body.password 及 req.body.passwordCheck 是否相同
+    if (req.body.password !== req.body.passwordCheck) {
+      return callback({
+        status: 'error',
+        message: 'passwords are different!!'
+      })
+    }
+    // 先驗證 token (防Postman)
+    const token = await Token.findOne({
+      where: {
+        token: req.body.token,
+        isUsed: false
+      }
+    })
+    if (!token) {
+      return callback({
+        status: 'error',
+        message: 'no token found!!'
+      })
+    }
+    // 取得使用者 id，並加密密碼
+    const user = await User.findByPk(req.body.userId)
+    if (!user) {
+      return callback({
+        status: 'error',
+        message: 'no user found!!'
+      })
+    }
+    await user.update({
+      password: bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10))
+    })
+    await token.update({
+      isUsed: true
+    })
+    // 回傳成功訊息
+    return callback({
+      status: 'success',
+      message: 'user password reset successfully!!',
+      UserId: req.body.userId
     })
   },
 
