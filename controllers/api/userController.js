@@ -27,6 +27,7 @@ const userController = {
       include: [
         {
           model: Product,
+          required: false,
           as: 'FavoritedProducts',
           where: {
             status: 'on'
@@ -35,11 +36,12 @@ const userController = {
       ]
     })
     // 如果沒有關聯(user沒有favorite product)，就嘗試尋找 user
-    if (!user) {
-      user = await User.findOne({
-        where: { email: username }
-      })
-    }
+    // if (!user) {
+    //   user = await User.findOne({
+    //     where: { email: username }
+    //   })
+    //   user.FavoritedProducts = []
+    // }
     // 還是找不到才回傳錯誤
     if (!user)
       return res.status(401).json({ status: 'error', message: '查無此使用者' })

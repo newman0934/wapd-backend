@@ -1,5 +1,5 @@
 const db = require('../models')
-const Category = db.Category
+const { Category, Product } = db
 
 const categoryService = {
   getCategories: async (req, res, callback) => {
@@ -37,11 +37,16 @@ const categoryService = {
     }
   },
   deleteCategory: async (req, res, callback) => {
-    await Category.destroy({
-      where: {
-        id: req.params.id
-      }
+    const category = await Category.findByPk(req.params.id, {
+      include: Product
     })
+    if (category.Products.length) {
+      return callback({
+        status: 'error',
+        message: 'can not be deleted unless no products are associated!!'
+      })
+    }
+    await category.destroy()
     return callback({
       status: 'success',
       message: 'category was successfully deleted'
