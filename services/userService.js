@@ -58,7 +58,7 @@ const userService = {
   },
 
   getUserWishlist: async (req, res, callback) => {
-    const userFavoriteResult = await User.findByPk(req.params.id, {
+    let userFavoriteResult = await User.findByPk(req.params.id, {
       include: {
         model: Product,
         as: 'FavoritedProducts',
@@ -69,25 +69,31 @@ const userService = {
       }
     })
 
-    const products = userFavoriteResult.dataValues.FavoritedProducts.map(d => ({
-      id: d.dataValues.id,
-      name: d.dataValues.name,
-      description: d.dataValues.description,
-      status: d.dataValues.status,
-      categoryId: d.dataValues.CategoryId,
-      image: d.dataValues.Images || [],
-      color: d.dataValues.ProductStatuses.map(d => {
-        return d.Color.color
-      }),
-      size: d.dataValues.ProductStatuses.map(d => {
-        return d.Size.size
-      }),
-      origin_price: d.dataValues.origin_price,
-      sell_price: d.dataValues.sell_price,
-      isFavorited: req.user.FavoritedProducts.map(d => d.id).includes(
-        d.dataValues.id
-      )
-    }))
+    if (!userFavoriteResult) {
+      userFavoriteResult = await User.findByPk(req.params.id)
+    }
+
+    const products = userFavoriteResult.dataValues.FavoritedProducts
+      ? userFavoriteResult.dataValues.FavoritedProducts.map(d => ({
+          id: d.dataValues.id,
+          name: d.dataValues.name,
+          description: d.dataValues.description,
+          status: d.dataValues.status,
+          categoryId: d.dataValues.CategoryId,
+          image: d.dataValues.Images || [],
+          color: d.dataValues.ProductStatuses.map(d => {
+            return d.Color.color
+          }),
+          size: d.dataValues.ProductStatuses.map(d => {
+            return d.Size.size
+          }),
+          origin_price: d.dataValues.origin_price,
+          sell_price: d.dataValues.sell_price,
+          isFavorited: req.user.FavoritedProducts.map(d => d.id).includes(
+            d.dataValues.id
+          )
+        }))
+      : []
 
     return callback({ products })
   },

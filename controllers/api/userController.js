@@ -39,6 +39,7 @@ const userController = {
       user = await User.findOne({
         where: { email: username }
       })
+      user.FavoritedProducts = []
     }
     // 還是找不到才回傳錯誤
     if (!user)

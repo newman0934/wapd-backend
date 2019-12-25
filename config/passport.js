@@ -12,8 +12,8 @@ let jwtOptions = {}
 jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken()
 jwtOptions.secretOrKey = process.env.JWT_SECRET
 
-let strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
-  User.findByPk(jwt_payload.id, {
+let strategy = new JwtStrategy(jwtOptions, async function(jwt_payload, next) {
+  let user = await User.findByPk(jwt_payload.id, {
     include: [
       {
         model: Product,
@@ -23,10 +23,13 @@ let strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
         }
       }
     ]
-  }).then(user => {
-    if (!user) return next(null, false)
-    return next(null, user)
   })
+  if (!user) {
+    user = await User.findByPk(jwt_payload.id)
+    user.FavoritedProducts = []
+  }
+  if (!user) return next(null, false)
+  return next(null, user)
 })
 passport.use(strategy)
 
