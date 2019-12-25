@@ -85,6 +85,101 @@ const adminService = {
     return callback({ product })
   },
 
+  addProduct: async (req, res, callback) => {
+    if (
+      !req.body.name ||
+      !req.body.categoryId ||
+      !req.body.cost ||
+      !req.body.originPrice ||
+      !req.body.sellPrice ||
+      !req.body.description
+    ) {
+      return callback({
+        status: 'error',
+        message: 'every column is required!!'
+      })
+    }
+
+    let productResult = await Product.findOne({
+      where: { name: req.body.name }
+    })
+    if (productResult) {
+      return callback({
+        status: 'error',
+        message: 'same product name already existed!!'
+      })
+    }
+
+    productResult = await Product.create({
+      name: req.body.name,
+      CategoryId: req.body.categoryId,
+      cost: req.body.cost,
+      origin_price: req.body.originPrice,
+      sell_price: req.body.sellPrice,
+      description: req.body.description,
+      status: 'off'
+    })
+    // TODO: 上傳圖片
+
+    return callback({
+      status: 'success',
+      message: 'products successfully created!!',
+      productId: productResult.id
+    })
+  },
+
+  putProduct: async (req, res, callback) => {
+    if (
+      !req.body.name ||
+      !req.body.categoryId ||
+      !req.body.cost ||
+      !req.body.originPrice ||
+      !req.body.sellPrice ||
+      !req.body.description
+    ) {
+      return callback({
+        status: 'error',
+        message: 'every column is required!!'
+      })
+    }
+    // 若查到其他相同的商品名稱就回傳 error
+    productResult = await Product.findOne({
+      where: { name: req.body.name }
+    })
+    if (productResult.id !== +req.params.id) {
+      return callback({
+        status: 'error',
+        message: 'same product name already existed!!'
+      })
+    }
+
+    productResult.update(req.body)
+    // TODO: 上傳圖片
+
+    return callback({
+      status: 'success',
+      message: 'product was successfully updated!!'
+    })
+  },
+
+  deleteProduct: async (req, res, callback) => {
+    const productResult = await Product.findByPk(req.params.id, {
+      include: ProductStatus
+    })
+    if (productResult.ProductStatuses.length) {
+      return callback({
+        status: 'error',
+        message:
+          'product cannot be deleted if is associated to any productstatuses!!'
+      })
+    }
+    await productResult.destroy()
+    return callback({
+      status: 'success',
+      message: 'product was successfully deleted!!'
+    })
+  },
+
   getProductStocks: async (req, res, callback) => {
     const result = await Product.findByPk(req.params.id, {
       include: { model: ProductStatus, include: [Size, Color] }

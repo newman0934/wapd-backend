@@ -13,6 +13,24 @@ const adminController = {
     })
   },
 
+  addProduct: (req, res) => {
+    adminService.addProduct(req, res, data => {
+      return res.json(data)
+    })
+  },
+
+  deleteProduct: (req, res) => {
+    adminService.deleteProduct(req, res, data => {
+      return res.json(data)
+    })
+  },
+
+  putProduct: (req, res) => {
+    adminService.putProduct(req, res, data => {
+      return res.json(data)
+    })
+  },
+
   getProductStocks: (req, res) => {
     adminService.getProductStocks(req, res, data => {
       return res.json(data)

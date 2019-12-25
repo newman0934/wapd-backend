@@ -66,6 +66,10 @@ router.get(
   adminController.getProducts
 )
 router.get('/admins/products/:id', adminController.getProduct)
+router.post('/admins/products', adminController.addProduct)
+router.put('/admins/products/:id', adminController.putProduct)
+router.delete('/admins/products/:id', adminController.deleteProduct)
+
 router.get('/admins/products/:id/stocks', adminController.getProductStocks)
 router.get(
   '/admins/products/:id/stocks/:stock_id',
@@ -85,7 +89,6 @@ router.get('/admins/orders/:id', adminController.getOrder)
 router.put('/admins/orders/:id', adminController.putOrder)
 
 router.get('/admins/categories', categoryController.getCategories)
-router.get('/admins/categories/:id', categoryController.getCategories)
 router.post('/admins/categories/', categoryController.addCategory)
 router.put('/admins/categories/:id', categoryController.putCategory)
 router.delete('/admins/categories/:id', categoryController.deleteCategory)
