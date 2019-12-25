@@ -39,8 +39,10 @@ router.delete(
 router.get('/users/:id/orders', userController.getUserOrders)
 router.get('/users/:id/orders/:order_id', userController.getUserOrder)
 router.get('/users/:id/wishlist', authenticated, userController.getUserWishlist)
+
 router.get('/users/:id/cart', cartController.getUserCart)
-router.post('/products/:id/cart', cartController.postCart)
+router.post('/products/cart', authenticated, cartController.postCart)
+router.post('/products/notLoginCart', cartController.notLoginPostCart)
 router.get(
   '/users/password_change',
   authenticated,

@@ -6,6 +6,12 @@ const cartController = {
       return res.json(data)
     })
   },
+  notLoginPostCart: (req, res) => {
+    cartService.notLoginPostCart(req, res, data => {
+      return res.json(data)
+    })
+  },
+
   postCart: (req, res) => {
     cartService.postCart(req, res, data => {
       return res.json(data)

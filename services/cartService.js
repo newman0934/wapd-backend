@@ -62,45 +62,71 @@ const cartService = {
 
     return callback({ userCart })
   },
-  postCart: async (req, res, callback) => {
+  notLoginPostCart: async (req, res, callback) => {
+    if (!req.session.tempCartItems) {
+      req.session.tempCartItems = []
+    }
+    for (let i = 0; i < req.session.tempCartItems.length; i++) {
+      if (
+        req.session.tempCartItems[i].ProductId === +req.body.productId &&
+        req.session.tempCartItems[i].color === req.body.color &&
+        req.session.tempCartItems[i].size === req.body.size
+      ) {
+        req.session.tempCartItems[i].quantity += Number(req.body.quantity)
+        console.log('+++++++++++')
+        console.log(req.session)
+        console.log('+++++++++++')
+        return callback({
+          status: 'success',
+          message: 'item successfully added into cart'
+        })
+      }
+    }
+
+    req.session.tempCartItems.push({
+      ProductId: +req.body.productId,
+      size: req.body.size,
+      color: req.body.color,
+      quantity: +req.body.quantity,
+      UserId: null
+    })
     console.log('+++++++++++')
     console.log(req.session)
     console.log('+++++++++++')
-    return Cart.findOrCreate({
+    return callback({
+      status: 'success',
+      message: 'item successfully added into cart'
+    })
+  },
+
+  postCart: async (req, res, callback) => {
+    const cartItem = await CartItem.findOne({
       where: {
-        id: req.session.cartId || 0
+        ProductId: +req.body.productId,
+        size: req.body.size,
+        color: req.body.color
       }
-    }).spread(function(cart, created) {
-      return CartItem.findOrCreate({
-        where: {
-          CartId: cart.id,
-          ProductId: +req.body.productId,
-          size: req.body.size,
-          color: req.body.color,
-          quantity: +req.body.quantity
-        },
-        default: {
-          CartId: cart.id,
-          ProductId: +req.body.productId,
-          size: req.body.size,
-          color: req.body.color,
-          quantity: +req.body.quantity
-        }
-      }).spread(function(cartItem, created) {
-        // return cartItem
-        //   .update({
-        //     quantity: (cartItem.quantity || 0) + 1
-        //   })
-        // .then(cartItem => {
-        req.session.cartId = cart.id
-        return req.session.save(() => {
-          return callback({
-            status: 'success',
-            message: 'item successfully added into cart!!'
-          })
-        })
-        // })
+    })
+
+    if (cartItem) {
+      await cartItem.increment(['quantity'], { by: +req.body.quantity })
+      return callback({
+        status: 'success',
+        message: 'item successfully added into cart'
       })
+    }
+
+    await CartItem.create({
+      ProductId: +req.body.productId,
+      size: req.body.size,
+      color: req.body.color,
+      quantity: +req.body.quantity,
+      UserId: req.user.id
+    })
+
+    return callback({
+      status: 'success',
+      message: 'item successfully added into cart'
     })
   }
 }

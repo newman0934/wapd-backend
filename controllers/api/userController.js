@@ -35,14 +35,7 @@ const userController = {
         }
       ]
     })
-    // 如果沒有關聯(user沒有favorite product)，就嘗試尋找 user
-    // if (!user) {
-    //   user = await User.findOne({
-    //     where: { email: username }
-    //   })
-    //   user.FavoritedProducts = []
-    // }
-    // 還是找不到才回傳錯誤
+
     if (!user)
       return res.status(401).json({ status: 'error', message: '查無此使用者' })
     if (!bcrypt.compareSync(password, user.password)) {
@@ -51,17 +44,40 @@ const userController = {
     const payload = { id: user.id }
     const token = jwt.sign(payload, process.env.JWT_SECRET)
 
-    // 建立未登入時使用的購物車關聯
-    if (req.session.cartId) {
-      const cartItems = await CartItem.findAll({
-        where: {
-          CartId: req.session.cartId
-        }
-      })
+    // TODO: req.session.tempCartItems 若與會員購物車有相同商品則增加至會員購物車，但不能用迴圈打DB...
+    // 先把關聯的資料抓出來!!!!
+    const userCartItems = await CartItem.findAll({
+      where: {
+        UserId: user.id
+      }
+    })
 
-      cartItems.forEach(async function(instance) {
-        await instance.update({ UserId: user.id })
-      })
+    // 如果 session 存在暫存的商品，正式將其加進會員的購物車
+    if (req.session.tempCartItems) {
+      req.session.tempCartItems.map(d => (d.UserId = user.id))
+      // 如果使用者有完全相同的商品，則增加數量至其商品
+      if (userCartItems) {
+        for (let i = 0; i < userCartItems.length; i++) {
+          for (let j = 0; j < req.session.tempCartItems.length; j++) {
+            // 如果使用者購物車與登入前的購物車有重複商品
+            if (
+              userCartItems[i].ProductId ===
+                req.session.tempCartItems[j].ProductId &&
+              userCartItems[i].color === req.session.tempCartItems[j].color &&
+              userCartItems[i].size === req.session.tempCartItems[j].size
+            ) {
+              // 就增加數量至使用者購物車
+              await userCartItems[i].increment(['quantity'], {
+                by: Number(req.session.tempCartItems[j].quantity)
+              })
+
+              req.session.tempCartItems.splice(j, 1)
+              j -= 1
+            }
+          }
+        }
+      }
+      await CartItem.bulkCreate(req.session.tempCartItems)
     }
 
     return res.json({
