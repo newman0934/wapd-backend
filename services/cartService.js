@@ -66,6 +66,9 @@ const cartService = {
     if (!req.session.tempCartItems) {
       req.session.tempCartItems = []
     }
+
+    const product = await Product.findByPk(+req.body.productId)
+
     for (let i = 0; i < req.session.tempCartItems.length; i++) {
       if (
         req.session.tempCartItems[i].ProductId === +req.body.productId &&
@@ -78,7 +81,8 @@ const cartService = {
         console.log('+++++++++++')
         return callback({
           status: 'success',
-          message: 'item successfully added into cart'
+          message: 'item successfully added into cart',
+          productSellPrice: product.sell_price
         })
       }
     }
@@ -95,7 +99,8 @@ const cartService = {
     console.log('+++++++++++')
     return callback({
       status: 'success',
-      message: 'item successfully added into cart'
+      message: 'item successfully added into cart',
+      productSellPrice: product.sell_price
     })
   },
 
@@ -104,15 +109,19 @@ const cartService = {
       where: {
         ProductId: +req.body.productId,
         size: req.body.size,
-        color: req.body.color
+        color: req.body.color,
+        UserId: req.user.id
       }
     })
+
+    const product = await Product.findByPk(+req.body.productId)
 
     if (cartItem) {
       await cartItem.increment(['quantity'], { by: +req.body.quantity })
       return callback({
         status: 'success',
-        message: 'item successfully added into cart'
+        message: 'item successfully added into cart',
+        productSellPrice: product.sell_price
       })
     }
 
@@ -126,7 +135,29 @@ const cartService = {
 
     return callback({
       status: 'success',
-      message: 'item successfully added into cart'
+      message: 'item successfully added into cart',
+      productSellPrice: product.sell_price
+    })
+  },
+
+  deleteCartProduct: async (req, res, callback) => {
+    const cartItem = await CartItem.destroy({
+      where: {
+        id: req.params.id,
+        UserId: req.user.id
+      }
+    })
+
+    if (!cartItem) {
+      return callback({
+        status: 'error',
+        message: 'item deleted failed!!item not found'
+      })
+    }
+
+    return callback({
+      status: 'success',
+      message: 'item is successfully deleted'
     })
   }
 }

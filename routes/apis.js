@@ -40,9 +40,15 @@ router.get('/users/:id/orders', userController.getUserOrders)
 router.get('/users/:id/orders/:order_id', userController.getUserOrder)
 router.get('/users/:id/wishlist', authenticated, userController.getUserWishlist)
 
-router.get('/users/:id/cart', cartController.getUserCart)
+router.get('/users/:id/cart', authenticated, cartController.getUserCart)
 router.post('/products/cart', authenticated, cartController.postCart)
 router.post('/products/notLoginCart', cartController.notLoginPostCart)
+router.delete(
+  '/users/cart/:id',
+  authenticated,
+  cartController.deleteCartProduct
+)
+
 router.get(
   '/users/password_change',
   authenticated,
