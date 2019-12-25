@@ -209,6 +209,12 @@ const userController = {
     userService.getUserEdit(req, res, data => {
       return res.json(data)
     })
+  },
+
+  putUser: (req, res) => {
+    userService.putUser(req, res, data => {
+      return res.json(data)
+    })
   }
 }
 
