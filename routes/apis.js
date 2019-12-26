@@ -39,8 +39,16 @@ router.delete(
 router.get('/users/:id/orders', userController.getUserOrders)
 router.get('/users/:id/orders/:order_id', userController.getUserOrder)
 router.get('/users/:id/wishlist', authenticated, userController.getUserWishlist)
-router.get('/users/:id/cart', cartController.getUserCart)
-router.post('/products/:id/cart', cartController.postCart)
+
+router.get('/users/:id/cart', authenticated, cartController.getUserCart)
+router.post('/products/cart', authenticated, cartController.postCart)
+router.post('/products/notLoginCart', cartController.notLoginPostCart)
+router.delete(
+  '/users/cart/:id',
+  authenticated,
+  cartController.deleteCartProduct
+)
+
 router.get(
   '/users/password_change',
   authenticated,
@@ -58,6 +66,7 @@ router.get(
 )
 router.post('/users/password_reset', userController.postPasswordReset)
 router.get('/users/:id/edit', authenticated, userController.getUserEdit)
+router.put('/users/edit', authenticated, userController.putUser)
 
 router.get(
   '/admins/products',
@@ -66,6 +75,10 @@ router.get(
   adminController.getProducts
 )
 router.get('/admins/products/:id', adminController.getProduct)
+router.post('/admins/products', adminController.addProduct)
+router.put('/admins/products/:id', adminController.putProduct)
+router.delete('/admins/products/:id', adminController.deleteProduct)
+
 router.get('/admins/products/:id/stocks', adminController.getProductStocks)
 router.get(
   '/admins/products/:id/stocks/:stock_id',
@@ -85,7 +98,6 @@ router.get('/admins/orders/:id', adminController.getOrder)
 router.put('/admins/orders/:id', adminController.putOrder)
 
 router.get('/admins/categories', categoryController.getCategories)
-router.get('/admins/categories/:id', categoryController.getCategories)
 router.post('/admins/categories/', categoryController.addCategory)
 router.put('/admins/categories/:id', categoryController.putCategory)
 router.delete('/admins/categories/:id', categoryController.deleteCategory)

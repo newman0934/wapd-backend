@@ -295,6 +295,31 @@ const userService = {
     }
 
     return callback({ user })
+  },
+
+  putUser: async (req, res, callback) => {
+    const user = await User.findByPk(req.user.id)
+
+    if (!user) {
+      return callback({
+        status: 'error',
+        message: 'user not found!!'
+      })
+    }
+
+    if (!req.body.email) {
+      return callback({
+        status: 'error',
+        message: 'must input email!!'
+      })
+    }
+
+    await user.update(req.body)
+
+    return callback({
+      status: 'success',
+      message: 'user successfully edited'
+    })
   }
 }
 
