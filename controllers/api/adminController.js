@@ -55,6 +55,12 @@ const adminController = {
     })
   },
 
+  deleteProductStockProp: (req, res) => {
+    adminService.deleteProductStockProp(req, res, data => {
+      return res.json(data)
+    })
+  },
+
   getOrders: (req, res) => {
     adminService.getOrders(req, res, data => {
       return res.json(data)

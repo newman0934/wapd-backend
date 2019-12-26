@@ -92,6 +92,10 @@ router.post(
   '/admins/products/:id/stocks/',
   adminController.addProductStockProps
 )
+router.delete(
+  '/admins/products/:id/stocks/:stock_id',
+  adminController.deleteProductStockProp
+)
 
 router.get('/admins/orders', adminController.getOrders)
 router.get('/admins/orders/:id', adminController.getOrder)
