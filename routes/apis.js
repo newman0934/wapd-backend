@@ -42,6 +42,11 @@ router.get('/users/:id/wishlist', authenticated, userController.getUserWishlist)
 
 router.get('/users/:id/cart', authenticated, cartController.getUserCart)
 router.post('/products/cart', authenticated, cartController.postCart)
+router.put(
+  '/users/:id/cart/:item_id',
+  authenticated,
+  cartController.putCartQuantity
+)
 router.post('/products/notLoginCart', cartController.notLoginPostCart)
 router.delete(
   '/users/cart/:id',

@@ -18,6 +18,12 @@ const cartController = {
     })
   },
 
+  putCartQuantity: (req, res) => {
+    cartService.putCartQuantity(req, res, data => {
+      return res.json(data)
+    })
+  },
+
   deleteCartProduct: (req, res) => {
     cartService.deleteCartProduct(req, res, data => {
       return res.json(data)

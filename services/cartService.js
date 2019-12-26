@@ -140,6 +140,24 @@ const cartService = {
     })
   },
 
+  putCartQuantity: async (req, res, callback) => {
+    const cartItem = await CartItem.findByPk(req.params.item_id)
+    if (!cartItem) {
+      return callback({
+        status: 'error',
+        message: 'no matched cartItem found!!'
+      })
+    }
+    await cartItem.update({
+      quantity: req.body.quantity
+    })
+    return callback({
+      status: 'success',
+      message: 'cartItem updated successful!!',
+      cartItemId: cartItem.id
+    })
+  },
+
   deleteCartProduct: async (req, res, callback) => {
     const cartItem = await CartItem.destroy({
       where: {
