@@ -288,6 +288,24 @@ const adminService = {
     return callback({ status: 'OK' })
   },
 
+  deleteProductStockProp: async (req, res, callback) => {
+    const productStatusResult = await ProductStatus.findByPk(
+      req.params.stock_id
+    )
+
+    if (!productStatusResult) {
+      return callback({
+        status: 'error',
+        message: 'no matching productStatus founded!!'
+      })
+    }
+    await productStatusResult.destroy()
+    return callback({
+      status: 'success',
+      message: 'productStatus is successfully deleted!!'
+    })
+  },
+
   getOrders: async (req, res, callback) => {
     const orderResult = await Order.findAll()
     const orders = orderResult.map(d => ({
