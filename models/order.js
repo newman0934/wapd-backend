@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       address: DataTypes.STRING,
       receiver_name: DataTypes.STRING,
       comment: DataTypes.STRING,
-      sn: DataTypes.INTEGER,
+      sn: DataTypes.BIGINT,
       UserId: DataTypes.INTEGER,
       CouponId: DataTypes.INTEGER
     },

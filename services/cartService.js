@@ -63,6 +63,9 @@ const cartService = {
     return callback({ userCart })
   },
   notLoginPostCart: async (req, res, callback) => {
+    console.log('notLoginPostCart revoked!!')
+    console.log('req.session.tempCartItems: ' + req.session.tempCartItems)
+    console.log(req.body)
     if (!req.session.tempCartItems) {
       req.session.tempCartItems = []
     }
@@ -105,6 +108,7 @@ const cartService = {
   },
 
   postCart: async (req, res, callback) => {
+    console.log('postCart revoked!!')
     const cartItem = await CartItem.findOne({
       where: {
         ProductId: +req.body.productId,
@@ -141,6 +145,7 @@ const cartService = {
   },
 
   putCartQuantity: async (req, res, callback) => {
+    console.log(req.body)
     const cartItem = await CartItem.findByPk(req.params.item_id)
     if (!cartItem) {
       return callback({
@@ -148,8 +153,15 @@ const cartService = {
         message: 'no matched cartItem found!!'
       })
     }
+    if (!req.body.quantity) {
+      return callback({
+        status: 'error',
+        message: 'please write quantity!!'
+      })
+    }
+
     await cartItem.update({
-      quantity: req.body.quantity
+      quantity: +req.body.quantity
     })
     return callback({
       status: 'success',

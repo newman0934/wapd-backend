@@ -123,17 +123,10 @@ const userController = {
 
         const payload = { id: user.id }
         const token = jwt.sign(payload, process.env.JWT_SECRET)
-        // 建立未登入時使用的購物車關聯
-        if (req.session.cartId) {
-          const cartItems = await CartItem.findAll({
-            where: {
-              CartId: req.session.cartId
-            }
-          })
-
-          cartItems.forEach(async function(instance) {
-            await instance.update({ UserId: user.id })
-          })
+        // 如果 session 存在暫存的商品，正式將其加進會員的購物車
+        if (req.session.tempCartItems) {
+          req.session.tempCartItems.map(d => (d.UserId = user.id))
+          await CartItem.bulkCreate(req.session.tempCartItems)
         }
 
         return res.json({
