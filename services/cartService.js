@@ -63,6 +63,9 @@ const cartService = {
     return callback({ userCart })
   },
   notLoginPostCart: async (req, res, callback) => {
+    console.log('notLoginPostCart revoked!!')
+    console.log('req.session.tempCartItems: ' + req.session.tempCartItems)
+    console.log(req.body)
     if (!req.session.tempCartItems) {
       req.session.tempCartItems = []
     }
@@ -105,6 +108,7 @@ const cartService = {
   },
 
   postCart: async (req, res, callback) => {
+    console.log('postCart revoked!!')
     const cartItem = await CartItem.findOne({
       where: {
         ProductId: +req.body.productId,
