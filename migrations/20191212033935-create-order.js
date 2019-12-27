@@ -36,7 +36,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       sn: {
-        type: Sequelize.INTEGER
+        type: Sequelize.BIGINT
       },
       CouponId: {
         type: Sequelize.INTEGER
