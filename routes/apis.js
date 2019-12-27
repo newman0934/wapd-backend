@@ -43,14 +43,23 @@ router.get('/users/:id/orders/:order_id', userController.getUserOrder)
 router.get('/users/:id/wishlist', authenticated, userController.getUserWishlist)
 
 router.get('/users/:id/cart', authenticated, cartController.getUserCart)
-router.post('/products/cart', authenticated, cartController.postCart)
+router.post(
+  '/products/cart',
+  upload.array(),
+  authenticated,
+  cartController.postCart
+)
 router.put(
   '/users/:id/cart/:item_id',
   authenticated,
   upload.array(),
   cartController.putCartQuantity
 )
-router.post('/products/notLoginCart', cartController.notLoginPostCart)
+router.post(
+  '/products/notLoginCart',
+  upload.array(),
+  cartController.notLoginPostCart
+)
 router.delete(
   '/users/cart/:id',
   authenticated,
