@@ -91,6 +91,7 @@ const userController = {
         role: user.role,
         phone: user.phone,
         address: user.address,
+        birthday: user.birthday,
         FavoritedProductsId: user.FavoritedProducts
           ? user.FavoritedProducts.map(d => d.id)
           : []
