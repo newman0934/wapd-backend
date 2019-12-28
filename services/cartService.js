@@ -56,8 +56,8 @@ const cartService = {
         CartId: data.CartId,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt
-      })),
-      cartId: null || userCartResult.CartItems[0].CartId
+      }))
+      // cartId: null || userCartResult.CartItems[0].CartId
     }
 
     return callback({ userCart })
