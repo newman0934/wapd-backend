@@ -6,6 +6,7 @@ const adminController = require('../controllers/api/adminController')
 const userController = require('../controllers/api/userController')
 const categoryController = require('../controllers/api/categoryController')
 const cartController = require('../controllers/api/cartController')
+const orderController = require('../controllers/api/orderController')
 const multer = require('multer')
 const upload = multer()
 
@@ -65,6 +66,8 @@ router.delete(
   authenticated,
   cartController.deleteCartProduct
 )
+
+router.post('/users/orders', authenticated, orderController.postOrder)
 
 router.get(
   '/users/password_change',
