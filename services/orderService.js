@@ -7,6 +7,7 @@ const Cart = db.Cart
 const CartItem = db.CartItem
 const Coupon = db.Coupon
 const Product = db.Product
+const Image = db.Image
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -197,7 +198,8 @@ const orderService = {
     // step5: 完成後 callback 結果
     return callback({
       status: 'success',
-      message: 'Order successfully created'
+      message: 'Order successfully created',
+      OrderId: order.id
     })
   },
   postCoupon: async (req, res, callback) => {
@@ -220,10 +222,39 @@ const orderService = {
       message: 'coupon is valid!!'
     })
   },
-  getCheckout: async (req, res) => {
+  getCheckout: async (req, res, callback) => {
     console.log('===== getCheckout =====')
     console.log(req.params.id)
     console.log('==========')
+
+    const orderResult = await Order.findByPk(req.params.id, {
+      include: { model: Product, as: 'items', include: Image }
+    })
+    if (!orderResult) {
+      return callback({
+        status: 'error',
+        message: 'order does not exist!!'
+      })
+    }
+
+    if (orderResult.UserId !== req.user.id) {
+      return callback({
+        status: 'error',
+        message: 'order does not belong to current user!!'
+      })
+    }
+
+    const orderItems = orderResult.items.map(d => ({
+      orderItem: d.OrderItem,
+      images: d.Images,
+      productName: d.name, // 商品名稱
+      subtotal: d.OrderItem.sell_price * d.OrderItem.quantity // 商品小計
+    }))
+
+    const orderSubTotal =
+      orderItems.length === 1
+        ? orderItems[0].subtotal
+        : orderItems.reduce((a, b) => a.subtotal + b.subtotal)
 
     // return Order.findByPk(req.params.id, {}).then(order => {
     //   const tradeInfo = getTradeInfo(
@@ -240,7 +271,13 @@ const orderService = {
     //       res.render('payment', { order, tradeInfo })
     //     })
     // })
+    return callback({
+      orderItems,
+      orderSubTotal
+    })
   },
+
+  // TODO: 將 postOrder 的寄信動作調整到 spgatewayCallback
   spgatewayCallback: (req, res) => {
     // 藍新流程完成，回傳支付結果
     console.log('===== spgatewayCallback =====')
