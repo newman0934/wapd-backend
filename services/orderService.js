@@ -223,10 +223,6 @@ const orderService = {
     })
   },
   getCheckout: async (req, res, callback) => {
-    console.log('===== getCheckout =====')
-    console.log(req.params.id)
-    console.log('==========')
-
     const orderResult = await Order.findByPk(req.params.id, {
       include: { model: Product, as: 'items', include: Image }
     })
@@ -256,6 +252,18 @@ const orderService = {
         ? orderItems[0].subtotal
         : orderItems.reduce((a, b) => a.subtotal + b.subtotal)
 
+    // 如果有折價券就抓出折價券
+    let couponDiscount = 0
+    if (orderResult.CouponId) {
+      const coupon = await Coupon.findByPk(orderResult.CouponId)
+      couponDiscount = coupon.discount_amount
+    }
+
+    // TODO: 串接物流後設定運費
+    const shippingTotal = 0
+
+    const total = orderSubTotal - couponDiscount - shippingTotal
+
     // return Order.findByPk(req.params.id, {}).then(order => {
     //   const tradeInfo = getTradeInfo(
     //     order.amount,
@@ -272,8 +280,11 @@ const orderService = {
     //     })
     // })
     return callback({
-      orderItems,
-      orderSubTotal
+      orderItems, // 商品
+      orderSubTotal, // 所有商品小計
+      couponDiscount, // 折扣
+      shippingTotal, // 運費
+      total // 總額
     })
   },
 
