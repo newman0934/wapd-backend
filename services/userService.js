@@ -189,7 +189,7 @@ const userService = {
       subject: `【wapd】忘記密碼認證函`,
       text: `您好：
       我們收到了您忘記密碼的請求，請點選以下連結重設密碼：
-      http://localhost:3000/users/password_reset/${token.id}/${randomToken}/
+      http://localhost:8080/#/users/password_reset/${token.id}/${randomToken}/
       為了您帳號的安全，請勿將此連結洩漏給任何人，感謝您`
     }
     // 寄信
