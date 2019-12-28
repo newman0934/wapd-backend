@@ -62,6 +62,7 @@ const cartService = {
 
     return callback({ userCart })
   },
+
   notLoginPostCart: async (req, res, callback) => {
     console.log('notLoginPostCart revoked!!')
     console.log('req.session.tempCartItems: ' + req.session.tempCartItems)
