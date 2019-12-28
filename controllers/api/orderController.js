@@ -16,6 +16,11 @@ let orderController = {
       return res.json(data)
     })
   },
+  getCheckout: (req, res) => {
+    orderService.getCheckout(req, res, data => {
+      return res.json(data)
+    })
+  },
   spgatewayCallback: (req, res) => {
     orderService.spgatewayCallback(req, res, data => {
       return res.json(data)
