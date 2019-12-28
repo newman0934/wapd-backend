@@ -191,24 +191,13 @@ const orderService = {
         console.log('Email sent: ' + info.response)
       }
     })
-    // step4: 完成後 callback 結果
+    // step4: 訂單成立，刪除購物車
+    await CartItem.destroy({ where: { UserId: req.user.id } })
+
+    // step5: 完成後 callback 結果
     return callback({
       status: 'success',
       message: 'Order successfully created'
-    })
-  },
-  cancelOrder: (req, res) => {
-    // 訂單取消時將 shipping_status 及 payment_status 改為 -1 代表訂單失效
-    return Order.findByPk(req.params.id, {}).then(order => {
-      order
-        .update({
-          ...req.body,
-          shipping_status: '-1',
-          payment_status: '-1'
-        })
-        .then(order => {
-          return res.redirect('back')
-        })
     })
   },
   getPayment: (req, res) => {
