@@ -15,10 +15,10 @@ const transporter = nodemailer.createTransport({
 })
 
 const URL = process.env.URL
-const MerchantID = process.env.MERCHANT_ID
-const HashKey = process.env.HASH_KEY
-const HashIV = process.env.HASH_IV
-const PayGateWay = 'https://ccore.spgateway.com/MPG/mpg_gateway'
+const MerchantID = process.env.MERCHANT_ID // 藍新商店代號
+const HashKey = process.env.HASH_KEY // 藍新金鑰
+const HashIV = process.env.HASH_IV // 藍新金鑰
+const PayGateWay = 'https://ccore.spgateway.com/MPG/mpg_gateway' // 藍新支付網頁
 const ReturnURL = URL + '/spgateway/callback?from=ReturnURL'
 const NotifyURL = URL + '/spgateway/callback?from=NotifyURL'
 const ClientBackURL = URL + '/orders'
@@ -66,6 +66,7 @@ function getTradeInfo(Amt, Desc, email) {
   console.log('==========')
 
   data = {
+    // 這是要給藍新的資料
     MerchantID: MerchantID, // 商店代號
     RespondType: 'JSON', // 回傳格式
     TimeStamp: Date.now(), // 時間戳記
@@ -94,7 +95,7 @@ function getTradeInfo(Amt, Desc, email) {
   tradeInfo = {
     MerchantID: MerchantID, // 商店代號
     TradeInfo: mpg_aes_encrypt, // 加密後參數
-    TradeSha: mpg_sha_encrypt,
+    TradeSha: mpg_sha_encrypt, // 雜湊後參數
     Version: 1.5, // 串接程式版本
     PayGateWay: PayGateWay, // 發送 API 的位址
     MerchantOrderNo: data.MerchantOrderNo // 商品代碼(存到DB用的)
@@ -116,6 +117,7 @@ let orderController = {
   },
   postOrder: (req, res) => {
     return Cart.findByPk(req.body.cartId, { include: 'items' }).then(cart => {
+      // step1: 建立訂單
       return Order.create({
         name: req.body.name,
         address: req.body.address,
@@ -125,6 +127,7 @@ let orderController = {
         amount: req.body.amount
       }).then(order => {
         var results = []
+        // step2: 將購物車中的商品移至訂單
         for (var i = 0; i < cart.items.length; i++) {
           console.log(order.id, cart.items[i].id)
           results.push(
@@ -136,10 +139,10 @@ let orderController = {
             })
           )
         }
-
+        // step3: 訂單成立後寄信給購買者
         var mailOptions = {
-          from: 'caesarwang0937@gmail.com',
-          to: 'caesarwang0937@gmail.com',
+          from: `wapd official <${process.env.EMAIL_ACCOUNT}>`,
+          to: 'caesarwang0937@gmail.com', // 收件人
           subject: `${order.id} 訂單成立`,
           text: `${order.id} 訂單成立`
         }
@@ -151,12 +154,13 @@ let orderController = {
             console.log('Email sent: ' + info.response)
           }
         })
-
+        // step4: 確認所有 Promise 完成後導回 /orders
         return Promise.all(results).then(() => res.redirect('/orders'))
       })
     })
   },
   cancelOrder: (req, res) => {
+    // 訂單取消時將 shipping_status 及 payment_status 改為 -1 代表訂單失效
     return Order.findByPk(req.params.id, {}).then(order => {
       order
         .update({
@@ -191,6 +195,7 @@ let orderController = {
     })
   },
   spgatewayCallback: (req, res) => {
+    // 藍新流程完成，回傳支付結果
     console.log('===== spgatewayCallback =====')
     console.log(req.method)
     console.log(req.query)
@@ -199,13 +204,14 @@ let orderController = {
 
     console.log('===== spgatewayCallback: TradeInfo =====')
     console.log(req.body.TradeInfo)
-
+    // 把 TradeInfo 解密並轉為 json 格式
     const data = JSON.parse(create_mpg_aes_decrypt(req.body.TradeInfo))
 
     console.log('===== spgatewayCallback: create_mpg_aes_decrypt、data =====')
     console.log(data)
 
     return Order.findAll({
+      // 把訂單中的付款狀態轉為 1
       where: { sn: data['Result']['MerchantOrderNo'] }
     }).then(orders => {
       orders[0]
@@ -214,6 +220,7 @@ let orderController = {
           payment_status: 1
         })
         .then(order => {
+          // 支付完畢，導向 /orders 頁面
           return res.redirect('/orders')
         })
     })
