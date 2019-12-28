@@ -200,26 +200,46 @@ const orderService = {
       message: 'Order successfully created'
     })
   },
-  getPayment: (req, res) => {
-    console.log('===== getPayment =====')
+  postCoupon: async (req, res, callback) => {
+    let couponResult = null
+    if (req.body.couponCode) {
+      couponResult = await Coupon.findOne({
+        where: {
+          coupon_code: req.body.couponCode
+        }
+      })
+      if (!couponResult) {
+        return callback({
+          status: 'error',
+          message: 'coupon is not existed!!'
+        })
+      }
+    }
+    return callback({
+      status: 'success',
+      message: 'coupon is valid!!'
+    })
+  },
+  getCheckout: async (req, res) => {
+    console.log('===== getCheckout =====')
     console.log(req.params.id)
     console.log('==========')
 
-    return Order.findByPk(req.params.id, {}).then(order => {
-      const tradeInfo = getTradeInfo(
-        order.amount,
-        '產品名稱',
-        'caesarwang0937@gmail.com'
-      )
-      order
-        .update({
-          ...req.body,
-          sn: tradeInfo.MerchantOrderNo
-        })
-        .then(order => {
-          res.render('payment', { order, tradeInfo })
-        })
-    })
+    // return Order.findByPk(req.params.id, {}).then(order => {
+    //   const tradeInfo = getTradeInfo(
+    //     order.amount,
+    //     '產品名稱',
+    //     'caesarwang0937@gmail.com'
+    //   )
+    //   order
+    //     .update({
+    //       ...req.body,
+    //       sn: tradeInfo.MerchantOrderNo
+    //     })
+    //     .then(order => {
+    //       res.render('payment', { order, tradeInfo })
+    //     })
+    // })
   },
   spgatewayCallback: (req, res) => {
     // 藍新流程完成，回傳支付結果

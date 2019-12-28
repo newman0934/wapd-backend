@@ -88,6 +88,9 @@ router.post('/users/password_reset', userController.postPasswordReset)
 router.get('/users/:id/edit', authenticated, userController.getUserEdit)
 router.put('/users/edit', authenticated, userController.putUser)
 
+// router.get('/orders/:id/checkout')
+router.post('/coupon', orderController.postCoupon)
+
 router.get(
   '/admins/products',
   authenticated,

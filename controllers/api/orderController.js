@@ -11,8 +11,8 @@ let orderController = {
       return res.json(data)
     })
   },
-  cancelOrder: (req, res) => {
-    orderService.cancelOrder(req, res, data => {
+  postCoupon: (req, res) => {
+    orderService.postCoupon(req, res, data => {
       return res.json(data)
     })
   },
