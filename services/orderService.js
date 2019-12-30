@@ -426,7 +426,8 @@ const orderService = {
     return callback({
       orderItems,
       buyer,
-      receiver
+      receiver,
+      total: orderResult.total_price
     })
   }
 }
