@@ -22,8 +22,8 @@ const MerchantID = process.env.MERCHANT_ID // 藍新商店代號
 const HashKey = process.env.HASH_KEY // 藍新金鑰
 const HashIV = process.env.HASH_IV // 藍新金鑰
 const PayGateWay = 'https://ccore.spgateway.com/MPG/mpg_gateway' // 藍新支付網頁
-const ReturnURL = URL + '/spgateway/callback?from=ReturnURL'
-const NotifyURL = URL + '/spgateway/callback?from=NotifyURL'
+const ReturnURL = URL + '/api/spgateway/callback?from=ReturnURL'
+const NotifyURL = URL + '/api/spgateway/callback?from=NotifyURL'
 const ClientBackURL = URL + '/orders'
 
 /* ----- 藍新用 function start ----- */
@@ -262,7 +262,7 @@ const orderService = {
     // TODO: 串接物流後設定運費
     const shippingTotal = 0
 
-    const total = orderSubTotal - couponDiscount - shippingTotal
+    const total = orderSubTotal - couponDiscount + shippingTotal
 
     // return Order.findByPk(req.params.id, {}).then(order => {
     //   const tradeInfo = getTradeInfo(
@@ -285,6 +285,63 @@ const orderService = {
       couponDiscount, // 折扣
       shippingTotal, // 運費
       total // 總額
+    })
+  },
+
+  postCheckout: async (req, res, callback) => {
+    // TODO: 將結帳資訊儲存至對應資料表中
+    const order = await Order.findByPk(+req.body.orderId)
+    // 如果 order 不屬於該使用者會回傳 error
+    if (order.UserId !== req.user.id) {
+      return callback({
+        status: 'error',
+        message: 'current user does not match with order!!',
+        orderId: req.body.orderId
+      })
+    }
+    // 如果收件人欄位沒填妥會回傳 error
+    if (
+      !req.body.receiverName ||
+      !req.body.receiverPhone ||
+      !req.body.receiverAddress ||
+      !req.body.total
+    ) {
+      return callback({
+        status: 'error',
+        message: 'every column must be input',
+        orderId: req.body.orderId
+      })
+    }
+    await order.update({
+      receiver_name: req.body.receiverName,
+      phone: req.body.receiverPhone,
+      address: req.body.receiverAddress,
+      // req.body.receiverEMail
+      total_price: req.body.total
+    })
+    // 成功後會回傳 orderId
+    return callback({
+      status: 'success',
+      message: 'postCheckout successful',
+      orderId: req.body.orderId
+    })
+  },
+
+  getPayment: async (req, res, callback) => {
+    // TODO: 準備藍新所需資訊
+    const order = await Order.findByPk(req.params.id)
+    const total = order.total_price
+    const orderId = req.params.id
+    const email = req.user.email
+    const tradeInfo = getTradeInfo(total, orderId, email)
+    await order.update({
+      sn: tradeInfo.MerchantOrderNo
+    })
+    return callback({
+      tradeInfo,
+      total,
+      orderId,
+      email
     })
   },
 
@@ -315,8 +372,8 @@ const orderService = {
           payment_status: 1
         })
         .then(order => {
-          // 支付完畢，導向 /orders 頁面
-          return res.redirect('/orders')
+          // 支付完畢，導向指定頁面
+          return res.redirect(`http://localhost:8080/#/`)
         })
     })
   }
