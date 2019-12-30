@@ -8,6 +8,7 @@ const CartItem = db.CartItem
 const Coupon = db.Coupon
 const Product = db.Product
 const Image = db.Image
+const User = db.User
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -346,7 +347,7 @@ const orderService = {
   },
 
   // TODO: 將 postOrder 的寄信動作調整到 spgatewayCallback
-  spgatewayCallback: (req, res) => {
+  spgatewayCallback: async (req, res) => {
     // 藍新流程完成，回傳支付結果
     console.log('===== spgatewayCallback =====')
     console.log(req.method)
@@ -362,19 +363,70 @@ const orderService = {
     console.log('===== spgatewayCallback: create_mpg_aes_decrypt、data =====')
     console.log(data)
 
-    return Order.findAll({
-      // 把訂單中的付款狀態轉為 1
-      where: { sn: data['Result']['MerchantOrderNo'] }
-    }).then(orders => {
-      orders[0]
-        .update({
-          ...req.body,
-          payment_status: 1
-        })
-        .then(order => {
-          // 支付完畢，導向指定頁面
-          return res.redirect(`http://localhost:8080/#/`)
-        })
+    const order = await Order.findOne({
+      where: { sn: data['Result']['MerchantOrderNo'] },
+      include: {
+        model: Product,
+        as: 'items'
+      }
+    })
+
+    await order.update({
+      payment_status: 1,
+      payment_method: data.PaymentType
+    })
+
+    const resData = {
+      Status: data.Status,
+      orderId: order.id
+    }
+
+    return res.redirect(
+      `http://localhost:8080/#/users/${order.UserId}/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
+    )
+  },
+
+  getPaymentComplete: async (req, res, callback) => {
+    if (!Object.keys(req.query).length) {
+      return callback({
+        status: 'error',
+        message: 'route is invalid!!'
+      })
+    }
+    const { Status, orderId } = req.query
+    const orderResult = await Order.findByPk(orderId, {
+      include: { model: Product, as: 'items', include: Image }
+    })
+    if (Status !== 'SUCCESS' || orderResult.payment_status !== '1') {
+      return callback({
+        status: 'error',
+        message: 'payment failed!!'
+      })
+    }
+
+    const userResult = await User.findByPk(req.user.id)
+    const buyer = {
+      name: userResult.name,
+      phone: userResult.phone,
+      email: userResult.email,
+      address: userResult.address
+    }
+    const receiver = {
+      name: orderResult.receiver_name,
+      phone: orderResult.phone,
+      // email: orderResult.email 目前資料表無此欄位
+      address: orderResult.address
+    }
+    const orderItems = orderResult.items.map(d => ({
+      name: `${d.name}-${d.OrderItem.color}-${d.OrderItem.size}`,
+      quantity: d.OrderItem.quantity,
+      images: d.Images
+    }))
+
+    return callback({
+      orderItems,
+      buyer,
+      receiver
     })
   }
 }

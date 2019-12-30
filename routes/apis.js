@@ -140,5 +140,10 @@ router.post(
 )
 router.get(`/orders/:id/payment`, authenticated, orderController.getPayment)
 router.post(`/spgateway/callback`, orderController.spgatewayCallback)
+router.get(
+  `/users/:id/paymentcomplete`,
+  authenticated,
+  orderController.getPaymentComplete
+)
 
 module.exports = router
