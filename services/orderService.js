@@ -8,6 +8,7 @@ const CartItem = db.CartItem
 const Coupon = db.Coupon
 const Product = db.Product
 const Image = db.Image
+const User = db.User
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -22,8 +23,8 @@ const MerchantID = process.env.MERCHANT_ID // 藍新商店代號
 const HashKey = process.env.HASH_KEY // 藍新金鑰
 const HashIV = process.env.HASH_IV // 藍新金鑰
 const PayGateWay = 'https://ccore.spgateway.com/MPG/mpg_gateway' // 藍新支付網頁
-const ReturnURL = URL + '/spgateway/callback?from=ReturnURL'
-const NotifyURL = URL + '/spgateway/callback?from=NotifyURL'
+const ReturnURL = URL + '/api/spgateway/callback?from=ReturnURL'
+const NotifyURL = URL + '/api/spgateway/callback?from=NotifyURL'
 const ClientBackURL = URL + '/orders'
 
 /* ----- 藍新用 function start ----- */
@@ -178,20 +179,8 @@ const orderService = {
       })
     }
 
-    // step3: 訂單成立後寄信給購買者(OK)
-    const mailOptions = {
-      from: `wapd official <${process.env.EMAIL_ACCOUNT}>`,
-      to: 'caesarwang0937@gmail.com', // 收件人
-      subject: `${order.id} 訂單成立`,
-      text: `${order.id} 訂單成立`
-    }
-    transporter.sendMail(mailOptions, function(error, info) {
-      if (error) {
-        console.log(error)
-      } else {
-        console.log('Email sent: ' + info.response)
-      }
-    })
+    // step3: 訂單成立後寄信給購買者(移至getPaymentComplete)
+
     // step4: 訂單成立，刪除購物車
     await CartItem.destroy({ where: { UserId: req.user.id } })
 
@@ -262,23 +251,7 @@ const orderService = {
     // TODO: 串接物流後設定運費
     const shippingTotal = 0
 
-    const total = orderSubTotal - couponDiscount - shippingTotal
-
-    // return Order.findByPk(req.params.id, {}).then(order => {
-    //   const tradeInfo = getTradeInfo(
-    //     order.amount,
-    //     '產品名稱',
-    //     'caesarwang0937@gmail.com'
-    //   )
-    //   order
-    //     .update({
-    //       ...req.body,
-    //       sn: tradeInfo.MerchantOrderNo
-    //     })
-    //     .then(order => {
-    //       res.render('payment', { order, tradeInfo })
-    //     })
-    // })
+    const total = orderSubTotal - couponDiscount + shippingTotal
     return callback({
       orderItems, // 商品
       orderSubTotal, // 所有商品小計
@@ -288,8 +261,65 @@ const orderService = {
     })
   },
 
+  postCheckout: async (req, res, callback) => {
+    // TODO: 將結帳資訊儲存至對應資料表中
+    const order = await Order.findByPk(+req.body.orderId)
+    // 如果 order 不屬於該使用者會回傳 error
+    if (order.UserId !== req.user.id) {
+      return callback({
+        status: 'error',
+        message: 'current user does not match with order!!',
+        orderId: req.body.orderId
+      })
+    }
+    // 如果收件人欄位沒填妥會回傳 error
+    if (
+      !req.body.receiverName ||
+      !req.body.receiverPhone ||
+      !req.body.receiverAddress ||
+      !req.body.total
+    ) {
+      return callback({
+        status: 'error',
+        message: 'every column must be input',
+        orderId: req.body.orderId
+      })
+    }
+    await order.update({
+      receiver_name: req.body.receiverName,
+      phone: req.body.receiverPhone,
+      address: req.body.receiverAddress,
+      // req.body.receiverEMail
+      total_price: req.body.total
+    })
+    // 成功後會回傳 orderId
+    return callback({
+      status: 'success',
+      message: 'postCheckout successful',
+      orderId: req.body.orderId
+    })
+  },
+
+  getPayment: async (req, res, callback) => {
+    // TODO: 準備藍新所需資訊
+    const order = await Order.findByPk(req.params.id)
+    const total = order.total_price
+    const orderId = req.params.id
+    const email = req.user.email
+    const tradeInfo = getTradeInfo(total, orderId, email)
+    await order.update({
+      sn: tradeInfo.MerchantOrderNo
+    })
+    return callback({
+      tradeInfo,
+      total,
+      orderId,
+      email
+    })
+  },
+
   // TODO: 將 postOrder 的寄信動作調整到 spgatewayCallback
-  spgatewayCallback: (req, res) => {
+  spgatewayCallback: async (req, res) => {
     // 藍新流程完成，回傳支付結果
     console.log('===== spgatewayCallback =====')
     console.log(req.method)
@@ -305,19 +335,88 @@ const orderService = {
     console.log('===== spgatewayCallback: create_mpg_aes_decrypt、data =====')
     console.log(data)
 
-    return Order.findAll({
-      // 把訂單中的付款狀態轉為 1
-      where: { sn: data['Result']['MerchantOrderNo'] }
-    }).then(orders => {
-      orders[0]
-        .update({
-          ...req.body,
-          payment_status: 1
-        })
-        .then(order => {
-          // 支付完畢，導向 /orders 頁面
-          return res.redirect('/orders')
-        })
+    const order = await Order.findOne({
+      where: { sn: data['Result']['MerchantOrderNo'] },
+      include: {
+        model: Product,
+        as: 'items'
+      }
+    })
+
+    await order.update({
+      payment_status: 1,
+      payment_method: data.PaymentType
+    })
+
+    const resData = {
+      Status: data.Status,
+      orderId: order.id
+    }
+
+    return res.redirect(
+      `http://localhost:8080/#/users/${order.UserId}/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
+    )
+  },
+
+  getPaymentComplete: async (req, res, callback) => {
+    if (!Object.keys(req.query).length) {
+      return callback({
+        status: 'error',
+        message: 'route is invalid!!'
+      })
+    }
+    const { Status, orderId } = req.query
+    const orderResult = await Order.findByPk(orderId, {
+      include: { model: Product, as: 'items', include: Image }
+    })
+    if (Status !== 'SUCCESS' || orderResult.payment_status !== '1') {
+      return callback({
+        status: 'error',
+        message: 'payment failed!!'
+      })
+    }
+
+    const userResult = await User.findByPk(req.user.id)
+    const buyer = {
+      name: userResult.name,
+      phone: userResult.phone,
+      email: userResult.email,
+      address: userResult.address
+    }
+    const receiver = {
+      name: orderResult.receiver_name,
+      phone: orderResult.phone,
+      // email: orderResult.email 目前資料表無此欄位
+      address: orderResult.address
+    }
+    const orderItems = orderResult.items.map(d => ({
+      name: `${d.name}-${d.OrderItem.color}-${d.OrderItem.size}`,
+      quantity: d.OrderItem.quantity,
+      images: d.Images
+    }))
+
+    // 寄信給收件者
+    const mailOptions = {
+      from: `wapd official <${process.env.EMAIL_ACCOUNT}>`,
+      to: buyer.email, // 收件人
+      subject: `【wapd】訂單 ${orderResult.id} 建立成功`,
+      text: `親愛的 ${buyer.name} 您好：
+      您購買的商品已收到款項，如有任何問題請聯繫我們，謝謝您
+      `
+    }
+    transporter.sendMail(mailOptions, function(error, info) {
+      if (error) {
+        console.log(error)
+      } else {
+        console.log('Email sent: ' + info.response)
+      }
+    })
+
+    return callback({
+      orderItems,
+      buyer,
+      receiver,
+      total: orderResult.total_price
     })
   }
 }

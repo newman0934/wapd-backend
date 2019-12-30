@@ -132,4 +132,18 @@ router.delete('/admins/categories/:id', categoryController.deleteCategory)
 router.get('/admins/users', adminController.getUsers)
 router.get('/admins/users/:id/orders', adminController.getUserOrders)
 
+router.post(
+  `/orders/checkout`,
+  authenticated,
+  upload.array(),
+  orderController.postCheckout
+)
+router.get(`/orders/:id/payment`, authenticated, orderController.getPayment)
+router.post(`/spgateway/callback`, orderController.spgatewayCallback)
+router.get(
+  `/users/:id/paymentcomplete`,
+  authenticated,
+  orderController.getPaymentComplete
+)
+
 module.exports = router

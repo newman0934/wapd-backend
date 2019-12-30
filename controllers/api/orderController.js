@@ -21,8 +21,23 @@ let orderController = {
       return res.json(data)
     })
   },
+  postCheckout: (req, res) => {
+    orderService.postCheckout(req, res, data => {
+      return res.json(data)
+    })
+  },
+  getPayment: (req, res) => {
+    orderService.getPayment(req, res, data => {
+      return res.json(data)
+    })
+  },
   spgatewayCallback: (req, res) => {
     orderService.spgatewayCallback(req, res, data => {
+      return res.json(data)
+    })
+  },
+  getPaymentComplete: (req, res) => {
+    orderService.getPaymentComplete(req, res, data => {
       return res.json(data)
     })
   }
