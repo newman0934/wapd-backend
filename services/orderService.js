@@ -179,20 +179,8 @@ const orderService = {
       })
     }
 
-    // step3: 訂單成立後寄信給購買者(OK)
-    const mailOptions = {
-      from: `wapd official <${process.env.EMAIL_ACCOUNT}>`,
-      to: 'caesarwang0937@gmail.com', // 收件人
-      subject: `${order.id} 訂單成立`,
-      text: `${order.id} 訂單成立`
-    }
-    transporter.sendMail(mailOptions, function(error, info) {
-      if (error) {
-        console.log(error)
-      } else {
-        console.log('Email sent: ' + info.response)
-      }
-    })
+    // step3: 訂單成立後寄信給購買者(移至getPaymentComplete)
+
     // step4: 訂單成立，刪除購物車
     await CartItem.destroy({ where: { UserId: req.user.id } })
 
@@ -264,22 +252,6 @@ const orderService = {
     const shippingTotal = 0
 
     const total = orderSubTotal - couponDiscount + shippingTotal
-
-    // return Order.findByPk(req.params.id, {}).then(order => {
-    //   const tradeInfo = getTradeInfo(
-    //     order.amount,
-    //     '產品名稱',
-    //     'caesarwang0937@gmail.com'
-    //   )
-    //   order
-    //     .update({
-    //       ...req.body,
-    //       sn: tradeInfo.MerchantOrderNo
-    //     })
-    //     .then(order => {
-    //       res.render('payment', { order, tradeInfo })
-    //     })
-    // })
     return callback({
       orderItems, // 商品
       orderSubTotal, // 所有商品小計
@@ -422,6 +394,23 @@ const orderService = {
       quantity: d.OrderItem.quantity,
       images: d.Images
     }))
+
+    // 寄信給收件者
+    const mailOptions = {
+      from: `wapd official <${process.env.EMAIL_ACCOUNT}>`,
+      to: buyer.email, // 收件人
+      subject: `【wapd】訂單 ${orderResult.id} 建立成功`,
+      text: `親愛的 ${buyer.name} 您好：
+      您購買的商品已收到款項，如有任何問題請聯繫我們，謝謝您
+      `
+    }
+    transporter.sendMail(mailOptions, function(error, info) {
+      if (error) {
+        console.log(error)
+      } else {
+        console.log('Email sent: ' + info.response)
+      }
+    })
 
     return callback({
       orderItems,
