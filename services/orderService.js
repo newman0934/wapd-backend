@@ -3,7 +3,6 @@ const crypto = require('crypto')
 const nodemailer = require('nodemailer')
 const Order = db.Order
 const OrderItem = db.OrderItem
-const Cart = db.Cart
 const CartItem = db.CartItem
 const Coupon = db.Coupon
 const Product = db.Product
