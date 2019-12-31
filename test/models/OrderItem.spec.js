@@ -26,8 +26,13 @@ describe('# OrderItem Model', () => {
   checkModelName(OrderItem)('OrderItem')
 
   context('properties', () => {
-    ;['price', 'quantity', 'OrderId', 'ProductId'].forEach(
-      checkPropertyExists(orderitem)
-    )
+    ;[
+      'size',
+      'color',
+      'sell_price',
+      'quantity',
+      'OrderId',
+      'ProductId'
+    ].forEach(checkPropertyExists(orderitem))
   })
 })
