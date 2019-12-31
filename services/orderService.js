@@ -221,6 +221,13 @@ const orderService = {
         message: 'order does not exist!!'
       })
     }
+    // 結帳過的訂單無法再進入此頁面
+    // if (orderResult.payment_status) {
+    //   return callback({
+    //     status: 'error',
+    //     message: 'this order has already been paid!!'
+    //   })
+    // }
 
     if (orderResult.UserId !== req.user.id) {
       return callback({
