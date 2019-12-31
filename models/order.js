@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       shipping_method: DataTypes.STRING,
       payment_status: DataTypes.STRING,
       phone: DataTypes.STRING,
+      email: DataTypes.STRING,
       payment_method: DataTypes.STRING,
       address: DataTypes.STRING,
       receiver_name: DataTypes.STRING,
