@@ -50,3 +50,5 @@ app.listen(port, () => {
 })
 
 require('./routes')(app)
+
+module.exports = app
