@@ -8,7 +8,7 @@ const categoryController = require('../controllers/api/categoryController')
 const cartController = require('../controllers/api/cartController')
 const orderController = require('../controllers/api/orderController')
 const multer = require('multer')
-const upload = multer()
+const upload = multer({ dest: 'temp/' })
 
 const authenticated = passport.authenticate('jwt', { session: false })
 
@@ -107,6 +107,7 @@ router.post(
   '/admins/products',
   authenticated,
   authenticatedAdmin,
+  upload.array('image'),
   adminController.addProduct
 )
 router.put(

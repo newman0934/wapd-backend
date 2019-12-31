@@ -49,7 +49,7 @@ describe('# Admin::User request', () => {
 
       it('should see all user list', done => {
         request(app)
-          .get('api/admins/users')
+          .get('/api/admins/users')
           .expect(200)
           .end(function(err, res) {
             if (err) return done(err)

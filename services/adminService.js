@@ -9,6 +9,9 @@ const User = db.User
 const Coupon = db.Coupon
 const Image = db.Image
 const pageLimit = 12
+const fs = require('fs')
+const imgur = require('imgur-node-api')
+const path = require('path')
 
 const adminService = {
   getProducts: async (req, res, callback) => {
@@ -91,30 +94,33 @@ const adminService = {
   },
 
   addProduct: async (req, res, callback) => {
-    if (
-      !req.body.name ||
-      !req.body.categoryId ||
-      !req.body.cost ||
-      !req.body.originPrice ||
-      !req.body.sellPrice ||
-      !req.body.description
-    ) {
-      return callback({
-        status: 'error',
-        message: 'every column is required!!'
-      })
-    }
-
+    console.log('*********req.body**********')
+    console.log(req.body)
+    console.log('*********req.files**********')
+    console.log(req.files)
+    // 預防提交空資料
+    // if (
+    //   !req.body.name ||
+    //   !req.body.categoryId ||
+    //   !req.body.cost ||
+    //   !req.body.originPrice ||
+    //   !req.body.sellPrice ||
+    //   !req.body.description
+    // ) {
+    //   return callback({
+    //     status: 'error',
+    //     message: 'every column is required!!'
+    //   })
+    // }
     let productResult = await Product.findOne({
       where: { name: req.body.name }
     })
-    if (productResult) {
-      return callback({
-        status: 'error',
-        message: 'same product name already existed!!'
-      })
-    }
-
+    // if (productResult) {
+    //   return callback({
+    //     status: 'error',
+    //     message: 'same product name already existed!!'
+    //   })
+    // }
     productResult = await Product.create({
       name: req.body.name,
       CategoryId: req.body.categoryId,
@@ -124,7 +130,20 @@ const adminService = {
       description: req.body.description,
       status: 'off'
     })
+
     // TODO: 上傳圖片
+    const { files } = req
+    console.log('*****files*****')
+    console.log(files)
+    imgur.setClientID(process.env.IMGUR_CLIENT_ID)
+    for (let i = 0; i < files.length; i++) {
+      imgur.upload(files[i].path, async (err, img) => {
+        await Image.create({
+          url: img.data.link,
+          ProductId: productResult.id
+        })
+      })
+    }
 
     return callback({
       status: 'success',
