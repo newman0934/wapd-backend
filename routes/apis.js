@@ -9,12 +9,13 @@ const cartController = require('../controllers/api/cartController')
 const orderController = require('../controllers/api/orderController')
 const multer = require('multer')
 const upload = multer({ dest: 'temp/' })
+const helpers = require('../_helpers')
 
 const authenticated = passport.authenticate('jwt', { session: false })
 
 const authenticatedAdmin = (req, res, next) => {
-  if (req.user) {
-    if (req.user.role) {
+  if (helpers.getUser(req)) {
+    if (helpers.getUser(req).role) {
       return next()
     }
     return res.json({ status: 'error', message: 'permission denied' })
