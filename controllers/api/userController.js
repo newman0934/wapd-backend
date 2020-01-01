@@ -104,6 +104,10 @@ const userController = {
   },
 
   signUp: async (req, res) => {
+    if (!req.body.email || !req.body.password || !req.body.passwordCheck) {
+      return res.json({ status: 'error', message: '請填妥每一個欄位！' })
+    }
+
     if (req.body.passwordCheck !== req.body.password) {
       return res.json({ status: 'error', message: '兩次密碼輸入不同！' })
     } else {
