@@ -118,15 +118,19 @@ describe('# User request', () => {
           })
       })
 
-      it('should return 請填妥每一個欄位！', done => {
+      it('should return 密碼長度不足！', done => {
         request(app)
           .post('/api/signup')
-          .send({ email: '', password: '', passwordCheck: '' })
+          .send({
+            email: 'test2@example.com',
+            password: '12345',
+            passwordCheck: '12345'
+          })
           .set('Accept', 'application/json')
           .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
-            expect(res.body.message).to.equal('請填妥每一個欄位！')
+            expect(res.body.message).to.equal('密碼長度不足！')
             done()
           })
       })
