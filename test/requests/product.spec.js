@@ -16,6 +16,12 @@ let APItoken = ''
 describe('# Product request', () => {
   context('get request', () => {
     before(async () => {
+      await db.Product.destroy({ where: {}, truncate: true })
+      await db.Image.destroy({ where: {}, truncate: true })
+      await db.Size.destroy({ where: {}, truncate: true })
+      await db.Color.destroy({ where: {}, truncate: true })
+      await db.ProductStatus.destroy({ where: {}, truncate: true })
+      await db.Category.destroy({ where: {}, truncate: true })
       await db.Product.bulkCreate([
         {
           id: 1,
