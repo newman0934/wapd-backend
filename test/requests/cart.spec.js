@@ -43,13 +43,11 @@ describe('# Cart request', () => {
             expect(res.body.message).to.equal(
               'item successfully added into cart'
             )
-            expect(req.session.tempCartItems).to.equal(1)
             done()
           })
       })
     })
     after(async () => {
-      this.getSession.restore()
       await db.Product.destroy({ where: {}, truncate: true })
     })
   })
