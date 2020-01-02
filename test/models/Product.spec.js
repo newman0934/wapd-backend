@@ -98,12 +98,14 @@ describe('# Product Model', () => {
       })
     })
     it('delete', done => {
-      db.Product.destroy({ where: { id: data.id } }).then(() => {
-        db.Product.findByPk(data.id).then(product => {
-          expect(product).to.be.equal(null)
-          done()
-        })
-      })
+      db.Product.destroy({ where: { id: data.id }, truncate: true }).then(
+        () => {
+          db.Product.findByPk(data.id).then(product => {
+            expect(product).to.be.equal(null)
+            done()
+          })
+        }
+      )
     })
   })
 })

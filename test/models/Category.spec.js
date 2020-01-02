@@ -65,12 +65,14 @@ describe('# Category Model', () => {
       })
     })
     it('delete', done => {
-      db.Category.destroy({ where: { id: data.id } }).then(() => {
-        db.Category.findByPk(data.id).then(category => {
-          expect(category).to.be.equal(null)
-          done()
-        })
-      })
+      db.Category.destroy({ where: { id: data.id }, truncate: true }).then(
+        () => {
+          db.Category.findByPk(data.id).then(category => {
+            expect(category).to.be.equal(null)
+            done()
+          })
+        }
+      )
     })
   })
 })

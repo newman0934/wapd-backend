@@ -80,12 +80,14 @@ describe('# ProductStatus Model', () => {
       })
     })
     it('delete', done => {
-      db.ProductStatus.destroy({ where: { id: data.id } }).then(() => {
-        db.ProductStatus.findByPk(data.id).then(productstatus => {
-          expect(productstatus).to.be.equal(null)
-          done()
-        })
-      })
+      db.ProductStatus.destroy({ where: { id: data.id }, truncate: true }).then(
+        () => {
+          db.ProductStatus.findByPk(data.id).then(productstatus => {
+            expect(productstatus).to.be.equal(null)
+            done()
+          })
+        }
+      )
     })
   })
 })

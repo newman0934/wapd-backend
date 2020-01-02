@@ -65,7 +65,7 @@ describe('# Image Model', () => {
       })
     })
     it('delete', done => {
-      db.Image.destroy({ where: { id: data.id } }).then(() => {
+      db.Image.destroy({ where: { id: data.id }, truncate: true }).then(() => {
         db.Image.findByPk(data.id).then(image => {
           expect(image).to.be.equal(null)
           done()
