@@ -104,6 +104,14 @@ const userController = {
   },
 
   signUp: async (req, res) => {
+    if (!req.body.email || !req.body.password || !req.body.passwordCheck) {
+      return res.json({ status: 'error', message: '請填妥每一個欄位！' })
+    }
+
+    if (req.body.password.length < 6) {
+      return res.json({ status: 'error', message: '密碼長度不足！' })
+    }
+
     if (req.body.passwordCheck !== req.body.password) {
       return res.json({ status: 'error', message: '兩次密碼輸入不同！' })
     } else {
@@ -112,7 +120,6 @@ const userController = {
         return res.json({ status: 'error', message: '信箱重複！' })
       } else {
         const user = await User.create({
-          // name: req.body.name,
           email: req.body.email,
           password: bcrypt.hashSync(
             req.body.password,
@@ -120,11 +127,6 @@ const userController = {
             null
           )
         })
-
-        // await Favorite.create({
-        //   UserId: user.id,
-        //   ProductId: 1
-        // })
 
         const payload = { id: user.id }
         const token = jwt.sign(payload, process.env.JWT_SECRET)
@@ -148,9 +150,6 @@ const userController = {
             FavoritedProductsId: []
           }
         })
-        // .then(user => {
-        //   return res.json({ status: 'success', message: '成功註冊帳號！' })
-        // })
       }
     }
   },

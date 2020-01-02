@@ -12,10 +12,17 @@ const {
   Color,
   Size
 } = db
+const helpers = require('../_helpers')
 
 const cartService = {
   getUserCart: async (req, res, callback) => {
     try {
+      if (req.user.id !== +req.params.id) {
+        return callback({
+          status: 'error',
+          message: "not current user's cart!!"
+        })
+      }
       const userCartResult = await User.findByPk(req.params.id, {
         include: {
           model: CartItem,
@@ -105,6 +112,18 @@ const cartService = {
 
   postCart: async (req, res, callback) => {
     try {
+      if (
+        !req.body.productId ||
+        !req.body.size ||
+        !req.body.color ||
+        !req.body.quantity
+      ) {
+        return callback({
+          status: 'error',
+          message: 'please fill every column!!'
+        })
+      }
+
       const cartItem = await CartItem.findOne({
         where: {
           ProductId: +req.body.productId,
@@ -144,7 +163,6 @@ const cartService = {
   },
 
   putCartQuantity: async (req, res, callback) => {
-    console.log(req.body)
     const cartItem = await CartItem.findByPk(req.params.item_id)
     if (!cartItem) {
       return callback({

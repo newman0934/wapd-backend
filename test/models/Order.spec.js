@@ -95,7 +95,7 @@ describe('# Order Model', () => {
       })
     })
     it('delete', done => {
-      db.Order.destroy({ where: { id: data.id } }).then(() => {
+      db.Order.destroy({ where: { id: data.id }, truncate: true }).then(() => {
         db.Order.findByPk(data.id).then(order => {
           expect(order).to.be.equal(null)
           done()

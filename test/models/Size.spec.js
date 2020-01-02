@@ -65,7 +65,7 @@ describe('# Size Model', () => {
       })
     })
     it('delete', done => {
-      db.Size.destroy({ where: { id: data.id } }).then(() => {
+      db.Size.destroy({ where: { id: data.id }, truncate: true }).then(() => {
         db.Size.findByPk(data.id).then(size => {
           expect(size).to.be.equal(null)
           done()

@@ -83,7 +83,7 @@ describe('# User Model', () => {
       })
     })
     it('delete', done => {
-      db.User.destroy({ where: { id: data.id } }).then(() => {
+      db.User.destroy({ where: { id: data.id }, truncate: true }).then(() => {
         db.User.findByPk(data.id).then(user => {
           expect(user).to.be.equal(null)
           done()

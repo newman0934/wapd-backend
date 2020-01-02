@@ -89,8 +89,14 @@ const productService = {
         ]
       })
 
+      if (!productResult) {
+        return callback({
+          status: 'error',
+          message: 'this product does not exist'
+        })
+      }
       if (productResult.status === 'off') {
-        callback({
+        return callback({
           status: 'error',
           message: 'this product is currently not sale',
           ProductId: productResult.id

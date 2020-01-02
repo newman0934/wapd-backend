@@ -64,7 +64,7 @@ describe('# Token Model', () => {
       })
     })
     it('delete', done => {
-      db.Token.destroy({ where: { id: data.id } }).then(() => {
+      db.Token.destroy({ where: { id: data.id }, truncate: true }).then(() => {
         db.Token.findByPk(data.id).then(token => {
           expect(token).to.be.equal(null)
           done()

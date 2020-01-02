@@ -72,12 +72,14 @@ describe('# CartItem Model', () => {
       })
     })
     it('delete', done => {
-      db.CartItem.destroy({ where: { id: data.id } }).then(() => {
-        db.CartItem.findByPk(data.id).then(cartitem => {
-          expect(cartitem).to.be.equal(null)
-          done()
-        })
-      })
+      db.CartItem.destroy({ where: { id: data.id }, truncate: true }).then(
+        () => {
+          db.CartItem.findByPk(data.id).then(cartitem => {
+            expect(cartitem).to.be.equal(null)
+            done()
+          })
+        }
+      )
     })
   })
 })
