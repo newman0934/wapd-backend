@@ -115,6 +115,7 @@ router.put(
   '/admins/products/:id',
   authenticated,
   authenticatedAdmin,
+  upload.array('images'),
   adminController.putProduct
 )
 router.delete(
@@ -122,6 +123,12 @@ router.delete(
   authenticated,
   authenticatedAdmin,
   adminController.deleteProduct
+)
+router.delete(
+  '/admins/image/:id',
+  authenticated,
+  authenticatedAdmin,
+  adminController.deleteImage
 )
 
 router.get(

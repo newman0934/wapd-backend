@@ -94,33 +94,29 @@ const adminService = {
   },
 
   addProduct: async (req, res, callback) => {
-    console.log('*********req.body**********')
-    console.log(req.body)
-    console.log('*********req.files**********')
-    console.log(req.files)
-    // 預防提交空資料
-    // if (
-    //   !req.body.name ||
-    //   !req.body.categoryId ||
-    //   !req.body.cost ||
-    //   !req.body.originPrice ||
-    //   !req.body.sellPrice ||
-    //   !req.body.description
-    // ) {
-    //   return callback({
-    //     status: 'error',
-    //     message: 'every column is required!!'
-    //   })
-    // }
+    預防提交空資料
+    if (
+      !req.body.name ||
+      !req.body.categoryId ||
+      !req.body.cost ||
+      !req.body.originPrice ||
+      !req.body.sellPrice ||
+      !req.body.description
+    ) {
+      return callback({
+        status: 'error',
+        message: 'every column is required!!'
+      })
+    }
     let productResult = await Product.findOne({
       where: { name: req.body.name }
     })
-    // if (productResult) {
-    //   return callback({
-    //     status: 'error',
-    //     message: 'same product name already existed!!'
-    //   })
-    // }
+    if (productResult) {
+      return callback({
+        status: 'error',
+        message: 'same product name already existed!!'
+      })
+    }
     productResult = await Product.create({
       name: req.body.name,
       CategoryId: req.body.categoryId,
@@ -131,10 +127,7 @@ const adminService = {
       status: 'off'
     })
 
-    // TODO: 上傳圖片
     const { files } = req
-    console.log('*****files*****')
-    console.log(files)
     imgur.setClientID(process.env.IMGUR_CLIENT_ID)
     for (let i = 0; i < files.length; i++) {
       imgur.upload(files[i].path, async (err, img) => {
@@ -159,13 +152,18 @@ const adminService = {
       !req.body.cost ||
       !req.body.originPrice ||
       !req.body.sellPrice ||
-      !req.body.description
+      !req.body.description ||
+      !req.body.status
     ) {
       return callback({
         status: 'error',
         message: 'every column is required!!'
       })
     }
+    console.log('*********req.body**********')
+    console.log(req.body)
+    console.log('*********req.files**********')
+    console.log(req.files)
     // 若查到其他相同的商品名稱就回傳 error
     productResult = await Product.findOne({
       where: { name: req.body.name }
@@ -177,12 +175,49 @@ const adminService = {
       })
     }
 
-    productResult.update(req.body)
-    // TODO: 上傳圖片
-
+    productResult.update({
+      name: req.body.name,
+      categoryId: req.body.categoryId,
+      cost: req.body.cost,
+      originPrice: req.body.originPrice,
+      sellPrice: req.body.sellPrice,
+      description: req.body.description,
+      status: req.body.status
+    })
+    const { files } = req
+    imgur.setClientID(process.env.IMGUR_CLIENT_ID)
+    for (let i = 0; i < files.length; i++) {
+      imgur.upload(files[i].path, async (err, img) => {
+        await Image.create({
+          url: img.data.link,
+          ProductId: productResult.id
+        })
+      })
+    }
+    console.log('*****files*****')
+    console.log(files)
     return callback({
       status: 'success',
       message: 'product was successfully updated!!'
+    })
+  },
+
+  deleteImage: async (req, res, callback) => {
+    const image = await Image.findByPk(req.params.id)
+    if (!image) {
+      return callback({
+        status: 'error',
+        message: 'no such image found!!'
+      })
+    }
+    await image.destroy({
+      where: {
+        id: req.params.id
+      }
+    })
+    return callback({
+      status: 'success',
+      message: 'Image successfully deleted!!'
     })
   },
 
