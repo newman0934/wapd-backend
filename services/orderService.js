@@ -3,7 +3,6 @@ const crypto = require('crypto')
 const nodemailer = require('nodemailer')
 const Order = db.Order
 const OrderItem = db.OrderItem
-const Cart = db.Cart
 const CartItem = db.CartItem
 const Coupon = db.Coupon
 const Product = db.Product
@@ -123,8 +122,6 @@ const orderService = {
   },
   postOrder: async (req, res, callback) => {
     // step0: 驗證 Coupon 是否有效
-    console.log(`***** req.body: `)
-    console.log(req.body)
     let couponResult = null
     if (req.body.couponCode) {
       couponResult = await Coupon.findOne({
@@ -153,19 +150,11 @@ const orderService = {
         message: 'no matched cart items found'
       })
     }
-
-    console.log(`***** cartitems: `)
-    console.log(cartitems)
-
-    console.log(`***** Coupon:`)
-    console.log(couponResult)
-
     // 1-2: 建立 Order
     const order = await Order.create({
       UserId: req.user.id,
       CouponId: couponResult ? couponResult.id : null
     })
-
     // step2: 將購物車中的商品移至訂單
     for (let i = 0; i < cartitems.length; i++) {
       console.log(order.id, cartitems[i].id)
@@ -178,13 +167,9 @@ const orderService = {
         sell_price: cartitems[i].Product.sell_price
       })
     }
-
-    // step3: 訂單成立後寄信給購買者(移至getPaymentComplete)
-
-    // step4: 訂單成立，刪除購物車
+    // step3: 訂單成立，刪除購物車
     await CartItem.destroy({ where: { UserId: req.user.id } })
-
-    // step5: 完成後 callback 結果
+    // step4: 完成後 callback 結果
     return callback({
       status: 'success',
       message: 'Order successfully created',
@@ -221,6 +206,13 @@ const orderService = {
         message: 'order does not exist!!'
       })
     }
+    // 結帳過的訂單無法再進入此頁面
+    // if (orderResult.payment_status) {
+    //   return callback({
+    //     status: 'error',
+    //     message: 'this order has already been paid!!'
+    //   })
+    // }
 
     if (orderResult.UserId !== req.user.id) {
       return callback({
@@ -277,7 +269,9 @@ const orderService = {
       !req.body.receiverName ||
       !req.body.receiverPhone ||
       !req.body.receiverAddress ||
-      !req.body.total
+      !req.body.receiverEmail ||
+      !req.body.total ||
+      !req.body.orderId
     ) {
       return callback({
         status: 'error',
@@ -289,7 +283,7 @@ const orderService = {
       receiver_name: req.body.receiverName,
       phone: req.body.receiverPhone,
       address: req.body.receiverAddress,
-      // req.body.receiverEMail
+      email: req.body.receiverEmail,
       total_price: req.body.total
     })
     // 成功後會回傳 orderId
@@ -345,7 +339,7 @@ const orderService = {
 
     await order.update({
       payment_status: 1,
-      payment_method: data.PaymentType
+      payment_method: data.Result.PaymentType
     })
 
     const resData = {

@@ -13,14 +13,12 @@ module.exports = (sequelize, DataTypes) => {
       color: DataTypes.STRING,
       size: DataTypes.STRING,
       UserId: DataTypes.INTEGER,
-      ProductId: DataTypes.INTEGER,
-      CartId: DataTypes.INTEGER
+      ProductId: DataTypes.INTEGER
     },
     {}
   )
   CartItem.associate = function(models) {
     // associations can be defined here
-    CartItem.belongsTo(models.Cart)
     CartItem.belongsTo(models.Product)
     CartItem.belongsTo(models.User)
   }

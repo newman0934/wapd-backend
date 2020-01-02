@@ -9,107 +9,118 @@ const User = db.User
 const Coupon = db.Coupon
 const Image = db.Image
 const pageLimit = 12
+const fs = require('fs')
+const imgur = require('imgur-node-api')
+const path = require('path')
 
 const adminService = {
   getProducts: async (req, res, callback) => {
-    let offset = 0
-    let whereQuery = {}
-    let categoryId = ''
-    if (req.query.page) {
-      offset = (req.query.page - 1) * pageLimit
+    try {
+      let offset = 0
+      let whereQuery = {}
+      let categoryId = ''
+      if (req.query.page) {
+        offset = (req.query.page - 1) * pageLimit
+      }
+      if (req.query.categoryId) {
+        categoryId = Number(req.query.categoryId)
+        whereQuery['CategoryId'] = categoryId
+      }
+      // 若有 categoryId 會查詢對應類別的商品
+      const productResult = await Product.findAndCountAll({
+        include: [Image, Category],
+        where: whereQuery,
+        offset: offset,
+        limit: pageLimit,
+        distinct: true
+      })
+      let page = Number(req.query.page) || 1
+      let pages = Math.ceil(productResult.count / pageLimit)
+      let totalPage = Array.from({ length: pages }).map(
+        (item, index) => index + 1
+      )
+      let prev = page - 1 < 1 ? 1 : page - 1
+      let next = page + 1 > pages ? pages : page + 1
+
+      const categories = await Category.findAll()
+
+      const products = productResult.rows.map(d => ({
+        id: d.dataValues.id,
+        name: d.dataValues.name,
+        category: d.dataValues.Category.category,
+        cost: d.dataValues.cost,
+        sell_price: d.dataValues.sell_price,
+        status: d.dataValues.status,
+        images: d.dataValues.Images
+      }))
+
+      return callback({
+        products,
+        categories,
+        categoryId: +req.query.categoryId,
+        page,
+        totalPage,
+        prev,
+        next
+      })
+    } catch (error) {
+      console.error(error)
     }
-    if (req.query.categoryId) {
-      categoryId = Number(req.query.categoryId)
-      whereQuery['CategoryId'] = categoryId
-    }
-    // 若有 categoryId 會查詢對應類別的商品
-    const productResult = await Product.findAndCountAll({
-      include: [Image, Category],
-      where: whereQuery,
-      offset: offset,
-      limit: pageLimit,
-      // avoid counting associated data
-      distinct: true
-    })
-    let page = Number(req.query.page) || 1
-    let pages = Math.ceil(productResult.count / pageLimit)
-    let totalPage = Array.from({ length: pages }).map(
-      (item, index) => index + 1
-    )
-    let prev = page - 1 < 1 ? 1 : page - 1
-    let next = page + 1 > pages ? pages : page + 1
-
-    const categories = await Category.findAll()
-
-    const products = productResult.rows.map(d => ({
-      id: d.dataValues.id,
-      name: d.dataValues.name,
-      category: d.dataValues.Category.category,
-      cost: d.dataValues.cost,
-      sell_price: d.dataValues.sell_price,
-      status: d.dataValues.status,
-      images: d.dataValues.Images
-    }))
-
-    console.log(req.user)
-
-    return callback({
-      products,
-      categories,
-      categoryId: +req.query.categoryId,
-      page,
-      totalPage,
-      prev,
-      next
-    })
   },
 
   getProduct: async (req, res, callback) => {
-    const productResult = await Product.findByPk(req.params.id, {
-      include: [Category, Image]
-    })
+    try {
+      const productResult = await Product.findByPk(req.params.id, {
+        include: [Category, Image]
+      })
 
-    const product = {
-      id: productResult.dataValues.id,
-      name: productResult.dataValues.name,
-      description: productResult.dataValues.description,
-      cost: productResult.dataValues.cost,
-      origin_price: productResult.dataValues.origin_price,
-      sell_price: productResult.dataValues.sell_price,
-      CategoryId: productResult.dataValues.CategoryId,
-      category: productResult.dataValues.Category.category,
-      status: productResult.dataValues.status,
-      images: productResult.dataValues.Images
+      const product = {
+        id: productResult.dataValues.id,
+        name: productResult.dataValues.name,
+        description: productResult.dataValues.description,
+        cost: productResult.dataValues.cost,
+        origin_price: productResult.dataValues.origin_price,
+        sell_price: productResult.dataValues.sell_price,
+        CategoryId: productResult.dataValues.CategoryId,
+        category: productResult.dataValues.Category.category,
+        status: productResult.dataValues.status,
+        images: productResult.dataValues.Images
+      }
+
+      return callback({ product })
+    } catch (error) {
+      console.error(error)
     }
-
-    return callback({ product })
   },
 
   addProduct: async (req, res, callback) => {
-    if (
-      !req.body.name ||
-      !req.body.categoryId ||
-      !req.body.cost ||
-      !req.body.originPrice ||
-      !req.body.sellPrice ||
-      !req.body.description
-    ) {
-      return callback({
-        status: 'error',
-        message: 'every column is required!!'
-      })
-    }
-
+    console.log('*********req.body**********')
+    console.log(req.body)
+    console.log('*********req.files**********')
+    console.log(req.files)
+    // 預防提交空資料
+    // if (
+    //   !req.body.name ||
+    //   !req.body.categoryId ||
+    //   !req.body.cost ||
+    //   !req.body.originPrice ||
+    //   !req.body.sellPrice ||
+    //   !req.body.description
+    // ) {
+    //   return callback({
+    //     status: 'error',
+    //     message: 'every column is required!!'
+    //   })
+    // }
     let productResult = await Product.findOne({
       where: { name: req.body.name }
     })
-    if (productResult) {
-      return callback({
-        status: 'error',
-        message: 'same product name already existed!!'
-      })
-    }
-
+    // if (productResult) {
+    //   return callback({
+    //     status: 'error',
+    //     message: 'same product name already existed!!'
+    //   })
+    // }
     productResult = await Product.create({
       name: req.body.name,
       CategoryId: req.body.categoryId,
@@ -119,7 +130,20 @@ const adminService = {
       description: req.body.description,
       status: 'off'
     })
+
     // TODO: 上傳圖片
+    const { files } = req
+    console.log('*****files*****')
+    console.log(files)
+    imgur.setClientID(process.env.IMGUR_CLIENT_ID)
+    for (let i = 0; i < files.length; i++) {
+      imgur.upload(files[i].path, async (err, img) => {
+        await Image.create({
+          url: img.data.link,
+          ProductId: productResult.id
+        })
+      })
+    }
 
     return callback({
       status: 'success',
@@ -181,19 +205,23 @@ const adminService = {
   },
 
   getProductStocks: async (req, res, callback) => {
-    const result = await Product.findByPk(req.params.id, {
-      include: { model: ProductStatus, include: [Size, Color] }
-    })
+    try {
+      const result = await Product.findByPk(req.params.id, {
+        include: { model: ProductStatus, include: [Size, Color] }
+      })
 
-    const productStatus = result.ProductStatuses.map(d => ({
-      id: d.dataValues.id,
-      stock: d.dataValues.stock,
-      size: d.dataValues.Size.size,
-      color: d.dataValues.Color.color,
-      ProductId: d.dataValues.ProductId
-    }))
+      const productStatus = result.ProductStatuses.map(d => ({
+        id: d.dataValues.id,
+        stock: d.dataValues.stock,
+        size: d.dataValues.Size.size,
+        color: d.dataValues.Color.color,
+        ProductId: d.dataValues.ProductId
+      }))
 
-    return callback({ productStatus })
+      return callback({ productStatus })
+    } catch (error) {
+      console.error(error)
+    }
   },
 
   getProductStockEdit: async (req, res, callback) => {
@@ -307,21 +335,25 @@ const adminService = {
   },
 
   getOrders: async (req, res, callback) => {
-    const orderResult = await Order.findAll()
-    const orders = orderResult.map(d => ({
-      id: d.dataValues.id,
-      UserId: d.dataValues.UserId,
-      sn: d.dataValues.sn,
-      total_price: d.dataValues.total_price,
-      shipping_status: d.dataValues.shipping_status,
-      shipping_method: d.dataValues.shipping_method,
-      receiver_name: d.dataValues.receiver_name,
-      phone: d.dataValues.phone,
-      address: d.dataValues.address,
-      payment_status: d.dataValues.payment_status,
-      payment_method: d.dataValues.payment_method
-    }))
-    return callback({ orders })
+    try {
+      const orderResult = await Order.findAll()
+      const orders = orderResult.map(d => ({
+        id: d.dataValues.id,
+        UserId: d.dataValues.UserId,
+        sn: d.dataValues.sn,
+        total_price: d.dataValues.total_price,
+        shipping_status: d.dataValues.shipping_status,
+        shipping_method: d.dataValues.shipping_method,
+        receiver_name: d.dataValues.receiver_name,
+        phone: d.dataValues.phone,
+        address: d.dataValues.address,
+        payment_status: d.dataValues.payment_status,
+        payment_method: d.dataValues.payment_method
+      }))
+      return callback({ orders })
+    } catch (error) {
+      console.error(error)
+    }
   },
 
   getOrder: async (req, res, callback) => {
@@ -380,31 +412,38 @@ const adminService = {
   },
 
   getUsers: async (req, res, callback) => {
-    const users = await User.findAll()
-
-    return callback({ users })
+    try {
+      const users = await User.findAll()
+      return callback({ users })
+    } catch (error) {
+      console.error(error)
+    }
   },
 
   getUserOrders: async (req, res, callback) => {
-    const userOrderResult = await User.findByPk(req.params.id, {
-      include: Order
-    })
-    const users = {
-      id: userOrderResult.dataValues.id,
-      email: userOrderResult.dataValues.email,
-      name: userOrderResult.dataValues.name,
-      phone: userOrderResult.dataValues.phone,
-      address: userOrderResult.dataValues.address,
-      role: userOrderResult.dataValues.role,
-      orders: userOrderResult.dataValues.Orders.map(d => ({
-        total_price: d.dataValues.total_price,
-        payment_status: d.dataValues.payment_status,
-        shipping_status: d.dataValues.shipping_status,
-        sn: d.dataValues.sn
-      }))
-    }
+    try {
+      const userOrderResult = await User.findByPk(req.params.id, {
+        include: Order
+      })
+      const users = {
+        id: userOrderResult.dataValues.id,
+        email: userOrderResult.dataValues.email,
+        name: userOrderResult.dataValues.name,
+        phone: userOrderResult.dataValues.phone,
+        address: userOrderResult.dataValues.address,
+        role: userOrderResult.dataValues.role,
+        orders: userOrderResult.dataValues.Orders.map(d => ({
+          total_price: d.dataValues.total_price,
+          payment_status: d.dataValues.payment_status,
+          shipping_status: d.dataValues.shipping_status,
+          sn: d.dataValues.sn
+        }))
+      }
 
-    return callback({ users })
+      return callback({ users })
+    } catch (error) {
+      console.error(error)
+    }
   }
 }
 

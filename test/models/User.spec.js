@@ -33,10 +33,12 @@ describe('# User Model', () => {
     const Order = 'Order'
     const Favorite = 'Favorite'
     const Product = 'Product'
+    const Token = 'Token'
     before(() => {
       User.associate({ CartItem })
       User.associate({ Order })
       User.associate({ Product })
+      User.associate({ Token })
     })
 
     it('should have many cartitems', done => {
@@ -45,6 +47,10 @@ describe('# User Model', () => {
     })
     it('should have many orders', done => {
       expect(User.hasMany).to.have.been.calledWith(Order)
+      done()
+    })
+    it('should have many tokens', done => {
+      expect(User.hasMany).to.have.been.calledWith(Token)
       done()
     })
     it('should have many favorites', done => {

@@ -36,7 +36,7 @@ describe('# Coupon Model', () => {
     })
 
     it('should belong to orders', done => {
-      expect(Coupon.belongsTo).to.have.been.calledWith(Order)
+      expect(Coupon.hasMany).to.have.been.calledWith(Order)
       done()
     })
   })

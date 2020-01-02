@@ -26,15 +26,9 @@ describe('# ProductStatus Model', () => {
   checkModelName(ProductStatus)('ProductStatus')
 
   context('properties', () => {
-    ;[
-      'sales',
-      'stock',
-      'cost',
-      'price',
-      'ColorId',
-      'ProductId',
-      'SizeId'
-    ].forEach(checkPropertyExists(productstatus))
+    ;['sales', 'stock', 'ColorId', 'ProductId', 'SizeId'].forEach(
+      checkPropertyExists(productstatus)
+    )
   })
 
   context('associations', () => {
