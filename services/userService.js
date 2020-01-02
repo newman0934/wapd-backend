@@ -19,6 +19,7 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASSWORD
   }
 })
+const helpers = require('./../_helpers')
 
 const userService = {
   getUserOrders: async (req, res, callback) => {
@@ -107,10 +108,10 @@ const userService = {
 
   getPasswordChange: async (req, res, callback) => {
     const user = await User.findByPk(req.params.id)
-    if (user.id !== req.user.id) {
+    if (!user) {
       return callback({
         status: 'error',
-        message: 'permission denied, user id does not match!!',
+        message: 'permission denied, user does not exist!!',
         currentUserId: req.user.id
       })
     }
@@ -120,10 +121,10 @@ const userService = {
   postPasswordChange: async (req, res, callback) => {
     try {
       const user = await User.findByPk(req.user.id)
-      if (user.id !== req.user.id) {
+      if (!user) {
         return callback({
           status: 'error',
-          message: 'permission denied, user id does not match!!',
+          message: 'no such user found!!',
           currentUserId: req.user.id
         })
       }
@@ -257,6 +258,7 @@ const userService = {
       const token = await Token.findOne({
         where: {
           token: req.body.token,
+          UserId: req.body.userId,
           isUsed: false
         }
       })
@@ -268,12 +270,6 @@ const userService = {
       }
       // 取得使用者 id，並加密密碼
       const user = await User.findByPk(req.body.userId)
-      if (!user) {
-        return callback({
-          status: 'error',
-          message: 'no user found!!'
-        })
-      }
       await user.update({
         password: bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10))
       })
@@ -317,8 +313,7 @@ const userService = {
 
   putUser: async (req, res, callback) => {
     try {
-      const user = await User.findByPk(req.user.id)
-
+      const user = await User.findByPk(helpers.getUser(req).id)
       if (!user) {
         return callback({
           status: 'error',
