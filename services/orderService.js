@@ -231,7 +231,7 @@ const orderService = {
     return callback({
       status: 'success',
       message: 'coupon is valid!!',
-      CouponId: couponResult.id
+      CouponId: couponResult
     })
   },
   getCheckout: async (req, res, callback) => {
