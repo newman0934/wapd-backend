@@ -253,6 +253,46 @@ describe('# Cart request', () => {
       await db.CartItem.destroy({ where: {}, truncate: true })
     })
   })
+  context('deleteCartProduct request', () => {
+    before(async () => {
+      await db.CartItem.create({
+        quantity: 1,
+        color: 'Red',
+        size: 'S',
+        ProductId: 1,
+        UserId: 1
+      })
+    })
+    describe('if user deletes an item in cart', done => {
+      it("should return 'item deleted failed!!item not found' if wrong id", done => {
+        request(app)
+          .delete('/api/users/cart/99')
+          .set('Authorization', 'bearer ' + APItoken)
+          .expect(200)
+          .end(function(err, res) {
+            expect(res.body.status).to.equal('error')
+            expect(res.body.message).to.equal(
+              'item deleted failed!!item not found'
+            )
+            done()
+          })
+      })
+      it("should return 'item is successfully deleted'", done => {
+        request(app)
+          .delete('/api/users/cart/1')
+          .set('Authorization', 'bearer ' + APItoken)
+          .expect(200)
+          .end(function(err, res) {
+            expect(res.body.status).to.equal('success')
+            expect(res.body.message).to.equal('item is successfully deleted')
+            done()
+          })
+      })
+    })
+    after(async () => {
+      await db.CartItem.destroy({ where: {}, truncate: true })
+    })
+  })
 })
 after(async () => {
   await db.Product.destroy({ where: {}, truncate: true })
