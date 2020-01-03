@@ -95,7 +95,7 @@ const adminService = {
   },
 
   addProduct: async (req, res, callback) => {
-    預防提交空資料
+    // 預防提交空資料
     if (
       !req.body.name ||
       !req.body.categoryId ||
