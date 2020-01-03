@@ -111,6 +111,34 @@ function getTradeInfo(Amt, Desc, email) {
   return tradeInfo
 }
 
+// 回傳交易狀態查詢需要的資訊
+// TODO: 實作藍新交易狀態查詢API
+/*
+MerchantID: MerchangID
+Version: 1.1
+RespondType: JSON
+CheckValue: getTransitionCheckValue(Amt, MerchantOrderNo)
+TimeStamp: Date.now()
+MerchantOrderNo: MerchantOrderNo
+Amt: Amt
+*/
+
+function getTransitionCheckValue(Amt, MerchantOrderNo) {
+  // step1: 取得加密前的字串
+  let str = `IV=${HashIV}&Amt=${Amt}&MerchantID=${MerchantID}&MerchantOrderNo=${MerchantOrderNo}&Key=${HashKey}`
+  console.log(`----雜湊前字串----`)
+  console.log(str)
+  // step2: 進行雜湊演算
+  let sha = crypto.createHash('sha256')
+  const CheckValue = sha
+    .update(str)
+    .digest('hex')
+    .toUpperCase()
+  console.log(`----雜湊後字串----`)
+  console.log(CheckValue)
+  return CheckValue
+}
+
 /* ----- 藍新用 function end ----- */
 
 const orderService = {
@@ -180,6 +208,13 @@ const orderService = {
   },
   postCoupon: async (req, res, callback) => {
     let couponResult = null
+    if (!req.body.couponCode) {
+      return callback({
+        status: 'success',
+        message: 'not using coupon'
+      })
+    }
+
     if (req.body.couponCode) {
       couponResult = await Coupon.findOne({
         where: {
@@ -195,7 +230,8 @@ const orderService = {
     }
     return callback({
       status: 'success',
-      message: 'coupon is valid!!'
+      message: 'coupon is valid!!',
+      CouponId: couponResult.id
     })
   },
   getCheckout: async (req, res, callback) => {
