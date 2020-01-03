@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
       color: DataTypes.STRING,
       size: DataTypes.STRING,
       OrderId: DataTypes.INTEGER,
-      ProductId: DataTypes.INTEGER
+      ProductId: DataTypes.INTEGER,
+      product_name: DataTypes.STRING
     },
     {}
   )

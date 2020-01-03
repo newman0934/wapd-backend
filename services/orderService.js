@@ -144,6 +144,7 @@ const orderService = {
       },
       include: Product
     })
+    console.log(cartitems[0].Product)
     if (!cartitems) {
       return callback({
         status: 'error',
@@ -159,6 +160,7 @@ const orderService = {
     for (let i = 0; i < cartitems.length; i++) {
       console.log(order.id, cartitems[i].id)
       await OrderItem.create({
+        product_name: cartitems[i].Product.name,
         OrderId: order.id,
         ProductId: cartitems[i].ProductId,
         color: cartitems[i].color,
