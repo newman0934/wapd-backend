@@ -7,6 +7,7 @@ const Size = db.Size
 const Order = db.Order
 const User = db.User
 const Coupon = db.Coupon
+const OrderItem = db.OrderItem
 const Image = db.Image
 const pageLimit = 12
 const fs = require('fs')
@@ -395,6 +396,21 @@ const adminService = {
     const orderResult = await Order.findByPk(req.params.id, {
       include: [Coupon, { model: Product, as: 'items' }]
     })
+    if (!orderResult) {
+      return callback({
+        status: 'error',
+        message: 'no such order found!!'
+      })
+    }
+
+    const orderitems = await OrderItem.findAll({
+      where: {
+        OrderId: req.params.id
+      }
+    })
+
+    console.log(orderitems)
+
     const order = {
       id: orderResult.dataValues.id,
       UserId: orderResult.dataValues.UserId,
@@ -408,18 +424,20 @@ const adminService = {
       payment_status: orderResult.dataValues.payment_status,
       payment_method: orderResult.dataValues.payment_method,
       comment: orderResult.dataValues.comment,
-      orderItems: orderResult.dataValues.items.map(d => ({
-        ProductId: d.dataValues.id,
-        ProductName: d.dataValues.name,
-        size: d.dataValues.OrderItem.size,
-        color: d.dataValues.OrderItem.color,
-        SellPrice: d.dataValues.OrderItem.sell_price
+      orderItems: orderitems.map(d => ({
+        ProductId: d.id,
+        ProductName: d.product_name,
+        size: d.size,
+        color: d.color,
+        SellPrice: d.sell_price
       })),
-      coupon: {
-        id: orderResult.dataValues.Coupon.id,
-        coupon_code: orderResult.dataValues.Coupon.coupon_code,
-        discount_amount: orderResult.dataValues.Coupon.discount_amount
-      }
+      coupon: orderResult.dataValues.Coupon
+        ? {
+            id: orderResult.dataValues.Coupon.id,
+            coupon_code: orderResult.dataValues.Coupon.coupon_code,
+            discount_amount: orderResult.dataValues.Coupon.discount_amount
+          }
+        : null
     }
 
     return callback({ order })
@@ -427,17 +445,10 @@ const adminService = {
 
   putOrder: async (req, res, callback) => {
     const order = await Order.findByPk(req.params.id)
-    await order.update({
-      receiver_name: req.body.receiverName,
-      shipping_method: req.body.shippingMethod,
-      phone: req.body.phone,
-      address: req.body.address,
-      payment_status: req.body.paymentStatus,
-      payment_method: req.body.paymentMethod,
-      CouponId: req.body.CouponId
-    })
 
     // TODO: 管理者刪除商品
+
+    await order.update(req.body)
 
     return callback({
       status: 'OK',
