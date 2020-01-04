@@ -36,7 +36,7 @@ describe('# Coupon Model', () => {
     })
 
     it('should belong to orders', done => {
-      expect(Coupon.belongsTo).to.have.been.calledWith(Order)
+      expect(Coupon.hasMany).to.have.been.calledWith(Order)
       done()
     })
   })
@@ -65,7 +65,7 @@ describe('# Coupon Model', () => {
       })
     })
     it('delete', done => {
-      db.Coupon.destroy({ where: { id: data.id } }).then(() => {
+      db.Coupon.destroy({ where: { id: data.id }, truncate: true }).then(() => {
         db.Coupon.findByPk(data.id).then(coupon => {
           expect(coupon).to.be.equal(null)
           done()

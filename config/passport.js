@@ -17,6 +17,7 @@ let strategy = new JwtStrategy(jwtOptions, async function(jwt_payload, next) {
     include: [
       {
         model: Product,
+        required: false,
         as: 'FavoritedProducts',
         where: {
           status: 'on'

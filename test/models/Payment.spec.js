@@ -67,12 +67,14 @@ describe('# Payment Model', () => {
       })
     })
     it('delete', done => {
-      db.Payment.destroy({ where: { id: data.id } }).then(() => {
-        db.Payment.findByPk(data.id).then(payment => {
-          expect(payment).to.be.equal(null)
-          done()
-        })
-      })
+      db.Payment.destroy({ where: { id: data.id }, truncate: true }).then(
+        () => {
+          db.Payment.findByPk(data.id).then(payment => {
+            expect(payment).to.be.equal(null)
+            done()
+          })
+        }
+      )
     })
   })
 })

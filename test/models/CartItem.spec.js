@@ -25,27 +25,21 @@ describe('# CartItem Model', () => {
   checkModelName(CartItem)('CartItem')
 
   context('properties', () => {
-    ;['stock', 'quantity', 'UserId', 'ProductId', 'CartId'].forEach(
+    ;['stock', 'quantity', 'UserId', 'ProductId', 'color', 'size'].forEach(
       checkPropertyExists(cartitem)
     )
   })
 
   context('associations', () => {
     const Product = 'Product'
-    const Cart = 'Cart'
     const User = 'User'
     before(() => {
       CartItem.associate({ Product })
-      CartItem.associate({ Cart })
       CartItem.associate({ User })
     })
 
     it('should belong to many products', done => {
       expect(CartItem.belongsTo).to.have.been.calledWith(Product)
-      done()
-    })
-    it('should belong to many carts', done => {
-      expect(CartItem.belongsTo).to.have.been.calledWith(Cart)
       done()
     })
     it('should belong to many users', done => {
@@ -78,12 +72,14 @@ describe('# CartItem Model', () => {
       })
     })
     it('delete', done => {
-      db.CartItem.destroy({ where: { id: data.id } }).then(() => {
-        db.CartItem.findByPk(data.id).then(cartitem => {
-          expect(cartitem).to.be.equal(null)
-          done()
-        })
-      })
+      db.CartItem.destroy({ where: { id: data.id }, truncate: true }).then(
+        () => {
+          db.CartItem.findByPk(data.id).then(cartitem => {
+            expect(cartitem).to.be.equal(null)
+            done()
+          })
+        }
+      )
     })
   })
 })

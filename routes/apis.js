@@ -6,14 +6,16 @@ const adminController = require('../controllers/api/adminController')
 const userController = require('../controllers/api/userController')
 const categoryController = require('../controllers/api/categoryController')
 const cartController = require('../controllers/api/cartController')
+const orderController = require('../controllers/api/orderController')
 const multer = require('multer')
-const upload = multer()
+const upload = multer({ dest: 'temp/' })
+const helpers = require('../_helpers')
 
 const authenticated = passport.authenticate('jwt', { session: false })
 
 const authenticatedAdmin = (req, res, next) => {
-  if (req.user) {
-    if (req.user.role) {
+  if (helpers.getUser(req)) {
+    if (helpers.getUser(req).role) {
       return next()
     }
     return res.json({ status: 'error', message: 'permission denied' })
@@ -66,6 +68,8 @@ router.delete(
   cartController.deleteCartProduct
 )
 
+router.post('/users/orders', authenticated, orderController.postOrder)
+
 router.get(
   '/users/password_change',
   authenticated,
@@ -85,45 +89,154 @@ router.post('/users/password_reset', userController.postPasswordReset)
 router.get('/users/:id/edit', authenticated, userController.getUserEdit)
 router.put('/users/edit', authenticated, userController.putUser)
 
+router.get('/orders/:id/checkout', authenticated, orderController.getCheckout)
+router.post('/coupon', orderController.postCoupon)
+
 router.get(
   '/admins/products',
   authenticated,
   authenticatedAdmin,
   adminController.getProducts
 )
-router.get('/admins/products/:id', adminController.getProduct)
-router.post('/admins/products', adminController.addProduct)
-router.put('/admins/products/:id', adminController.putProduct)
-router.delete('/admins/products/:id', adminController.deleteProduct)
+router.get(
+  '/admins/products/:id',
+  authenticated,
+  authenticatedAdmin,
+  adminController.getProduct
+)
+router.post(
+  '/admins/products',
+  authenticated,
+  authenticatedAdmin,
+  upload.array('image'),
+  adminController.addProduct
+)
+router.put(
+  '/admins/products/:id',
+  authenticated,
+  authenticatedAdmin,
+  upload.array('images'),
+  adminController.putProduct
+)
+router.delete(
+  '/admins/products/:id',
+  authenticated,
+  authenticatedAdmin,
+  adminController.deleteProduct
+)
+router.delete(
+  '/admins/image/:id',
+  authenticated,
+  authenticatedAdmin,
+  adminController.deleteImage
+)
 
-router.get('/admins/products/:id/stocks', adminController.getProductStocks)
+router.get(
+  '/admins/products/:id/stocks',
+  authenticated,
+  authenticatedAdmin,
+  adminController.getProductStocks
+)
 router.get(
   '/admins/products/:id/stocks/:stock_id',
+  authenticated,
+  authenticatedAdmin,
   adminController.getProductStockEdit
 )
 router.put(
   '/admins/products/:id/stocks/:stock_id',
+  authenticated,
+  authenticatedAdmin,
   adminController.putProductStockProps
 )
 router.post(
   '/admins/products/:id/stocks/',
+  authenticated,
+  authenticatedAdmin,
   adminController.addProductStockProps
 )
 router.delete(
   '/admins/products/:id/stocks/:stock_id',
+  authenticated,
+  authenticatedAdmin,
   adminController.deleteProductStockProp
 )
 
-router.get('/admins/orders', adminController.getOrders)
-router.get('/admins/orders/:id', adminController.getOrder)
-router.put('/admins/orders/:id', adminController.putOrder)
+router.get(
+  '/admins/orders',
+  authenticated,
+  authenticatedAdmin,
+  adminController.getOrders
+)
+router.get(
+  '/admins/orders/:id',
+  authenticated,
+  authenticatedAdmin,
+  adminController.getOrder
+)
+router.put(
+  '/admins/orders/:id',
+  authenticated,
+  authenticatedAdmin,
+  adminController.putOrder
+)
+router.delete(
+  '/admins/orders/:id/product',
+  authenticated,
+  authenticatedAdmin,
+  adminController.deleteOrderProduct
+)
 
-router.get('/admins/categories', categoryController.getCategories)
-router.post('/admins/categories/', categoryController.addCategory)
-router.put('/admins/categories/:id', categoryController.putCategory)
-router.delete('/admins/categories/:id', categoryController.deleteCategory)
+router.get(
+  '/admins/categories',
+  authenticated,
+  authenticatedAdmin,
+  categoryController.getCategories
+)
+router.post(
+  '/admins/categories/',
+  authenticated,
+  authenticatedAdmin,
+  categoryController.addCategory
+)
+router.put(
+  '/admins/categories/:id',
+  authenticated,
+  authenticatedAdmin,
+  categoryController.putCategory
+)
+router.delete(
+  '/admins/categories/:id',
+  authenticated,
+  authenticatedAdmin,
+  categoryController.deleteCategory
+)
 
-router.get('/admins/users', adminController.getUsers)
-router.get('/admins/users/:id/orders', adminController.getUserOrders)
+router.get(
+  '/admins/users',
+  authenticated,
+  authenticatedAdmin,
+  adminController.getUsers
+)
+router.get(
+  '/admins/users/:id/orders',
+  authenticated,
+  authenticatedAdmin,
+  adminController.getUserOrders
+)
+
+router.post(
+  `/orders/checkout`,
+  authenticated,
+  upload.array(),
+  orderController.postCheckout
+)
+router.get(`/orders/:id/payment`, authenticated, orderController.getPayment)
+router.post(`/spgateway/callback`, orderController.spgatewayCallback)
+router.get(
+  `/users/:id/paymentcomplete`,
+  authenticated,
+  orderController.getPaymentComplete
+)
 
 module.exports = router

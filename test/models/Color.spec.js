@@ -65,7 +65,7 @@ describe('# Color Model', () => {
       })
     })
     it('delete', done => {
-      db.Color.destroy({ where: { id: data.id } }).then(() => {
+      db.Color.destroy({ where: { id: data.id }, truncate: true }).then(() => {
         db.Color.findByPk(data.id).then(color => {
           expect(color).to.be.equal(null)
           done()

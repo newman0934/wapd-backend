@@ -26,7 +26,7 @@ describe('# Order Model', () => {
 
   context('properties', () => {
     ;[
-      'amount',
+      'total_price',
       'shipping_status',
       'payment_status',
       'UserId',
@@ -34,6 +34,7 @@ describe('# Order Model', () => {
       'payment_method',
       'address',
       'receiver_name',
+      'email',
       'comment',
       'sn'
     ].forEach(checkPropertyExists(order))
@@ -53,7 +54,7 @@ describe('# Order Model', () => {
     })
 
     it('should have many coupons', done => {
-      expect(Order.hasMany).to.have.been.calledWith(Coupon)
+      expect(Order.belongsTo).to.have.been.calledWith(Coupon)
       done()
     })
     it('should have many payments', done => {
@@ -94,7 +95,7 @@ describe('# Order Model', () => {
       })
     })
     it('delete', done => {
-      db.Order.destroy({ where: { id: data.id } }).then(() => {
+      db.Order.destroy({ where: { id: data.id }, truncate: true }).then(() => {
         db.Order.findByPk(data.id).then(order => {
           expect(order).to.be.equal(null)
           done()

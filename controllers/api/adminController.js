@@ -25,6 +25,12 @@ const adminController = {
     })
   },
 
+  deleteImage: (req, res) => {
+    adminService.deleteImage(req, res, data => {
+      return res.json(data)
+    })
+  },
+
   putProduct: (req, res) => {
     adminService.putProduct(req, res, data => {
       return res.json(data)
@@ -75,6 +81,12 @@ const adminController = {
 
   putOrder: (req, res) => {
     adminService.putOrder(req, res, data => {
+      return res.json(data)
+    })
+  },
+
+  deleteOrderProduct: (req, res) => {
+    adminService.deleteOrderProduct(req, res, data => {
       return res.json(data)
     })
   },

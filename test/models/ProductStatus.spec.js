@@ -26,15 +26,9 @@ describe('# ProductStatus Model', () => {
   checkModelName(ProductStatus)('ProductStatus')
 
   context('properties', () => {
-    ;[
-      'sales',
-      'stock',
-      'cost',
-      'price',
-      'ColorId',
-      'ProductId',
-      'SizeId'
-    ].forEach(checkPropertyExists(productstatus))
+    ;['sales', 'stock', 'ColorId', 'ProductId', 'SizeId'].forEach(
+      checkPropertyExists(productstatus)
+    )
   })
 
   context('associations', () => {
@@ -86,12 +80,14 @@ describe('# ProductStatus Model', () => {
       })
     })
     it('delete', done => {
-      db.ProductStatus.destroy({ where: { id: data.id } }).then(() => {
-        db.ProductStatus.findByPk(data.id).then(productstatus => {
-          expect(productstatus).to.be.equal(null)
-          done()
-        })
-      })
+      db.ProductStatus.destroy({ where: { id: data.id }, truncate: true }).then(
+        () => {
+          db.ProductStatus.findByPk(data.id).then(productstatus => {
+            expect(productstatus).to.be.equal(null)
+            done()
+          })
+        }
+      )
     })
   })
 })

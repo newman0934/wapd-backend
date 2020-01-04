@@ -12,9 +12,13 @@ if (process.env.NODE_ENV !== 'production') {
 const passport = require('./config/passport')
 
 const app = express()
-const port = process.env.PORT || 3000
+const port = process.env.PORT
+  ? process.env.PORT
+  : process.env.NODE_ENV === 'test'
+  ? 3030
+  : 3000
 const bodyParser = require('body-parser')
-// app.use(cors())
+app.use('/api-docs', express.static('public'))
 app.use(
   cors({
     origin: ['http://localhost:8080'],
@@ -50,3 +54,5 @@ app.listen(port, () => {
 })
 
 require('./routes')(app)
+
+module.exports = app
