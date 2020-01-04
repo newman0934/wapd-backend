@@ -129,6 +129,7 @@ const adminService = {
     })
 
     const { files } = req
+    console.log(files)
     imgur.setClientID(process.env.IMGUR_CLIENT_ID)
     for (let i = 0; i < files.length; i++) {
       imgur.upload(files[i].path, async (err, img) => {
@@ -161,19 +162,25 @@ const adminService = {
         message: 'every column is required!!'
       })
     }
+    console.log('*********req.params.id**********')
+    console.log(req.params.id)
     console.log('*********req.body**********')
     console.log(req.body)
     console.log('*********req.files**********')
     console.log(req.files)
     // 若查到其他相同的商品名稱就回傳 error
-    productResult = await Product.findOne({
+    let productResult = await Product.findOne({
       where: { name: req.body.name }
     })
-    if (productResult.id !== +req.params.id) {
-      return callback({
-        status: 'error',
-        message: 'same product name already existed!!'
-      })
+    if (productResult) {
+      if (productResult.id !== req.params.id) {
+        return callback({
+          status: 'error',
+          message: 'same product name already existed!!'
+        })
+      }
+    } else {
+      productResult = await Product.findByPk(req.params.id)
     }
 
     productResult.update({
