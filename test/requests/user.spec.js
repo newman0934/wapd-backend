@@ -432,8 +432,181 @@ describe('# User request', () => {
     })
   })
 
-  after(async () => {
-    await db.User.destroy({ where: {}, truncate: true })
-    await db.Token.destroy({ where: {}, truncate: true })
+  context('getUserFavorite request', () => {
+    before(async () => {
+      await db.Product.create({
+        name: 'test1',
+        description: 'test1',
+        status: 'on'
+      })
+      await db.Favorite.create({
+        UserId: 1,
+        ProductId: 1
+      })
+      await db.Image.create({
+        url: '',
+        ProductId: 1
+      })
+      await db.Color.create({
+        color: ''
+      })
+      await db.Size.create({
+        size: ''
+      })
+      await db.ProductStatus.create({
+        ProductId: 1,
+        ColorId: 1,
+        SizeId: 1
+      })
+    })
+
+    describe('if user sees self favorite products', done => {
+      it('should return a json data', done => {
+        request(app)
+          .get('/api/users/1/wishlist')
+          .set('Authorization', 'bearer ' + APItoken)
+          .expect(200)
+          .end(async function(err, res) {
+            expect(res.body.products[0].name).to.equal('test1')
+            done()
+          })
+      })
+    })
+
+    after(async () => {
+      await db.Product.destroy({ where: {}, truncate: true })
+      await db.Favorite.destroy({ where: {}, truncate: true })
+      await db.Image.destroy({ where: {}, truncate: true })
+      await db.Color.destroy({ where: {}, truncate: true })
+      await db.Size.destroy({ where: {}, truncate: true })
+      await db.ProductStatus.destroy({ where: {}, truncate: true })
+    })
+  })
+
+  context('getUserFavorite request', () => {
+    before(async () => {
+      await db.Product.create({
+        name: 'test1',
+        description: 'test1',
+        status: 'on'
+      })
+      await db.Image.create({
+        url: '',
+        ProductId: 1
+      })
+      await db.Color.create({
+        color: ''
+      })
+      await db.Size.create({
+        size: ''
+      })
+      await db.ProductStatus.create({
+        ProductId: 1,
+        ColorId: 1,
+        SizeId: 1
+      })
+    })
+
+    describe('if user add product to favorite', done => {
+      it('should return success', done => {
+        request(app)
+          .post('/api/products/1/wishlist')
+          .set('Authorization', 'bearer ' + APItoken)
+          .expect(200)
+          .end(async function(err, res) {
+            expect(res.body.status).to.equal('success')
+            done()
+          })
+      })
+
+      it('should return "already in user\'s favorite list" if user post again', done => {
+        request(app)
+          .post('/api/products/1/wishlist')
+          .set('Authorization', 'bearer ' + APItoken)
+          .expect(200)
+          .end(async function(err, res) {
+            expect(res.body.status).to.equal('error')
+            expect(res.body.message).to.equal("already in user's favorite list")
+            done()
+          })
+      })
+    })
+  })
+
+  context('deleteWishlist request', () => {
+    describe('if user delete product from favorite', done => {
+      it('should return success', done => {
+        request(app)
+          .delete('/api/products/1/wishlist')
+          .set('Authorization', 'bearer ' + APItoken)
+          .expect(200)
+          .end(async function(err, res) {
+            expect(res.body.status).to.equal('success')
+            done()
+          })
+      })
+    })
+    after(async () => {
+      await db.Product.destroy({ where: {}, truncate: true })
+      await db.Favorite.destroy({ where: {}, truncate: true })
+      await db.Image.destroy({ where: {}, truncate: true })
+      await db.Color.destroy({ where: {}, truncate: true })
+      await db.Size.destroy({ where: {}, truncate: true })
+      await db.ProductStatus.destroy({ where: {}, truncate: true })
+    })
+  })
+
+  context('getUserOrder request', () => {
+    before(async () => {
+      await db.Product.bulkCreate([
+        {
+          name: 'test1',
+          description: 'test1',
+          status: 'on'
+        },
+        {
+          name: 'test2',
+          description: 'test2',
+          status: 'on'
+        }
+      ])
+      await db.Order.create({
+        UserId: 1
+      })
+      await db.OrderItem.bulkCreate([
+        {
+          OrderId: 1,
+          ProductId: 1
+        },
+        {
+          OrderId: 1,
+          ProductId: 2
+        }
+      ])
+    })
+
+    describe('if user look for self orders', done => {
+      it('should return success', done => {
+        request(app)
+          .get('/api/users/1/orders')
+          .set('Authorization', 'bearer ' + APItoken)
+          .expect(200)
+          .end(async function(err, res) {
+            expect(res.body.orders[0].OrderItems.length).to.equal(2)
+            done()
+          })
+      })
+
+      after(async () => {
+        await db.Product.destroy({ where: {}, truncate: true })
+        await db.Order.destroy({ where: {}, truncate: true })
+        await db.OrderItem.destroy({ where: {}, truncate: true })
+      })
+    })
+
+    after(async () => {
+      await db.User.destroy({ where: {}, truncate: true })
+      await db.Token.destroy({ where: {}, truncate: true })
+    })
   })
 })

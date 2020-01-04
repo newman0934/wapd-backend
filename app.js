@@ -18,22 +18,7 @@ const port = process.env.PORT
   ? 3030
   : 3000
 const bodyParser = require('body-parser')
-const swaggerJsdoc = require('swagger-jsdoc')
-const swaggerUi = require('swagger-ui-express')
-const options = {
-  swaggerDefinition: {
-    // api doc description
-    info: {
-      title: 'wapd-api-doc',
-      version: '0.1.0',
-      description: 'wapd-api-doc for front-end user using swagger package'
-    }
-  },
-  // 這邊會是你想要產生的api文件檔案，我是直接讓swagger去列出所有controllers
-  apis: ['./controllers/api/*.js']
-}
-const specs = swaggerJsdoc(options)
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
+app.use('/api-docs', express.static('public'))
 app.use(
   cors({
     origin: ['http://localhost:8080'],
