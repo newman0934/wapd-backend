@@ -276,6 +276,13 @@ const adminService = {
       }
     })
 
+    if (!result) {
+      callback({
+        status: 'error',
+        message: 'can not find any product stock!!'
+      })
+    }
+
     const productStatus = {
       id: result.ProductStatuses[0].id,
       stock: result.ProductStatuses[0].stock,
@@ -294,7 +301,6 @@ const adminService = {
     const size = await Size.findOrCreate({
       where: { size: req.body.size }
     })
-    console.log(color[0].id)
     const productStatus = await ProductStatus.findByPk(req.params.stock_id)
     await productStatus.update({
       stock: req.body.stock,
@@ -460,6 +466,30 @@ const adminService = {
     return callback({
       status: 'OK',
       message: 'update successful',
+      OrderId: req.params.id
+    })
+  },
+
+  deleteOrderProduct: async (req, res, callback) => {
+    const orderItem = await OrderItem.findOne({
+      where: {
+        OrderId: req.params.id,
+        product_name: req.body.productName,
+        color: req.body.color,
+        size: req.body.size
+      }
+    })
+    if (!orderItem) {
+      return callback({
+        status: 'error',
+        message: 'no such orderItem found!!'
+      })
+    }
+    const deletedOrderItem = await orderItem.destroy()
+    return callback({
+      status: 'success',
+      message: 'orderItem successfully deleted!!',
+      deletedOrderItemId: deletedOrderItem.id,
       OrderId: req.params.id
     })
   },

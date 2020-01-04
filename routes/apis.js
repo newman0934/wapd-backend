@@ -180,6 +180,12 @@ router.put(
   authenticatedAdmin,
   adminController.putOrder
 )
+router.delete(
+  '/admins/orders/:id/product',
+  authenticated,
+  authenticatedAdmin,
+  adminController.deleteOrderProduct
+)
 
 router.get(
   '/admins/categories',
