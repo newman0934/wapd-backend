@@ -6,7 +6,8 @@
   "scripts": {
     "start": "NODE_ENV=development node app.js",
     "dev": "set \"NODE_ENV=development\" && nodemon app.js",
-    "test": "set \"NODE_ENV=test\" && mocha test/*/*.js --exit --recursive --timeout 5000"
+    "test": "set \"NODE_ENV=test\" && mocha test/*/*.js --exit --recursive --timeout 5000",
+    "coverage": "set \"NODE_ENV=test\" && node ./node_modules/nyc/bin/nyc.js mocha test/ --recursive --exit"
   },
   "keywords": [],
   "author": "",
@@ -39,6 +40,7 @@
     "sinon-chai": "^3.3.0"
   },
   "devDependencies": {
+    "nyc": "^15.0.0",
     "sequelize-test-helpers": "^1.2.0",
     "supertest": "^4.0.2",
     "swagger-jsdoc": "^3.5.0",
