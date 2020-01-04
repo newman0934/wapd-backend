@@ -23,7 +23,6 @@ describe('# Cart request', () => {
         name: 'product test1',
         description: 'product1 description',
         status: 'on',
-        cost: 100,
         origin_price: 200,
         sell_price: 300
       },
@@ -31,7 +30,6 @@ describe('# Cart request', () => {
         name: 'product test2',
         description: 'product2 description',
         status: 'on',
-        cost: 100,
         origin_price: 200,
         sell_price: 300
       }

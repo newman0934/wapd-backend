@@ -28,7 +28,6 @@ describe('# Product request', () => {
           name: 'Product1',
           description: 'Product1 description',
           status: 'on',
-          cost: 100,
           origin_price: 200,
           sell_price: 300,
           CategoryId: 1
@@ -38,7 +37,6 @@ describe('# Product request', () => {
           name: 'Product2',
           description: 'Product2 description',
           status: 'off',
-          cost: 100,
           origin_price: 200,
           sell_price: 300,
           CategoryId: 1
