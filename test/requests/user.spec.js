@@ -556,7 +556,7 @@ describe('# User request', () => {
     })
   })
 
-  context('getUserOrder request', () => {
+  context('getUserOrders request', () => {
     before(async () => {
       await db.Product.bulkCreate([
         {
@@ -596,17 +596,29 @@ describe('# User request', () => {
             done()
           })
       })
+    })
+
+    context('getUserOrders request', () => {
+      describe('if user look for self order', done => {
+        it('should return success', done => {
+          request(app)
+            .get('/api/users/1/orders/1')
+            .set('Authorization', 'bearer ' + APItoken)
+            .expect(200)
+            .end(async function(err, res) {
+              expect(res.body.orders.items.length).to.equal(2)
+              done()
+            })
+        })
+      })
 
       after(async () => {
+        await db.User.destroy({ where: {}, truncate: true })
+        await db.Token.destroy({ where: {}, truncate: true })
         await db.Product.destroy({ where: {}, truncate: true })
         await db.Order.destroy({ where: {}, truncate: true })
         await db.OrderItem.destroy({ where: {}, truncate: true })
       })
-    })
-
-    after(async () => {
-      await db.User.destroy({ where: {}, truncate: true })
-      await db.Token.destroy({ where: {}, truncate: true })
     })
   })
 })

@@ -49,7 +49,6 @@ const adminService = {
         id: d.dataValues.id,
         name: d.dataValues.name,
         category: d.dataValues.Category.category,
-        cost: d.dataValues.cost,
         sell_price: d.dataValues.sell_price,
         status: d.dataValues.status,
         images: d.dataValues.Images
@@ -79,7 +78,6 @@ const adminService = {
         id: productResult.dataValues.id,
         name: productResult.dataValues.name,
         description: productResult.dataValues.description,
-        cost: productResult.dataValues.cost,
         origin_price: productResult.dataValues.origin_price,
         sell_price: productResult.dataValues.sell_price,
         CategoryId: productResult.dataValues.CategoryId,
@@ -99,7 +97,6 @@ const adminService = {
     if (
       !req.body.name ||
       !req.body.categoryId ||
-      !req.body.cost ||
       !req.body.originPrice ||
       !req.body.sellPrice ||
       !req.body.description
@@ -121,7 +118,7 @@ const adminService = {
     productResult = await Product.create({
       name: req.body.name,
       CategoryId: req.body.categoryId,
-      cost: req.body.cost,
+
       origin_price: req.body.originPrice,
       sell_price: req.body.sellPrice,
       description: req.body.description,
@@ -151,7 +148,6 @@ const adminService = {
     if (
       !req.body.name ||
       !req.body.categoryId ||
-      !req.body.cost ||
       !req.body.originPrice ||
       !req.body.sellPrice ||
       !req.body.description ||
@@ -186,7 +182,6 @@ const adminService = {
     productResult.update({
       name: req.body.name,
       categoryId: req.body.categoryId,
-      cost: req.body.cost,
       originPrice: req.body.originPrice,
       sellPrice: req.body.sellPrice,
       description: req.body.description,
@@ -276,6 +271,13 @@ const adminService = {
       }
     })
 
+    if (!result) {
+      callback({
+        status: 'error',
+        message: 'can not find any product stock!!'
+      })
+    }
+
     const productStatus = {
       id: result.ProductStatuses[0].id,
       stock: result.ProductStatuses[0].stock,
@@ -294,7 +296,6 @@ const adminService = {
     const size = await Size.findOrCreate({
       where: { size: req.body.size }
     })
-    console.log(color[0].id)
     const productStatus = await ProductStatus.findByPk(req.params.stock_id)
     await productStatus.update({
       stock: req.body.stock,
@@ -352,7 +353,6 @@ const adminService = {
         ProductId: req.params.id,
         ColorId: color[0].id,
         SizeId: size[0].id,
-        cost: defaultProductInfo.cost,
         price: defaultProductInfo.price
       }
     })
@@ -460,6 +460,30 @@ const adminService = {
     return callback({
       status: 'OK',
       message: 'update successful',
+      OrderId: req.params.id
+    })
+  },
+
+  deleteOrderProduct: async (req, res, callback) => {
+    const orderItem = await OrderItem.findOne({
+      where: {
+        OrderId: req.params.id,
+        product_name: req.body.productName,
+        color: req.body.color,
+        size: req.body.size
+      }
+    })
+    if (!orderItem) {
+      return callback({
+        status: 'error',
+        message: 'no such orderItem found!!'
+      })
+    }
+    const deletedOrderItem = await orderItem.destroy()
+    return callback({
+      status: 'success',
+      message: 'orderItem successfully deleted!!',
+      deletedOrderItemId: deletedOrderItem.id,
       OrderId: req.params.id
     })
   },

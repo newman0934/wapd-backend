@@ -20,6 +20,39 @@ describe('# Order request', () => {
       email: 'test1@example.com',
       password: bcrypt.hashSync('12345678', bcrypt.genSaltSync(10), null)
     })
+    await db.Order.create({
+      UserId: 1
+    })
+    await db.Product.bulkCreate([
+      {
+        name: 'product1',
+        description: 'product1 des'
+      },
+      {
+        name: 'product2',
+        description: 'product2 des'
+      }
+    ])
+    await db.Image.bulkCreate([
+      {
+        url: '',
+        ProductId: 1
+      },
+      {
+        url: '',
+        ProductId: 2
+      }
+    ])
+    await db.OrderItem.bulkCreate([
+      {
+        OrderId: 1,
+        ProductId: 1
+      },
+      {
+        OrderId: 1,
+        ProductId: 2
+      }
+    ])
   })
   context('getUserOrders request', () => {
     it('should log in success', done => {
@@ -32,6 +65,29 @@ describe('# Order request', () => {
           APItoken = res.body.token
           expect(res.body.status).to.equal('success')
           expect(res.body.message).to.equal('ok')
+          done()
+        })
+    })
+    it('should return order does not exist!! if :id is wrong', done => {
+      request(app)
+        .get('/api/orders/99/checkout')
+        .set('Authorization', 'bearer ' + APItoken)
+        .set('Accept', 'application/json')
+        .expect(200)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error')
+          expect(res.body.message).to.equal('order does not exist!!')
+          done()
+        })
+    })
+    it('should return a json data', done => {
+      request(app)
+        .get('/api/orders/1/checkout')
+        .set('Authorization', 'bearer ' + APItoken)
+        .set('Accept', 'application/json')
+        .expect(200)
+        .end((err, res) => {
+          expect(res.body.orderItems.length).to.equal(2)
           done()
         })
     })
