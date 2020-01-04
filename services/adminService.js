@@ -173,7 +173,7 @@ const adminService = {
       where: { name: req.body.name }
     })
     if (productResult) {
-      if (productResult.id !== req.params.id) {
+      if (productResult.id !== +req.params.id) {
         return callback({
           status: 'error',
           message: 'same product name already existed!!'
