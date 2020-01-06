@@ -109,7 +109,7 @@ router.post(
   '/admins/products',
   authenticated,
   authenticatedAdmin,
-  upload.array('image'),
+  upload.array('images'),
   adminController.addProduct
 )
 router.put(
