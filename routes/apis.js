@@ -7,6 +7,7 @@ const userController = require('../controllers/api/userController')
 const categoryController = require('../controllers/api/categoryController')
 const cartController = require('../controllers/api/cartController')
 const orderController = require('../controllers/api/orderController')
+const couponController = require('../controllers/api/couponController')
 const multer = require('multer')
 const upload = multer({ dest: 'temp/' })
 const helpers = require('../_helpers')
@@ -223,6 +224,24 @@ router.get(
   authenticated,
   authenticatedAdmin,
   adminController.getUserOrders
+)
+router.get(
+  '/admins/coupons',
+  authenticated,
+  authenticatedAdmin,
+  couponController.getCoupons
+)
+router.post(
+  '/admins/coupons',
+  authenticated,
+  authenticatedAdmin,
+  couponController.addCoupon
+)
+router.delete(
+  '/admins/coupons/:id',
+  authenticated,
+  authenticatedAdmin,
+  couponController.deleteCoupon
 )
 
 router.post(
