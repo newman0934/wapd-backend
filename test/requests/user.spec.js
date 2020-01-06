@@ -124,13 +124,32 @@ describe('# User request', () => {
           })
       })
 
+      it('should return 密碼不合法，需至少有一小寫字母！', done => {
+        request(app)
+          .post('/api/signup')
+          .send({
+            email: 'test2@example.com',
+            password: '123456',
+            passwordCheck: '123456'
+          })
+          .set('Accept', 'application/json')
+          .expect(400)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('error')
+            expect(res.body.message).to.equal(
+              '密碼不合法，需至少有一小寫字母！'
+            )
+            done()
+          })
+      })
+
       it('should return 信箱重複！', done => {
         request(app)
           .post('/api/signup')
           .send({
             email: 'test1@example.com',
-            password: '12345678',
-            passwordCheck: '12345678'
+            password: 'a12345678',
+            passwordCheck: 'a12345678'
           })
           .set('Accept', 'application/json')
           .expect(400)
@@ -146,8 +165,8 @@ describe('# User request', () => {
           .post('/api/signup')
           .send({
             email: 'test1@example.com',
-            password: '12345678',
-            passwordCheck: '123456'
+            password: 'a12345678',
+            passwordCheck: 'a123456'
           })
           .set('Accept', 'application/json')
           .expect(400)
@@ -163,8 +182,8 @@ describe('# User request', () => {
           .post('/api/signup')
           .send({
             email: 'test2@example.com',
-            password: '12345678',
-            passwordCheck: '12345678'
+            password: 'a12345678',
+            passwordCheck: 'a12345678'
           })
           .set('Accept', 'application/json')
           .expect(200)
