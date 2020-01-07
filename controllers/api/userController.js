@@ -108,8 +108,17 @@ const userController = {
       return res.json({ status: 'error', message: '請填妥每一個欄位！' })
     }
 
+    const passwordRegex = /^(?=.*[a-z])(?=.*[a-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{6,}$/
+
     if (req.body.password.length < 6) {
       return res.json({ status: 'error', message: '密碼長度不足！' })
+    }
+
+    if (!passwordRegex.test(req.body.password)) {
+      return res.json({
+        status: 'error',
+        message: '密碼不合法，需至少有一小寫字母！'
+      })
     }
 
     if (req.body.passwordCheck !== req.body.password) {
