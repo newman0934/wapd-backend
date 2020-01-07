@@ -54,6 +54,8 @@ describe('# Cart request', () => {
           .set('Accept', 'application/json')
           .expect(200)
           .end((err, res) => {
+            expect(res.body.tempCartItems.length).to.equal(1)
+            expect(res.body.tempCartItems[0].UserId).to.equal(null)
             expect(res.body.status).to.equal('success')
             expect(res.body.message).to.equal(
               'item successfully added into cart'

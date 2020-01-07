@@ -103,7 +103,8 @@ const cartService = {
       return callback({
         status: 'success',
         message: 'item successfully added into cart',
-        productSellPrice: product.sell_price
+        productSellPrice: product.sell_price,
+        tempCartItems: req.session.tempCartItems
       })
     } catch (error) {
       console.error(error)
