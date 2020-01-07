@@ -422,6 +422,58 @@
         }
       }
     },
+    "/api/admins/products/{id}/stocks/": {
+      "post": {
+        "tags": ["admins"],
+        "summary": "Creating product property",
+        "description": "",
+        "operationId": "adminController.addProductStockProps",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of product you want to create new property",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Size and color you want to change",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "color": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "definitions": {
       "Product": {
         "type": "object",
