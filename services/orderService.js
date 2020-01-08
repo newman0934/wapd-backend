@@ -454,15 +454,17 @@ const orderService = {
     const checkValue = getTransitionCheckValue(amt, sn)
     // TODO: 發送請求至藍新交易 API 網址並取得回傳結果
     superagent
-      .post(TransitionGateWay)
+      .post('https://ccore.spgateway.com/API/QueryTradeInfo')
+      // .post('http://localhost:3000/api/reqBodyTest')
+      .type('form')
       .send({
-        MerchantID: MerchantID,
-        Version: 1.1,
-        RespondType: JSON,
-        CheckValue: checkValue,
-        TimeStamp: Date.now(),
-        MerchantOrderNo: sn,
-        Amt: amt
+        MerchantID: MerchantID.toString(),
+        Version: '1.1',
+        RespondType: 'JSON',
+        CheckValue: checkValue.toString(),
+        TimeStamp: Date.now().toString(),
+        MerchantOrderNo: sn.toString(),
+        Amt: amt.toString()
       })
       .end((err, res) => {
         if (err) return console.log(err)
