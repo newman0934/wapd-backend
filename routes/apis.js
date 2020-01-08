@@ -262,4 +262,12 @@ router.get(
   orderController.getPaymentComplete
 )
 
+// TODO: 接收前端請求的路由 POST /admin/orders/transition
+router.post(
+  `/admins/orders/transition`,
+  authenticated,
+  authenticatedAdmin,
+  orderController.postTransition
+)
+
 module.exports = router

@@ -1,14 +1,16 @@
 const db = require('../models')
-const Product = db.Product
-const ProductStatus = db.ProductStatus
-const Category = db.Category
-const Color = db.Color
-const Size = db.Size
-const Order = db.Order
-const User = db.User
-const Coupon = db.Coupon
-const OrderItem = db.OrderItem
-const Image = db.Image
+const {
+  Product,
+  ProductStatus,
+  Category,
+  Color,
+  Size,
+  Order,
+  User,
+  Coupon,
+  OrderItem,
+  Image
+} = db
 const pageLimit = 12
 const fs = require('fs')
 const imgur = require('imgur-node-api')

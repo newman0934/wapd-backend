@@ -37,7 +37,8 @@
     "sequelize": "^5.21.2",
     "sequelize-cli": "^5.5.1",
     "sinon": "^7.5.0",
-    "sinon-chai": "^3.3.0"
+    "sinon-chai": "^3.3.0",
+    "superagent": "^5.2.1"
   },
   "devDependencies": {
     "nyc": "^15.0.0",

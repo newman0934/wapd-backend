@@ -1,14 +1,8 @@
 const db = require('../models')
 const crypto = require('crypto')
 const nodemailer = require('nodemailer')
-const Order = db.Order
-const OrderItem = db.OrderItem
-const CartItem = db.CartItem
-const Coupon = db.Coupon
-const Product = db.Product
-const Image = db.Image
-const User = db.User
-
+const superagent = require('superagent')
+const { Order, OrderItem, CartItem, Coupon, Product, Image, User } = db
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -21,6 +15,7 @@ const URL = process.env.URL
 const MerchantID = process.env.MERCHANT_ID // 藍新商店代號
 const HashKey = process.env.HASH_KEY // 藍新金鑰
 const HashIV = process.env.HASH_IV // 藍新金鑰
+const TransitionGateWay = 'https://ccore.spgateway.com/API/QueryTradeInfo' // 藍新交易查詢網頁
 const PayGateWay = 'https://ccore.spgateway.com/MPG/mpg_gateway' // 藍新支付網頁
 const ReturnURL = URL + '/api/spgateway/callback?from=ReturnURL'
 const NotifyURL = URL + '/api/spgateway/callback?from=NotifyURL'
@@ -115,7 +110,7 @@ function getTradeInfo(Amt, Desc, email) {
 // 回傳交易狀態查詢需要的資訊
 // TODO: 實作藍新交易狀態查詢API
 /*
-MerchantID: MerchangID
+MerchantID: MerchantID
 Version: 1.1
 RespondType: JSON
 CheckValue: getTransitionCheckValue(Amt, MerchantOrderNo)
@@ -451,6 +446,31 @@ const orderService = {
       receiver,
       total: orderResult.total_price
     })
+  },
+
+  // TODO: 建立一支交易查詢的 Service
+  postTransition: async (req, res, callback) => {
+    const { amt, sn } = req.body
+    const checkValue = getTransitionCheckValue(amt, sn)
+    // TODO: 發送請求至藍新交易 API 網址並取得回傳結果
+    superagent
+      .post(TransitionGateWay)
+      .send({
+        MerchantID: MerchantID,
+        Version: 1.1,
+        RespondType: JSON,
+        CheckValue: checkValue,
+        TimeStamp: Date.now(),
+        MerchantOrderNo: sn,
+        Amt: amt
+      })
+      .end((err, res) => {
+        if (err) return console.log(err)
+        return callback({
+          respond: res
+        })
+        // TODO: 將結果儲存至資料庫
+      })
   }
 }
 
