@@ -291,8 +291,9 @@ const orderService = {
   },
 
   postCheckout: async (req, res, callback) => {
-    // TODO: 將結帳資訊儲存至對應資料表中
-    const order = await Order.findByPk(+req.body.orderId)
+    const order = await Order.findByPk(+req.body.orderId, {
+      include: { model: Product, as: 'items' }
+    })
     // 如果 order 不屬於該使用者會回傳 error
     if (order.UserId !== req.user.id) {
       return callback({
@@ -301,12 +302,39 @@ const orderService = {
         orderId: req.body.orderId
       })
     }
+    // console.log(order.items[0].OrderItem)
+    // 後端演算 total 並檢查是否與前端發送的總額相符
+    let orderTotal = 0
+    order.items.map(d => {
+      orderTotal += d.OrderItem.quantity * d.OrderItem.sell_price
+    })
+    // 如果 req.body.deliver 為 0 (使用者選擇宅配)，檢查 orderItem 價格總和是否等於 order 現階段 total_price +100；否則檢查是否相符
+    if (+req.body.deliver === 0) {
+      if (orderTotal + 100 !== +req.body.total) {
+        return callback({
+          status: 'error',
+          message: "request body's total does not match database's total!!"
+        })
+      }
+    } else {
+      if (orderTotal !== +req.body.total) {
+        return callback({
+          status: 'error',
+          message: "request body's total does not match database's total!!"
+        })
+      }
+    }
+
+    // if (+req.body.deliver === 0) {
+    //   if (orderTotal !== +req.body.total) {
+    //   }
+    // }
+
     // 如果收件人欄位沒填妥會回傳 error
     if (
       !req.body.receiverName ||
       !req.body.receiverPhone ||
       !req.body.receiverAddress ||
-      !req.body.receiverEmail ||
       !req.body.total ||
       !req.body.orderId
     ) {
@@ -316,12 +344,10 @@ const orderService = {
         orderId: req.body.orderId
       })
     }
-    console.log(req.body)
     await order.update({
       receiver_name: req.body.receiverName,
       phone: req.body.receiverPhone,
       address: req.body.receiverAddress,
-      email: req.body.receiverEmail,
       total_price: req.body.total,
       shipping_method: req.body.deliver
     })

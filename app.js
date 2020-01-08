@@ -21,10 +21,7 @@ const bodyParser = require('body-parser')
 app.use('/api-docs', express.static('public'))
 app.use(
   cors({
-    origin: [
-      'http://localhost:8080',
-      'https://newman0934.github.io/wapd-frontend/'
-    ],
+    origin: ['http://localhost:8080', 'https://newman0934.github.io'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true // enable set cookie
   })
