@@ -59,9 +59,9 @@ function create_mpg_sha_encrypt(TradeInfo) {
 }
 
 // 取得加密的結果 Amt: 訂單價格, Desc: 敘述, email: 使用者的email
-function getTradeInfo(Amt, Desc, email) {
+function getTradeInfo(Amt, Desc, email, CREDIT, VACC, CVS, CVSCOM) {
   console.log('===== getTradeInfo =====')
-  console.log(Amt, Desc, email)
+  console.log(Amt, Desc, email, CVSCOM)
   console.log('==========')
 
   data = {
@@ -78,8 +78,11 @@ function getTradeInfo(Amt, Desc, email) {
     Email: email, // 付款人電子信箱
     ReturnURL: ReturnURL, // 支付完成返回商店網址
     NotifyURL: NotifyURL, // 支付通知網址/每期授權結果通知
-    ClientBackURL: ClientBackURL // 支付取消返回商店網址
-    // CVSCOM 選擇的支付方式
+    ClientBackURL: ClientBackURL, // 支付取消返回商店網址
+    CREDIT: CREDIT, // 是否啟用信用卡
+    VACC: VACC, // 是否啟用ATM
+    CVS: CVS,
+    CVSCOM: CVSCOM // 超商
   }
 
   console.log('===== getTradeInfo: data =====')
@@ -313,12 +316,14 @@ const orderService = {
         orderId: req.body.orderId
       })
     }
+    console.log(req.body)
     await order.update({
       receiver_name: req.body.receiverName,
       phone: req.body.receiverPhone,
       address: req.body.receiverAddress,
       email: req.body.receiverEmail,
-      total_price: req.body.total
+      total_price: req.body.total,
+      shipping_method: req.body.deliver
     })
     // 成功後會回傳 orderId
     return callback({
@@ -329,12 +334,31 @@ const orderService = {
   },
 
   getPayment: async (req, res, callback) => {
-    // TODO: 準備藍新所需資訊
     const order = await Order.findByPk(req.params.id)
     const total = order.total_price
     const orderId = req.params.id
     const email = req.user.email
-    const tradeInfo = getTradeInfo(total, orderId, email)
+    let [CREDIT, VACC, CVS, CVSCOM] = [1, 1, 1, 0]
+    // TODO: 依據使用者所選傳入對應結果：
+    // 使用者選擇宅配0-> CREDIT=1 VACC=1 CVS=1 CVSCOM=0 (套用預設值)
+    // 使用者選擇超商取貨1-> CREDIT=1 VACC=1 CVS=1 CVSCOM=1
+    if (+order.shipping_method === 1) {
+      CVSCOM = 1
+    }
+    // 使用者選擇超商取貨付款2-> CREDIT=0 VACC=0 CVS=0 CVSCOM=2
+    if (+order.shipping_method === 2) {
+      ;[CREDIT, VACC, CVS, CVSCOM] = [0, 0, 0, 2]
+    }
+
+    const tradeInfo = getTradeInfo(
+      total,
+      orderId,
+      email,
+      CREDIT,
+      VACC,
+      CVS,
+      CVSCOM
+    )
     await order.update({
       sn: tradeInfo.MerchantOrderNo
     })
@@ -346,7 +370,6 @@ const orderService = {
     })
   },
 
-  // TODO: 將 postOrder 的寄信動作調整到 spgatewayCallback
   spgatewayCallback: async (req, res) => {
     // 藍新流程完成，回傳支付結果
     console.log('===== spgatewayCallback =====')
@@ -448,7 +471,6 @@ const orderService = {
     })
   },
 
-  // TODO: 建立一支交易查詢的 Service
   postTransition: async (req, res, callback) => {
     const { amt, sn } = req.body
     const checkValue = getTransitionCheckValue(amt, sn)
