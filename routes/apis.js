@@ -45,7 +45,7 @@ router.get('/users/:id/orders', userController.getUserOrders)
 router.get('/users/:id/orders/:order_id', userController.getUserOrder)
 router.get('/users/:id/wishlist', authenticated, userController.getUserWishlist)
 
-router.get('/users/:id/cart', authenticated, cartController.getUserCart)
+router.get('/users/cart', authenticated, cartController.getUserCart)
 router.post(
   '/products/cart',
   upload.array(),
@@ -53,7 +53,7 @@ router.post(
   cartController.postCart
 )
 router.put(
-  '/users/:id/cart/:item_id',
+  '/users/cart/:item_id',
   authenticated,
   upload.array(),
   cartController.putCartQuantity
