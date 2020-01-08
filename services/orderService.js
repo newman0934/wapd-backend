@@ -387,7 +387,7 @@ const orderService = {
     }
 
     return res.redirect(
-      `http://localhost:8080/#/users/${order.UserId}/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
+      `http://localhost:8080/#/users/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
     )
   },
 
