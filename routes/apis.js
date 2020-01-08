@@ -257,7 +257,7 @@ router.post(
 router.get(`/orders/:id/payment`, authenticated, orderController.getPayment)
 router.post(`/spgateway/callback`, orderController.spgatewayCallback)
 router.get(
-  `/users/:id/paymentcomplete`,
+  `/users/paymentcomplete`,
   authenticated,
   orderController.getPaymentComplete
 )
