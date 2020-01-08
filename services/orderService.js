@@ -1,14 +1,8 @@
 const db = require('../models')
 const crypto = require('crypto')
 const nodemailer = require('nodemailer')
-const Order = db.Order
-const OrderItem = db.OrderItem
-const CartItem = db.CartItem
-const Coupon = db.Coupon
-const Product = db.Product
-const Image = db.Image
-const User = db.User
-
+const superagent = require('superagent')
+const { Order, OrderItem, CartItem, Coupon, Product, Image, User } = db
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -21,10 +15,11 @@ const URL = process.env.URL
 const MerchantID = process.env.MERCHANT_ID // 藍新商店代號
 const HashKey = process.env.HASH_KEY // 藍新金鑰
 const HashIV = process.env.HASH_IV // 藍新金鑰
+const TransitionGateWay = 'https://ccore.spgateway.com/API/QueryTradeInfo' // 藍新交易查詢網頁
 const PayGateWay = 'https://ccore.spgateway.com/MPG/mpg_gateway' // 藍新支付網頁
 const ReturnURL = URL + '/api/spgateway/callback?from=ReturnURL'
 const NotifyURL = URL + '/api/spgateway/callback?from=NotifyURL'
-const ClientBackURL = URL + '/users/orders'
+const ClientBackURL = 'http://localhost:8080/#/users/orders' // ATM、WEBATM、條碼繳費完成後的CB URL
 
 /* ----- 藍新用 function start ----- */
 // 把 Object 的資料轉成字串型的資料
@@ -64,9 +59,9 @@ function create_mpg_sha_encrypt(TradeInfo) {
 }
 
 // 取得加密的結果 Amt: 訂單價格, Desc: 敘述, email: 使用者的email
-function getTradeInfo(Amt, Desc, email) {
+function getTradeInfo(Amt, Desc, email, CREDIT, VACC, CVS, CVSCOM) {
   console.log('===== getTradeInfo =====')
-  console.log(Amt, Desc, email)
+  console.log(Amt, Desc, email, CVSCOM)
   console.log('==========')
 
   data = {
@@ -83,8 +78,11 @@ function getTradeInfo(Amt, Desc, email) {
     Email: email, // 付款人電子信箱
     ReturnURL: ReturnURL, // 支付完成返回商店網址
     NotifyURL: NotifyURL, // 支付通知網址/每期授權結果通知
-    ClientBackURL: ClientBackURL // 支付取消返回商店網址
-    // CVSCOM 選擇的支付方式
+    ClientBackURL: ClientBackURL, // 支付取消返回商店網址
+    CREDIT: CREDIT, // 是否啟用信用卡
+    VACC: VACC, // 是否啟用ATM
+    CVS: CVS,
+    CVSCOM: CVSCOM // 超商
   }
 
   console.log('===== getTradeInfo: data =====')
@@ -115,7 +113,7 @@ function getTradeInfo(Amt, Desc, email) {
 // 回傳交易狀態查詢需要的資訊
 // TODO: 實作藍新交易狀態查詢API
 /*
-MerchantID: MerchangID
+MerchantID: MerchantID
 Version: 1.1
 RespondType: JSON
 CheckValue: getTransitionCheckValue(Amt, MerchantOrderNo)
@@ -293,8 +291,9 @@ const orderService = {
   },
 
   postCheckout: async (req, res, callback) => {
-    // TODO: 將結帳資訊儲存至對應資料表中
-    const order = await Order.findByPk(+req.body.orderId)
+    const order = await Order.findByPk(+req.body.orderId, {
+      include: { model: Product, as: 'items' }
+    })
     // 如果 order 不屬於該使用者會回傳 error
     if (order.UserId !== req.user.id) {
       return callback({
@@ -303,12 +302,39 @@ const orderService = {
         orderId: req.body.orderId
       })
     }
+    // console.log(order.items[0].OrderItem)
+    // 後端演算 total 並檢查是否與前端發送的總額相符
+    let orderTotal = 0
+    order.items.map(d => {
+      orderTotal += d.OrderItem.quantity * d.OrderItem.sell_price
+    })
+    // 如果 req.body.deliver 為 0 (使用者選擇宅配)，檢查 orderItem 價格總和是否等於 order 現階段 total_price +100；否則檢查是否相符
+    if (+req.body.deliver === 0) {
+      if (orderTotal + 100 !== +req.body.total) {
+        return callback({
+          status: 'error',
+          message: "request body's total does not match database's total!!"
+        })
+      }
+    } else {
+      if (orderTotal !== +req.body.total) {
+        return callback({
+          status: 'error',
+          message: "request body's total does not match database's total!!"
+        })
+      }
+    }
+
+    // if (+req.body.deliver === 0) {
+    //   if (orderTotal !== +req.body.total) {
+    //   }
+    // }
+
     // 如果收件人欄位沒填妥會回傳 error
     if (
       !req.body.receiverName ||
       !req.body.receiverPhone ||
       !req.body.receiverAddress ||
-      !req.body.receiverEmail ||
       !req.body.total ||
       !req.body.orderId
     ) {
@@ -322,8 +348,8 @@ const orderService = {
       receiver_name: req.body.receiverName,
       phone: req.body.receiverPhone,
       address: req.body.receiverAddress,
-      email: req.body.receiverEmail,
-      total_price: req.body.total
+      total_price: req.body.total,
+      shipping_method: req.body.deliver
     })
     // 成功後會回傳 orderId
     return callback({
@@ -334,12 +360,31 @@ const orderService = {
   },
 
   getPayment: async (req, res, callback) => {
-    // TODO: 準備藍新所需資訊
     const order = await Order.findByPk(req.params.id)
     const total = order.total_price
     const orderId = req.params.id
     const email = req.user.email
-    const tradeInfo = getTradeInfo(total, orderId, email)
+    let [CREDIT, VACC, CVS, CVSCOM] = [1, 1, 1, 0]
+    // TODO: 依據使用者所選傳入對應結果：
+    // 使用者選擇宅配0-> CREDIT=1 VACC=1 CVS=1 CVSCOM=0 (套用預設值)
+    // 使用者選擇超商取貨1-> CREDIT=1 VACC=1 CVS=1 CVSCOM=1
+    if (+order.shipping_method === 1) {
+      CVSCOM = 1
+    }
+    // 使用者選擇超商取貨付款2-> CREDIT=0 VACC=0 CVS=0 CVSCOM=2
+    if (+order.shipping_method === 2) {
+      ;[CREDIT, VACC, CVS, CVSCOM] = [0, 0, 0, 2]
+    }
+
+    const tradeInfo = getTradeInfo(
+      total,
+      orderId,
+      email,
+      CREDIT,
+      VACC,
+      CVS,
+      CVSCOM
+    )
     await order.update({
       sn: tradeInfo.MerchantOrderNo
     })
@@ -351,7 +396,6 @@ const orderService = {
     })
   },
 
-  // TODO: 將 postOrder 的寄信動作調整到 spgatewayCallback
   spgatewayCallback: async (req, res) => {
     // 藍新流程完成，回傳支付結果
     console.log('===== spgatewayCallback =====')
@@ -451,6 +495,46 @@ const orderService = {
       receiver,
       total: orderResult.total_price
     })
+  },
+
+  postTransition: async (req, res, callback) => {
+    const { amt, sn } = req.body
+    const checkValue = getTransitionCheckValue(amt, sn)
+    // TODO: 發送請求至藍新交易 API 網址並取得回傳結果
+    superagent
+      .post('https://ccore.spgateway.com/API/QueryTradeInfo')
+      .type('form')
+      .send({
+        MerchantID: MerchantID,
+        Version: '1.1',
+        RespondType: 'JSON',
+        CheckValue: checkValue,
+        TimeStamp: Date.now(),
+        MerchantOrderNo: sn,
+        Amt: amt
+      })
+      .end(async (err, res) => {
+        const response = JSON.parse(res.text)
+        if (response.Status !== 'SUCCESS')
+          return callback({
+            status: 'error',
+            message: '查詢失敗!!'
+          })
+        const order = await Order.findOne({
+          where: {
+            sn: sn
+          }
+        })
+        await order.update({
+          payment_method: response.Result.PaymentMethod,
+          payment_status: response.Result.TradeStatus
+        })
+        return callback({
+          status: 'OK',
+          message: '資料庫更新成功!!',
+          response
+        })
+      })
   }
 }
 

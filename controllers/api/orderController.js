@@ -40,6 +40,11 @@ let orderController = {
     orderService.getPaymentComplete(req, res, data => {
       return res.json(data)
     })
+  },
+  postTransition: (req, res) => {
+    orderService.postTransition(req, res, data => {
+      return res.json(data)
+    })
   }
 }
 
