@@ -23,7 +23,7 @@ const helpers = require('./../_helpers')
 
 const userService = {
   getUserOrders: async (req, res, callback) => {
-    const userOrderResult = await User.findByPk(req.params.id, {
+    const userOrderResult = await User.findByPk(req.user.id, {
       include: { model: Order, include: { model: Product, as: 'items' } }
     })
 
@@ -59,7 +59,7 @@ const userService = {
   },
 
   getUserWishlist: async (req, res, callback) => {
-    let userFavoriteResult = await User.findByPk(req.params.id, {
+    let userFavoriteResult = await User.findByPk(req.user.id, {
       include: {
         model: Product,
         required: false,

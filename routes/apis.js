@@ -41,9 +41,13 @@ router.delete(
   productController.deleteWishlist
 )
 
-router.get('/users/:id/orders', userController.getUserOrders)
-router.get('/users/:id/orders/:order_id', userController.getUserOrder)
-router.get('/users/:id/wishlist', authenticated, userController.getUserWishlist)
+router.get('/users/orders', authenticated, userController.getUserOrders)
+router.get(
+  '/users/orders/:order_id',
+  authenticated,
+  userController.getUserOrder
+)
+router.get('/users/wishlist', authenticated, userController.getUserWishlist)
 
 router.get('/users/cart', authenticated, cartController.getUserCart)
 router.post(
