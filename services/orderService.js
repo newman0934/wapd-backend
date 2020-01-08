@@ -24,7 +24,7 @@ const HashIV = process.env.HASH_IV // 藍新金鑰
 const PayGateWay = 'https://ccore.spgateway.com/MPG/mpg_gateway' // 藍新支付網頁
 const ReturnURL = URL + '/api/spgateway/callback?from=ReturnURL'
 const NotifyURL = URL + '/api/spgateway/callback?from=NotifyURL'
-const ClientBackURL = URL + '/orders'
+const ClientBackURL = URL + '/users/orders'
 
 /* ----- 藍新用 function start ----- */
 // 把 Object 的資料轉成字串型的資料
