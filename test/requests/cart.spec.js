@@ -184,7 +184,7 @@ describe('# Cart request', () => {
     })
     it("should return user's cart", done => {
       request(app)
-        .get('/api/users/1/cart')
+        .get('/api/users/cart')
         .set('Authorization', 'bearer ' + APItoken)
         .expect(200)
         .end(function(err, res) {
@@ -211,7 +211,7 @@ describe('# Cart request', () => {
     })
     it("should return 'no matched cartItem found!!' if :item_id is wrong", done => {
       request(app)
-        .put('/api/users/1/cart/99')
+        .put('/api/users/cart/99')
         .send({
           quantity: 2
         })
@@ -225,7 +225,7 @@ describe('# Cart request', () => {
     })
     it("should return 'please write quantity!!' if no quantity is sent", done => {
       request(app)
-        .put('/api/users/1/cart/1')
+        .put('/api/users/cart/1')
         .send({})
         .set('Authorization', 'bearer ' + APItoken)
         .expect(200)
@@ -237,7 +237,7 @@ describe('# Cart request', () => {
     })
     it('should return cartItem updated successful!!', done => {
       request(app)
-        .put('/api/users/1/cart/1')
+        .put('/api/users/cart/1')
         .send({
           quantity: 2
         })

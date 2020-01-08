@@ -24,7 +24,7 @@ const HashIV = process.env.HASH_IV // 藍新金鑰
 const PayGateWay = 'https://ccore.spgateway.com/MPG/mpg_gateway' // 藍新支付網頁
 const ReturnURL = URL + '/api/spgateway/callback?from=ReturnURL'
 const NotifyURL = URL + '/api/spgateway/callback?from=NotifyURL'
-const ClientBackURL = URL + '/orders'
+const ClientBackURL = URL + '/users/orders'
 
 /* ----- 藍新用 function start ----- */
 // 把 Object 的資料轉成字串型的資料
@@ -84,6 +84,7 @@ function getTradeInfo(Amt, Desc, email) {
     ReturnURL: ReturnURL, // 支付完成返回商店網址
     NotifyURL: NotifyURL, // 支付通知網址/每期授權結果通知
     ClientBackURL: ClientBackURL // 支付取消返回商店網址
+    // CVSCOM 選擇的支付方式
   }
 
   console.log('===== getTradeInfo: data =====')
@@ -386,7 +387,7 @@ const orderService = {
     }
 
     return res.redirect(
-      `http://localhost:8080/#/users/${order.UserId}/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
+      `http://localhost:8080/#/users/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
     )
   },
 
