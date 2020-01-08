@@ -455,23 +455,22 @@ const orderService = {
     // TODO: 發送請求至藍新交易 API 網址並取得回傳結果
     superagent
       .post('https://ccore.spgateway.com/API/QueryTradeInfo')
-      // .post('http://localhost:3000/api/reqBodyTest')
       .type('form')
       .send({
-        MerchantID: MerchantID.toString(),
+        MerchantID: MerchantID,
         Version: '1.1',
         RespondType: 'JSON',
-        CheckValue: checkValue.toString(),
-        TimeStamp: Date.now().toString(),
-        MerchantOrderNo: sn.toString(),
-        Amt: amt.toString()
+        CheckValue: checkValue,
+        TimeStamp: Date.now(),
+        MerchantOrderNo: sn,
+        Amt: amt
       })
       .end((err, res) => {
         if (err) return console.log(err)
+        console.log(res.text)
         return callback({
           respond: res
         })
-        // TODO: 將結果儲存至資料庫
       })
   }
 }
