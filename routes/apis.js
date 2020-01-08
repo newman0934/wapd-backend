@@ -270,9 +270,4 @@ router.post(
   orderController.postTransition
 )
 
-router.post('/reqBodyTest', (req, res) => {
-  console.log(req.body)
-  return res.send('see console')
-})
-
 module.exports = router
