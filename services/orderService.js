@@ -465,11 +465,26 @@ const orderService = {
         MerchantOrderNo: sn,
         Amt: amt
       })
-      .end((err, res) => {
-        if (err) return console.log(err)
-        console.log(res.text)
+      .end(async (err, res) => {
+        const response = JSON.parse(res.text)
+        if (response.Status !== 'SUCCESS')
+          return callback({
+            status: 'error',
+            message: '查詢失敗!!'
+          })
+        const order = await Order.findOne({
+          where: {
+            sn: sn
+          }
+        })
+        await order.update({
+          payment_method: response.Result.PaymentMethod,
+          payment_status: response.Result.TradeStatus
+        })
         return callback({
-          respond: res
+          status: 'OK',
+          message: '資料庫更新成功!!',
+          response
         })
       })
   }
