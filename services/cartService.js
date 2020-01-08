@@ -17,13 +17,7 @@ const helpers = require('../_helpers')
 const cartService = {
   getUserCart: async (req, res, callback) => {
     try {
-      if (req.user.id !== +req.params.id) {
-        return callback({
-          status: 'error',
-          message: "not current user's cart!!"
-        })
-      }
-      const userCartResult = await User.findByPk(req.params.id, {
+      const userCartResult = await User.findByPk(req.user.id, {
         include: {
           model: CartItem,
           include: [

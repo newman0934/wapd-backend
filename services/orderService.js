@@ -84,6 +84,7 @@ function getTradeInfo(Amt, Desc, email) {
     ReturnURL: ReturnURL, // 支付完成返回商店網址
     NotifyURL: NotifyURL, // 支付通知網址/每期授權結果通知
     ClientBackURL: ClientBackURL // 支付取消返回商店網址
+    // CVSCOM 選擇的支付方式
   }
 
   console.log('===== getTradeInfo: data =====')
