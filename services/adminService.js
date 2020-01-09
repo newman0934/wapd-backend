@@ -128,15 +128,16 @@ const adminService = {
     })
 
     const { files } = req
-    console.log(files)
-    imgur.setClientID(process.env.IMGUR_CLIENT_ID)
-    for (let i = 0; i < files.length; i++) {
-      imgur.upload(files[i].path, async (err, img) => {
-        await Image.create({
-          url: img.data.link,
-          ProductId: productResult.id
+    if (files) {
+      imgur.setClientID(process.env.IMGUR_CLIENT_ID)
+      for (let i = 0; i < files.length; i++) {
+        imgur.upload(files[i].path, async (err, img) => {
+          await Image.create({
+            url: img.data.link,
+            ProductId: productResult.id
+          })
         })
-      })
+      }
     }
 
     return callback({

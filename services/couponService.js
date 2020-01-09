@@ -15,7 +15,7 @@ const couponService = {
       })
     }
     // 如果 discountAmount 非數字會回傳錯誤
-    if (Number.isInteger(+req.body.discountAmount)) {
+    if (!Number.isInteger(+req.body.discountAmount)) {
       return callback({
         status: 'error',
         message: 'discountAmount must be an integer',
