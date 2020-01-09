@@ -171,8 +171,7 @@ const orderService = {
       },
       include: Product
     })
-    console.log(cartitems[0].Product)
-    if (!cartitems) {
+    if (!cartitems.length) {
       return callback({
         status: 'error',
         message: 'no matched cart items found'
@@ -185,7 +184,6 @@ const orderService = {
     })
     // step2: 將購物車中的商品移至訂單
     for (let i = 0; i < cartitems.length; i++) {
-      console.log(order.id, cartitems[i].id)
       await OrderItem.create({
         product_name: cartitems[i].Product.name,
         OrderId: order.id,
@@ -202,7 +200,8 @@ const orderService = {
     return callback({
       status: 'success',
       message: 'Order successfully created',
-      OrderId: order.id
+      OrderId: order.id,
+      UserId: req.user.id
     })
   },
   postCoupon: async (req, res, callback) => {
@@ -324,13 +323,6 @@ const orderService = {
         })
       }
     }
-
-    // if (+req.body.deliver === 0) {
-    //   if (orderTotal !== +req.body.total) {
-    //   }
-    // }
-
-    // 如果收件人欄位沒填妥會回傳 error
     if (
       !req.body.receiverName ||
       !req.body.receiverPhone ||
@@ -338,6 +330,7 @@ const orderService = {
       !req.body.total ||
       !req.body.orderId
     ) {
+      console.log(req.body)
       return callback({
         status: 'error',
         message: 'every column must be input',

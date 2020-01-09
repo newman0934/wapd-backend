@@ -281,14 +281,7 @@ const userService = {
 
   getUserEdit: async (req, res, callback) => {
     try {
-      const userResult = await User.findByPk(req.params.id)
-      if (userResult.id !== req.user.id) {
-        return callback({
-          status: 'error',
-          message: 'permission denied, user id does not match!!',
-          currentUserId: req.user.id
-        })
-      }
+      const userResult = await User.findByPk(req.user.id)
       const user = {
         id: userResult.dataValues.id,
         email: userResult.dataValues.email,
