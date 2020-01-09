@@ -270,4 +270,6 @@ router.post(
   orderController.postTransition
 )
 
+router.post(`/spgateway/NotifyURL`, orderController.notifyURLCallback)
+
 module.exports = router
