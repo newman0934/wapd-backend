@@ -27,11 +27,354 @@
       "description": "Admin routes"
     },
     {
-      "name": "user",
+      "name": "users",
       "description": "Operations about user"
+    },
+    {
+      "name": "categories",
+      "description": "Operations about category"
+    },
+    {
+      "name": "coupons",
+      "description": "Operations about coupon"
+    },
+    {
+      "name": "orders",
+      "description": "Operations about order"
     }
   ],
   "paths": {
+    "/api/signup": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Creating an user and login directly",
+        "description": "",
+        "operationId": "userController.signup",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Your personal data",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                },
+                "passwordCheck": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "/api/signin": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Login directly",
+        "description": "",
+        "operationId": "userController.signin",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Your personal data",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "/api/users/edit": {
+      "get": {
+        "tags": ["products"],
+        "summary": "Return user data",
+        "description": "",
+        "operationId": "userController.getUserEdit",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user": {
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "phone": {
+                      "type": "string"
+                    },
+                    "address": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["users"],
+        "summary": "Return result",
+        "description": "",
+        "operationId": "userController.putUser",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "personal data you want to change",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string",
+                  "required": "true"
+                },
+                "birthday": {
+                  "type": "string"
+                },
+                "address": {
+                  "type": "string"
+                },
+                "phone": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "/api/users/password_change": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Change user's password",
+        "description": "",
+        "operationId": "userController.postPasswordChange",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Your personal data",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "usedPassword": {
+                  "type": "string"
+                },
+                "newPassword": {
+                  "type": "string"
+                },
+                "passwordCheck": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "/api/users/password_forget": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Send an token to reset user's password",
+        "description": "",
+        "operationId": "userController.postPasswordForget",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Your email",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "/api/users/password_reset/{token_id}/{token}": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Reset password",
+        "description": "",
+        "operationId": "userController.getPasswordReset",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "token_id",
+            "in": "path",
+            "description": "Token id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "product": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/password_reset": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Reset user's password",
+        "description": "",
+        "operationId": "userController.postPasswordReset",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Your email",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "string"
+                },
+                "userId": {
+                  "type": "integer"
+                },
+                "password": {
+                  "type": "string"
+                },
+                "passwordCheck": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
     "/api/products": {
       "get": {
         "tags": ["products"],
@@ -170,6 +513,61 @@
             "description": "Unauthorized"
           }
         }
+      },
+      "post": {
+        "tags": ["admins"],
+        "summary": "Creating product property",
+        "description": "",
+        "operationId": "adminController.addProduct",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Size and color you want to change",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "categoryId": {
+                  "type": "integer"
+                },
+                "cost": {
+                  "type": "integer"
+                },
+                "originPrice": {
+                  "type": "integer"
+                },
+                "sellPrice": {
+                  "type": "integer"
+                },
+                "description": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
       }
     },
     "/api/admins/products/{id}": {
@@ -240,6 +638,107 @@
                   }
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "put": {
+        "tags": ["admins"],
+        "summary": "Creating product property",
+        "description": "",
+        "operationId": "adminController.putProduct",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Size and color you want to change",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "categoryId": {
+                  "type": "integer"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "originPrice": {
+                  "type": "integer"
+                },
+                "sellPrice": {
+                  "type": "integer"
+                },
+                "description": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["admins"],
+        "summary": "Deleting product",
+        "description": "",
+        "operationId": "adminController.deleteProduct",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of product you want to delete",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfully deleted",
+            "schema": {
+              "type": "object"
             }
           },
           "401": {
@@ -420,6 +919,242 @@
             "description": "Unauthorized"
           }
         }
+      },
+      "delete": {
+        "tags": ["admins"],
+        "summary": "Deleting product property",
+        "description": "",
+        "operationId": "adminController.deleteProductStockProp",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of product you want to change",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "stock_id",
+            "in": "path",
+            "description": "id of product property you want to change",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfully deleted",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/admins/orders": {
+      "get": {
+        "tags": ["admins"],
+        "summary": "Display all orders",
+        "description": "",
+        "operationId": "adminController.getOrders",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "return all orders",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "orders": {
+                  "type": "array",
+                  "example": "[{order object}, {order object}]"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/admins/orders/{id}": {
+      "get": {
+        "tags": ["admins"],
+        "summary": "Display order by id",
+        "description": "",
+        "operationId": "adminController.getOrder",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of order to return",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns an object",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "order": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "UserId": {
+                      "type": "integer"
+                    },
+                    "receiver_name": {
+                      "type": "string"
+                    },
+                    "total_price": {
+                      "type": "integer"
+                    },
+                    "sn": {
+                      "type": "integer"
+                    },
+                    "shipping_status": {
+                      "type": "string"
+                    },
+                    "shipping_method": {
+                      "type": "string"
+                    },
+                    "phone": {
+                      "type": "string"
+                    },
+                    "address": {
+                      "type": "string"
+                    },
+                    "payment_status": {
+                      "type": "string"
+                    },
+                    "payment_method": {
+                      "type": "string"
+                    },
+                    "comment": {
+                      "type": "string"
+                    },
+                    "orderItems": {
+                      "type": "array",
+                      "example": "[{orderItem Object}, {orderItem Object}]"
+                    },
+                    "coupon": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "put": {
+        "tags": ["admins"],
+        "summary": "Updating order",
+        "description": "",
+        "operationId": "adminController.putOrder",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of product you want to change",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Size and color you want to change",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "phone": {
+                  "type": "string"
+                },
+                "receiver_name": {
+                  "type": "string"
+                },
+                "address": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfully edited",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
       }
     },
     "/api/admins/products/{id}/stocks/": {
@@ -464,6 +1199,476 @@
         "responses": {
           "200": {
             "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/admins/categories": {
+      "get": {
+        "tags": ["categories"],
+        "summary": "Display all categories",
+        "description": "",
+        "operationId": "categoryController.getCategories",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "return all categories",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "orders": {
+                  "type": "array",
+                  "example": "[{category object}, {category object}]"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "tags": ["categories"],
+        "summary": "Creating category",
+        "description": "",
+        "operationId": "categoryController.addCategory",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "category name",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "category": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/admins/categories/{id}": {
+      "put": {
+        "tags": ["categories"],
+        "summary": "Updating category",
+        "description": "",
+        "operationId": "categoryController.putCategory",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of category you want to change",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Size and color you want to change",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "category": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfully edited",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["categories"],
+        "summary": "Updating category",
+        "description": "",
+        "operationId": "categoryController.deleteCategory",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of category you want to delete",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfully deleted",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/admins/users": {
+      "get": {
+        "tags": ["admins"],
+        "summary": "Display all users",
+        "description": "",
+        "operationId": "adminController.getUsers",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "return all users",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "users": {
+                  "type": "array",
+                  "example": "[{user object}, {user object}]"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/admins/users/{id}/orders": {
+      "get": {
+        "tags": ["admins"],
+        "summary": "Display user's orders by id",
+        "description": "",
+        "operationId": "adminController.getUserOrders",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of order to return",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns an object",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "users": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "phone": {
+                      "type": "string"
+                    },
+                    "address": {
+                      "type": "string"
+                    },
+                    "orders": {
+                      "type": "array",
+                      "example": "[{orderItem Object}, {orderItem Object}]"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/admins/coupons": {
+      "get": {
+        "tags": ["coupons"],
+        "summary": "Display coupons",
+        "description": "",
+        "operationId": "couponController.getCoupons",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns an object",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "coupons": {
+                  "type": "object",
+                  "properties": {
+                    "orders": {
+                      "type": "array",
+                      "example": "[{coupon Object}, {coupon Object}]"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "tags": ["coupons"],
+        "summary": "Create a coupon",
+        "description": "",
+        "operationId": "couponController.addCoupon",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "coupon code and discount you want to create",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "couponCode": {
+                  "type": "string"
+                },
+                "discountAmount": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns an object",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "coupons": {
+                  "type": "object",
+                  "properties": {
+                    "orders": {
+                      "type": "array",
+                      "example": "[{coupon Object}, {coupon Object}]"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/admins/coupons/{id}": {
+      "delete": {
+        "tags": ["coupons"],
+        "summary": "Updating coupon",
+        "description": "",
+        "operationId": "couponController.deleteCoupon",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of coupon you want to delete",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfully deleted",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/admins/orders/transition": {
+      "post": {
+        "tags": ["orders"],
+        "summary": "Check a transition",
+        "description": "",
+        "operationId": "orderController.postTransition",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "send sn, amt to check an existing order",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "sn": {
+                  "type": "integer"
+                },
+                "amt": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          {
+            "name": "Authorization",
+            "type": "string",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns an object",
             "schema": {
               "type": "object"
             }

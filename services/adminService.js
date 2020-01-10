@@ -190,18 +190,21 @@ const adminService = {
       description: req.body.description,
       status: req.body.status
     })
-    const { files } = req
-    imgur.setClientID(process.env.IMGUR_CLIENT_ID)
-    for (let i = 0; i < files.length; i++) {
-      imgur.upload(files[i].path, async (err, img) => {
-        await Image.create({
-          url: img.data.link,
-          ProductId: productResult.id
+    if (req.files) {
+      const { files } = req
+      imgur.setClientID(process.env.IMGUR_CLIENT_ID)
+      for (let i = 0; i < files.length; i++) {
+        imgur.upload(files[i].path, async (err, img) => {
+          await Image.create({
+            url: img.data.link,
+            ProductId: productResult.id
+          })
         })
-      })
+      }
+      console.log('*****files*****')
+      console.log(files)
     }
-    console.log('*****files*****')
-    console.log(files)
+
     return callback({
       status: 'success',
       message: 'product was successfully updated!!'
