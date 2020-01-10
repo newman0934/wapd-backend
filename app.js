@@ -5,6 +5,7 @@ const methodOverride = require('method-override')
 const flash = require('connect-flash')
 const db = require('./models')
 const cors = require('cors')
+const ordersChecker = require('./utils/ordersChecker')
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
@@ -48,6 +49,8 @@ app.use((req, res, next) => {
   next()
 })
 app.use('/upload', express.static(__dirname + '/upload'))
+
+ordersChecker(10000, 7200000)
 
 app.listen(port, () => {
   console.log(`app listening on port ${port}!`)
