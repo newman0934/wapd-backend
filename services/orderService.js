@@ -234,8 +234,12 @@ const orderService = {
   },
   getCheckout: async (req, res, callback) => {
     const orderResult = await Order.findByPk(req.params.id, {
-      include: { model: Product, as: 'items', include: Image }
+      include: [
+        { model: Product, as: 'items', include: Image },
+        { model: Coupon, required: false }
+      ]
     })
+    // console.log(orderResult.Coupon)
     if (!orderResult) {
       return callback({
         status: 'error',
@@ -291,7 +295,10 @@ const orderService = {
 
   postCheckout: async (req, res, callback) => {
     const order = await Order.findByPk(+req.body.orderId, {
-      include: { model: Product, as: 'items' }
+      include: [
+        { model: Product, as: 'items' },
+        { model: Coupon, required: false }
+      ]
     })
     // 如果 order 不屬於該使用者會回傳 error
     if (order.UserId !== req.user.id) {
@@ -301,28 +308,59 @@ const orderService = {
         orderId: req.body.orderId
       })
     }
-    // console.log(order.items[0].OrderItem)
     // 後端演算 total 並檢查是否與前端發送的總額相符
     let orderTotal = 0
     order.items.map(d => {
       orderTotal += d.OrderItem.quantity * d.OrderItem.sell_price
     })
+    // 四種情況：
+    // TODO: 處理四種情況：
+    // 1. 有運費有折扣碼
     // 如果 req.body.deliver 為 0 (使用者選擇宅配)，檢查 orderItem 價格總和是否等於 order 現階段 total_price +100；否則檢查是否相符
-    if (+req.body.deliver === 0) {
-      if (orderTotal + 100 !== +req.body.total) {
+    if (req.body.deliver === '0' && order.Coupon) {
+      if (orderTotal + 100 - order.Coupon.discount_amount !== +req.body.total) {
         return callback({
           status: 'error',
-          message: "request body's total does not match database's total!!"
-        })
-      }
-    } else {
-      if (orderTotal !== +req.body.total) {
-        return callback({
-          status: 'error',
-          message: "request body's total does not match database's total!!"
+          message: 'total is not correct!!1',
+          coupon: order.Coupon,
+          deliver: req.body.deliver,
+          total: req.body.total
         })
       }
     }
+    // 2. 有運費沒折扣碼
+    else if (req.body.deliver === '0') {
+      if (orderTotal + 100 !== +req.body.total) {
+        return callback({
+          status: 'error',
+          message: 'total is not correct!!2',
+          deliver: req.body.deliver,
+          total: req.body.total
+        })
+      }
+    }
+    // 3. 沒運費有折扣碼
+    else if (order.Coupon) {
+      if (orderTotal - order.Coupon.discount_amount !== +req.body.total) {
+        return callback({
+          status: 'error',
+          message: 'total is not correct!!3',
+          coupon: order.Coupon,
+          total: req.body.total
+        })
+      }
+    }
+    // 4. 沒運費沒折扣碼
+    else {
+      if (orderTotal !== +req.body.total) {
+        return callback({
+          status: 'error',
+          message: 'total is not correct!!4',
+          total: req.body.total
+        })
+      }
+    }
+
     if (
       !req.body.receiverName ||
       !req.body.receiverPhone ||
@@ -330,7 +368,6 @@ const orderService = {
       !req.body.total ||
       !req.body.orderId
     ) {
-      console.log(req.body)
       return callback({
         status: 'error',
         message: 'every column must be input',
