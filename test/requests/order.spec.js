@@ -194,13 +194,11 @@ describe('# Order request', () => {
           .expect(200)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
-            expect(res.body.message).to.equal(
-              "request body's total does not match database's total!!"
-            )
+            expect(res.body.message).to.equal('total is not correct!!4')
             done()
           })
       })
-      it('should return error if total plus shipping fee is not correct', done => {
+      it('should return error if missing any column', done => {
         request(app)
           .post('/api/orders/checkout')
           .send({ orderId: 2, total: 100, deliver: 0 })
@@ -209,9 +207,7 @@ describe('# Order request', () => {
           .expect(200)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
-            expect(res.body.message).to.equal(
-              "request body's total does not match database's total!!"
-            )
+            expect(res.body.message).to.equal('every column must be input')
             done()
           })
       })

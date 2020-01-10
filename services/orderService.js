@@ -313,15 +313,25 @@ const orderService = {
     order.items.map(d => {
       orderTotal += d.OrderItem.quantity * d.OrderItem.sell_price
     })
+
     // 四種情況：
-    // TODO: 處理四種情況：
     // 1. 有運費有折扣碼
     // 如果 req.body.deliver 為 0 (使用者選擇宅配)，檢查 orderItem 價格總和是否等於 order 現階段 total_price +100；否則檢查是否相符
     if (req.body.deliver === '0' && order.Coupon) {
       if (orderTotal + 100 - order.Coupon.discount_amount !== +req.body.total) {
         return callback({
           status: 'error',
-          message: 'total is not correct!!1',
+          message: 'total is not correct!!1-1',
+          coupon: order.Coupon,
+          deliver: req.body.deliver,
+          total: req.body.total
+        })
+      }
+
+      if (orderTotal * 0.3 < order.Coupon.discount_amount) {
+        return callback({
+          status: 'error',
+          message: 'total is not correct!!1-2',
           coupon: order.Coupon,
           deliver: req.body.deliver,
           total: req.body.total
@@ -344,8 +354,18 @@ const orderService = {
       if (orderTotal - order.Coupon.discount_amount !== +req.body.total) {
         return callback({
           status: 'error',
-          message: 'total is not correct!!3',
+          message: 'total is not correct!!3-1',
           coupon: order.Coupon,
+          total: req.body.total
+        })
+      }
+
+      if (orderTotal * 0.3 < order.Coupon.discount_amount) {
+        return callback({
+          status: 'error',
+          message: 'total is not correct!!3-2',
+          coupon: order.Coupon,
+          deliver: req.body.deliver,
           total: req.body.total
         })
       }
