@@ -36,6 +36,11 @@ let orderController = {
       return res.json(data)
     })
   },
+  notifyURLCallback: (req, res) => {
+    orderService.notifyURLCallback(req, res, data => {
+      return res.json(data)
+    })
+  },
   getPaymentComplete: (req, res) => {
     orderService.getPaymentComplete(req, res, data => {
       return res.json(data)

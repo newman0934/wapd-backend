@@ -197,6 +197,19 @@ describe('# User request', () => {
     })
   })
 
+  context('getUserEdit request', () => {
+    it('should return success', done => {
+      request(app)
+        .get('/api/users/edit')
+        .set('Authorization', 'bearer ' + APItoken)
+        .expect(200)
+        .end((err, res) => {
+          expect(res.body.user.email).to.equal('test1@example.com')
+          done()
+        })
+    })
+  })
+
   context('putUser request', () => {
     describe('if user edit', () => {
       it('should return must input email!!', done => {

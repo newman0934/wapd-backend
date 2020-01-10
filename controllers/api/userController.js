@@ -181,12 +181,6 @@ const userController = {
     })
   },
 
-  getPasswordChange: (req, res) => {
-    userService.getPasswordChange(req, res, data => {
-      return res.json(data)
-    })
-  },
-
   postPasswordChange: (req, res) => {
     userService.postPasswordChange(req, res, data => {
       return res.json(data)

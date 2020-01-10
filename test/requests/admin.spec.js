@@ -331,6 +331,22 @@ describe('# Admin request', () => {
           done()
         })
     })
+  })
+
+  context('putOrder request', done => {
+    it('should return update successful', done => {
+      request(app)
+        .put('/api/admins/orders/1')
+        .send({ receiver_name: 'abc' })
+        .set('Authorization', 'bearer ' + APItoken)
+        .set('Accept', 'application/json')
+        .expect(200)
+        .end(async (err, res) => {
+          expect(res.body.status).to.equal('OK')
+          expect(res.body.message).to.equal('update successful')
+          done()
+        })
+    })
     after(async () => {
       await db.Order.destroy({ where: {}, truncate: true })
     })
@@ -365,6 +381,96 @@ describe('# Admin request', () => {
           expect(res.body.users.orders.length).to.equal(1)
           done()
         })
+    })
+  })
+
+  context('addProduct request', () => {
+    before(async () => {
+      await db.Product.create({ name: 'product1' })
+    })
+    it('should return error if no column is filled', done => {
+      request(app)
+        .post('/api/admins/products')
+        .set('Authorization', 'bearer ' + APItoken)
+        .set('Accept', 'application/json')
+        .expect(200)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error')
+          expect(res.body.message).to.equal('every column is required!!')
+          done()
+        })
+    })
+    it('should product is existed if same product name is existed', done => {
+      request(app)
+        .post('/api/admins/products')
+        .send({
+          name: 'product1',
+          categoryId: 1,
+          originPrice: 100,
+          sellPrice: 200,
+          description: 'Product1 des'
+        })
+        .set('Authorization', 'bearer ' + APItoken)
+        .set('Accept', 'application/json')
+        .expect(200)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error')
+          expect(res.body.message).to.equal(
+            'same product name already existed!!'
+          )
+          done()
+        })
+    })
+    it('should return products successfully created!!', done => {
+      request(app)
+        .post('/api/admins/products')
+        .send({
+          name: 'product3',
+          categoryId: 1,
+          originPrice: 100,
+          sellPrice: 200,
+          description: 'Product3 des'
+        })
+        .set('Authorization', 'bearer ' + APItoken)
+        .set('Accept', 'application/json')
+        .expect(200)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('success')
+          expect(res.body.message).to.equal('products successfully created!!')
+          done()
+        })
+    })
+  })
+
+  context('deleteImage request', () => {
+    describe('when admin is going to delete image', () => {
+      before(async () => {
+        await db.Image.create({})
+      })
+      it('should return no such image found!! if params is wrong', done => {
+        request(app)
+          .delete('/api/admins/image/99')
+          .set('Authorization', 'bearer ' + APItoken)
+          .set('Accept', 'application/json')
+          .expect(200)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('error')
+            expect(res.body.message).to.equal('no such image found!!')
+            done()
+          })
+      })
+      it('should successfully delete an image', done => {
+        request(app)
+          .delete('/api/admins/image/1')
+          .set('Authorization', 'bearer ' + APItoken)
+          .set('Accept', 'application/json')
+          .expect(200)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('success')
+            expect(res.body.message).to.equal('Image successfully deleted!!')
+            done()
+          })
+      })
     })
   })
 

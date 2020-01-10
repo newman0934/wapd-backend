@@ -18,7 +18,7 @@ const HashIV = process.env.HASH_IV // 藍新金鑰
 const TransitionGateWay = 'https://ccore.spgateway.com/API/QueryTradeInfo' // 藍新交易查詢網頁
 const PayGateWay = 'https://ccore.spgateway.com/MPG/mpg_gateway' // 藍新支付網頁
 const ReturnURL = URL + '/api/spgateway/callback?from=ReturnURL'
-const NotifyURL = URL + '/api/spgateway/callback?from=NotifyURL'
+const NotifyURL = URL + '/api/spgateway/NotifyURL'
 const ClientBackURL = 'http://localhost:8080/#/users/orders' // ATM、WEBATM、條碼繳費完成後的CB URL
 
 /* ----- 藍新用 function start ----- */
@@ -171,8 +171,7 @@ const orderService = {
       },
       include: Product
     })
-    console.log(cartitems[0].Product)
-    if (!cartitems) {
+    if (!cartitems.length) {
       return callback({
         status: 'error',
         message: 'no matched cart items found'
@@ -185,7 +184,6 @@ const orderService = {
     })
     // step2: 將購物車中的商品移至訂單
     for (let i = 0; i < cartitems.length; i++) {
-      console.log(order.id, cartitems[i].id)
       await OrderItem.create({
         product_name: cartitems[i].Product.name,
         OrderId: order.id,
@@ -202,7 +200,8 @@ const orderService = {
     return callback({
       status: 'success',
       message: 'Order successfully created',
-      OrderId: order.id
+      OrderId: order.id,
+      UserId: req.user.id
     })
   },
   postCoupon: async (req, res, callback) => {
@@ -324,13 +323,6 @@ const orderService = {
         })
       }
     }
-
-    // if (+req.body.deliver === 0) {
-    //   if (orderTotal !== +req.body.total) {
-    //   }
-    // }
-
-    // 如果收件人欄位沒填妥會回傳 error
     if (
       !req.body.receiverName ||
       !req.body.receiverPhone ||
@@ -338,6 +330,7 @@ const orderService = {
       !req.body.total ||
       !req.body.orderId
     ) {
+      console.log(req.body)
       return callback({
         status: 'error',
         message: 'every column must be input',
@@ -435,6 +428,31 @@ const orderService = {
     )
   },
 
+  notifyURLCallback: async (req, res, callback) => {
+    const data = JSON.parse(create_mpg_aes_decrypt(req.body.TradeInfo))
+
+    console.log('===== spgatewayCallback: create_mpg_aes_decrypt、data =====')
+    console.log(data)
+
+    if (data.Message === '超商取貨訂單模擬付款成功') {
+      const order = await Order.findOne({
+        where: {
+          sn: data.Result.MerchantOrderNo,
+          total_price: data.Result.Amt
+        }
+      })
+
+      await order.update({
+        payment_method: data.Result.PaymentType,
+        payment_status: 1
+      })
+      return callback({
+        status: 'success',
+        message: '超商取貨訂單模擬付款成功'
+      })
+    }
+  },
+
   getPaymentComplete: async (req, res, callback) => {
     if (!Object.keys(req.query).length) {
       return callback({
@@ -525,6 +543,7 @@ const orderService = {
             sn: sn
           }
         })
+        console.log(response)
         await order.update({
           payment_method: response.Result.PaymentMethod,
           payment_status: response.Result.TradeStatus
