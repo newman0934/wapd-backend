@@ -224,14 +224,6 @@ const orderService = {
           status: 'error',
           message: 'coupon is not existed!!'
         })
-      } else if (
-        req.body.total &&
-        +req.body.total * 0.3 < couponResult.discount_amount
-      ) {
-        return callback({
-          status: 'error',
-          message: 'coupon discount is too much!!'
-        })
       }
     }
     return callback({
