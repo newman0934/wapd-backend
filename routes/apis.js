@@ -75,11 +75,6 @@ router.delete(
 
 router.post('/users/orders', authenticated, orderController.postOrder)
 
-router.get(
-  '/users/password_change',
-  authenticated,
-  userController.getPasswordChange
-)
 router.post(
   '/users/password_change',
   authenticated,

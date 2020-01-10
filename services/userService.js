@@ -94,22 +94,6 @@ const userService = {
     return callback({ products })
   },
 
-  postOrder: async (req, res, callback) => {
-    // TODO: 新增一筆自己的訂單
-  },
-
-  getPasswordChange: async (req, res, callback) => {
-    const user = await User.findByPk(req.params.id)
-    if (!user) {
-      return callback({
-        status: 'error',
-        message: 'permission denied, user does not exist!!',
-        currentUserId: req.user.id
-      })
-    }
-    return callback({ user })
-  },
-
   postPasswordChange: async (req, res, callback) => {
     try {
       const user = await User.findByPk(req.user.id)
