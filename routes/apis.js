@@ -41,11 +41,15 @@ router.delete(
   productController.deleteWishlist
 )
 
-router.get('/users/:id/orders', userController.getUserOrders)
-router.get('/users/:id/orders/:order_id', userController.getUserOrder)
-router.get('/users/:id/wishlist', authenticated, userController.getUserWishlist)
+router.get('/users/orders', authenticated, userController.getUserOrders)
+router.get(
+  '/users/orders/:order_id',
+  authenticated,
+  userController.getUserOrder
+)
+router.get('/users/wishlist', authenticated, userController.getUserWishlist)
 
-router.get('/users/:id/cart', authenticated, cartController.getUserCart)
+router.get('/users/cart', authenticated, cartController.getUserCart)
 router.post(
   '/products/cart',
   upload.array(),
@@ -53,7 +57,7 @@ router.post(
   cartController.postCart
 )
 router.put(
-  '/users/:id/cart/:item_id',
+  '/users/cart/:item_id',
   authenticated,
   upload.array(),
   cartController.putCartQuantity
@@ -71,11 +75,6 @@ router.delete(
 
 router.post('/users/orders', authenticated, orderController.postOrder)
 
-router.get(
-  '/users/password_change',
-  authenticated,
-  userController.getPasswordChange
-)
 router.post(
   '/users/password_change',
   authenticated,
@@ -87,7 +86,7 @@ router.get(
   userController.getPasswordReset
 )
 router.post('/users/password_reset', userController.postPasswordReset)
-router.get('/users/:id/edit', authenticated, userController.getUserEdit)
+router.get('/users/edit', authenticated, userController.getUserEdit)
 router.put('/users/edit', authenticated, userController.putUser)
 
 router.get('/orders/:id/checkout', authenticated, orderController.getCheckout)
@@ -253,9 +252,19 @@ router.post(
 router.get(`/orders/:id/payment`, authenticated, orderController.getPayment)
 router.post(`/spgateway/callback`, orderController.spgatewayCallback)
 router.get(
-  `/users/:id/paymentcomplete`,
+  `/users/paymentcomplete`,
   authenticated,
   orderController.getPaymentComplete
 )
+
+// TODO: 接收前端請求的路由 POST /admin/orders/transition
+router.post(
+  `/admins/orders/transition`,
+  authenticated,
+  authenticatedAdmin,
+  orderController.postTransition
+)
+
+router.post(`/spgateway/NotifyURL`, orderController.notifyURLCallback)
 
 module.exports = router

@@ -197,6 +197,19 @@ describe('# User request', () => {
     })
   })
 
+  context('getUserEdit request', () => {
+    it('should return success', done => {
+      request(app)
+        .get('/api/users/edit')
+        .set('Authorization', 'bearer ' + APItoken)
+        .expect(200)
+        .end((err, res) => {
+          expect(res.body.user.email).to.equal('test1@example.com')
+          done()
+        })
+    })
+  })
+
   context('putUser request', () => {
     describe('if user edit', () => {
       it('should return must input email!!', done => {
@@ -482,7 +495,7 @@ describe('# User request', () => {
     describe('if user sees self favorite products', done => {
       it('should return a json data', done => {
         request(app)
-          .get('/api/users/1/wishlist')
+          .get('/api/users/wishlist')
           .set('Authorization', 'bearer ' + APItoken)
           .expect(200)
           .end(async function(err, res) {
@@ -607,7 +620,7 @@ describe('# User request', () => {
     describe('if user look for self orders', done => {
       it('should return success', done => {
         request(app)
-          .get('/api/users/1/orders')
+          .get('/api/users/orders')
           .set('Authorization', 'bearer ' + APItoken)
           .expect(200)
           .end(async function(err, res) {
@@ -621,7 +634,7 @@ describe('# User request', () => {
       describe('if user look for self order', done => {
         it('should return success', done => {
           request(app)
-            .get('/api/users/1/orders/1')
+            .get('/api/users/orders/1')
             .set('Authorization', 'bearer ' + APItoken)
             .expect(200)
             .end(async function(err, res) {

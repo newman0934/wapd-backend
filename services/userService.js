@@ -23,7 +23,7 @@ const helpers = require('./../_helpers')
 
 const userService = {
   getUserOrders: async (req, res, callback) => {
-    const userOrderResult = await User.findByPk(req.params.id, {
+    const userOrderResult = await User.findByPk(req.user.id, {
       include: { model: Order, include: { model: Product, as: 'items' } }
     })
 
@@ -59,7 +59,7 @@ const userService = {
   },
 
   getUserWishlist: async (req, res, callback) => {
-    let userFavoriteResult = await User.findByPk(req.params.id, {
+    let userFavoriteResult = await User.findByPk(req.user.id, {
       include: {
         model: Product,
         required: false,
@@ -92,22 +92,6 @@ const userService = {
     }))
 
     return callback({ products })
-  },
-
-  postOrder: async (req, res, callback) => {
-    // TODO: 新增一筆自己的訂單
-  },
-
-  getPasswordChange: async (req, res, callback) => {
-    const user = await User.findByPk(req.params.id)
-    if (!user) {
-      return callback({
-        status: 'error',
-        message: 'permission denied, user does not exist!!',
-        currentUserId: req.user.id
-      })
-    }
-    return callback({ user })
   },
 
   postPasswordChange: async (req, res, callback) => {
@@ -281,14 +265,7 @@ const userService = {
 
   getUserEdit: async (req, res, callback) => {
     try {
-      const userResult = await User.findByPk(req.params.id)
-      if (userResult.id !== req.user.id) {
-        return callback({
-          status: 'error',
-          message: 'permission denied, user id does not match!!',
-          currentUserId: req.user.id
-        })
-      }
+      const userResult = await User.findByPk(req.user.id)
       const user = {
         id: userResult.dataValues.id,
         email: userResult.dataValues.email,

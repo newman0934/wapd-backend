@@ -1,14 +1,16 @@
 const db = require('../models')
-const Product = db.Product
-const ProductStatus = db.ProductStatus
-const Category = db.Category
-const Color = db.Color
-const Size = db.Size
-const Order = db.Order
-const User = db.User
-const Coupon = db.Coupon
-const OrderItem = db.OrderItem
-const Image = db.Image
+const {
+  Product,
+  ProductStatus,
+  Category,
+  Color,
+  Size,
+  Order,
+  User,
+  Coupon,
+  OrderItem,
+  Image
+} = db
 const pageLimit = 12
 const fs = require('fs')
 const imgur = require('imgur-node-api')
@@ -126,15 +128,16 @@ const adminService = {
     })
 
     const { files } = req
-    console.log(files)
-    imgur.setClientID(process.env.IMGUR_CLIENT_ID)
-    for (let i = 0; i < files.length; i++) {
-      imgur.upload(files[i].path, async (err, img) => {
-        await Image.create({
-          url: img.data.link,
-          ProductId: productResult.id
+    if (files) {
+      imgur.setClientID(process.env.IMGUR_CLIENT_ID)
+      for (let i = 0; i < files.length; i++) {
+        imgur.upload(files[i].path, async (err, img) => {
+          await Image.create({
+            url: img.data.link,
+            ProductId: productResult.id
+          })
         })
-      })
+      }
     }
 
     return callback({
@@ -187,18 +190,21 @@ const adminService = {
       description: req.body.description,
       status: req.body.status
     })
-    const { files } = req
-    imgur.setClientID(process.env.IMGUR_CLIENT_ID)
-    for (let i = 0; i < files.length; i++) {
-      imgur.upload(files[i].path, async (err, img) => {
-        await Image.create({
-          url: img.data.link,
-          ProductId: productResult.id
+    if (req.files) {
+      const { files } = req
+      imgur.setClientID(process.env.IMGUR_CLIENT_ID)
+      for (let i = 0; i < files.length; i++) {
+        imgur.upload(files[i].path, async (err, img) => {
+          await Image.create({
+            url: img.data.link,
+            ProductId: productResult.id
+          })
         })
-      })
+      }
+      console.log('*****files*****')
+      console.log(files)
     }
-    console.log('*****files*****')
-    console.log(files)
+
     return callback({
       status: 'success',
       message: 'product was successfully updated!!'

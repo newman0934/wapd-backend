@@ -5,6 +5,7 @@ const methodOverride = require('method-override')
 const flash = require('connect-flash')
 const db = require('./models')
 const cors = require('cors')
+const ordersChecker = require('./utils/ordersChecker')
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
@@ -21,10 +22,7 @@ const bodyParser = require('body-parser')
 app.use('/api-docs', express.static('public'))
 app.use(
   cors({
-    origin: [
-      'http://localhost:8080',
-      'https://newman0934.github.io/wapd-frontend/'
-    ],
+    origin: ['http://localhost:8080', 'https://newman0934.github.io'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true // enable set cookie
   })
@@ -51,6 +49,8 @@ app.use((req, res, next) => {
   next()
 })
 app.use('/upload', express.static(__dirname + '/upload'))
+
+// ordersChecker(10000, 7200000)
 
 app.listen(port, () => {
   console.log(`app listening on port ${port}!`)
