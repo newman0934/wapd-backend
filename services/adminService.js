@@ -470,6 +470,18 @@ const adminService = {
     })
   },
 
+  deleteOrder: async (req, res, callback) => {
+    const order = await Order.findByPk(req.params.id)
+
+    await order.destroy(req.body)
+
+    return callback({
+      status: 'OK',
+      message: 'destroy successful',
+      OrderId: req.params.id
+    })
+  },
+
   deleteOrderProduct: async (req, res, callback) => {
     const orderItem = await OrderItem.findOne({
       where: {

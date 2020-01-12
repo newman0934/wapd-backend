@@ -181,6 +181,12 @@ router.put(
   adminController.putOrder
 )
 router.delete(
+  '/admins/orders/:id',
+  authenticated,
+  authenticatedAdmin,
+  adminController.deleteOrder
+)
+router.delete(
   '/admins/orders/:id/product',
   authenticated,
   authenticatedAdmin,
