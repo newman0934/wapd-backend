@@ -178,8 +178,10 @@ router.put(
   '/admins/orders/:id',
   authenticated,
   authenticatedAdmin,
+  upload.array(),
   adminController.putOrder
 )
+
 router.delete(
   '/admins/orders/:id/product',
   authenticated,

@@ -442,7 +442,8 @@ const adminService = {
         ProductName: d.product_name,
         size: d.size,
         color: d.color,
-        SellPrice: d.sell_price
+        SellPrice: d.sell_price,
+        quantity: d.quantity
       })),
       coupon: orderResult.dataValues.Coupon
         ? {
