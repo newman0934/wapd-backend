@@ -2,13 +2,13 @@
   "swagger": "2.0",
   "info": {
     "description": "Wapd api document for front-end developer",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "title": "Wapd",
     "contact": {
       "email": "uu9924079@gmail.com"
     }
   },
-  "host": "localhost:3000",
+  "host": "https://wapd-backend.herokuapp.com/",
   "schemes": ["http", "https"],
   "securityDefinitions": {
     "Authorization": {
