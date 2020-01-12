@@ -178,6 +178,7 @@ router.put(
   '/admins/orders/:id',
   authenticated,
   authenticatedAdmin,
+  upload.array(),
   adminController.putOrder
 )
 
