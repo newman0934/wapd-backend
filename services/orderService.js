@@ -21,7 +21,7 @@ const ReturnURL = URL + '/api/spgateway/ReturnURL'
 const NotifyURL = URL + '/api/spgateway/NotifyURL'
 const ClientBackURL = 'http://localhost:8080/#/users/orders' // ATM、WEBATM、條碼繳費完成後的CB URL
 
-/* ----- 藍新用 function start ----- */
+/* ---- 藍新用 function start ---- */
 // 把 Object 的資料轉成字串型的資料
 function genDataChain(TradeInfo) {
   let results = []
