@@ -19,7 +19,9 @@ const TransitionGateWay = 'https://ccore.spgateway.com/API/QueryTradeInfo' // �
 const PayGateWay = 'https://ccore.spgateway.com/MPG/mpg_gateway' // 藍新支付網頁
 const ReturnURL = URL + '/api/spgateway/ReturnURL'
 const NotifyURL = URL + '/api/spgateway/NotifyURL'
-const ClientBackURL = 'http://localhost:8080/#/users/orders' // ATM、WEBATM、條碼繳費完成後的CB URL
+const ClientBackURL = process.env.PORT
+  ? 'https://newman0934.github.io/wapd-frontend/#/users/orders'
+  : 'http://localhost:8080/#/users/orders' // ATM、WEBATM、條碼繳費完成後的CB URL
 
 /* ---- 藍新用 function start ---- */
 // 把 Object 的資料轉成字串型的資料
@@ -480,7 +482,7 @@ const orderService = {
     }
 
     const redirectURL = process.env.PORT
-      ? `https://easonlin0716.github.io/t-wapd-frontend/#/users/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
+      ? `https://newman0934.github.io/wapd-frontend/#/users/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
       : `http://localhost:8080/#/users/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
 
     return res.redirect(redirectURL)
