@@ -480,7 +480,7 @@ const orderService = {
     }
 
     const redirectURL = process.env.PORT
-      ? 'https://easonlin0716.github.io/t-wapd-frontend/#/users/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}'
+      ? `https://easonlin0716.github.io/t-wapd-frontend/#/users/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
       : `http://localhost:8080/#/users/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
 
     return res.redirect(redirectURL)
