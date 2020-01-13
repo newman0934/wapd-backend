@@ -252,7 +252,7 @@ router.post(
   orderController.postCheckout
 )
 router.get(`/orders/:id/payment`, authenticated, orderController.getPayment)
-router.post(`/spgateway/ReturnURL`, orderController.spgatewayCallback)
+router.post(`/spgateway/callback`, orderController.spgatewayCallback)
 router.get(
   `/users/paymentcomplete`,
   authenticated,

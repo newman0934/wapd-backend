@@ -17,7 +17,7 @@ const HashKey = process.env.HASH_KEY // 藍新金鑰
 const HashIV = process.env.HASH_IV // 藍新金鑰
 const TransitionGateWay = 'https://ccore.spgateway.com/API/QueryTradeInfo' // 藍新交易查詢網頁
 const PayGateWay = 'https://ccore.spgateway.com/MPG/mpg_gateway' // 藍新支付網頁
-const ReturnURL = URL + '/api/spgateway/ReturnURL'
+const ReturnURL = URL + '/api/spgateway/callback?from=ReturnURL'
 const NotifyURL = URL + '/api/spgateway/NotifyURL'
 const ClientBackURL = 'http://localhost:8080/#/users/orders' // ATM、WEBATM、條碼繳費完成後的CB URL
 
@@ -481,7 +481,7 @@ const orderService = {
     }
 
     return res.redirect(
-      `${process.env.URL}/#/users/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
+      `http://localhost:8080/#/users/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
     )
   },
 
