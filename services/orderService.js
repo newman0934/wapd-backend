@@ -111,7 +111,6 @@ function getTradeInfo(Amt, Desc, email, CREDIT, VACC, CVS, CVSCOM) {
 }
 
 // 回傳交易狀態查詢需要的資訊
-// TODO: 實作藍新交易狀態查詢API
 /*
 MerchantID: MerchantID
 Version: 1.1
