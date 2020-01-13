@@ -479,9 +479,11 @@ const orderService = {
       orderId: order.id
     }
 
-    return res.redirect(
-      `http://localhost:8080/#/users/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
-    )
+    const redirectURL = process.env.PORT
+      ? 'https://easonlin0716.github.io/t-wapd-frontend/#/users/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}'
+      : `http://localhost:8080/#/users/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
+
+    return res.redirect(redirectURL)
   },
 
   notifyURLCallback: async (req, res, callback) => {
