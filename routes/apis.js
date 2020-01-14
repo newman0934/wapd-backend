@@ -28,6 +28,7 @@ const authenticatedAdmin = (req, res, next) => {
 router.get('/', (req, res) => res.redirect('/api/products'))
 router.post('/signin', userController.signIn)
 router.post('/signup', userController.signUp)
+router.get('/categories', categoryController.getCategories)
 router.get('/products', productController.getProducts)
 router.get('/products/:id', productController.getProduct)
 router.post(
@@ -259,7 +260,6 @@ router.get(
   orderController.getPaymentComplete
 )
 
-// TODO: 接收前端請求的路由 POST /admin/orders/transition
 router.post(
   `/admins/orders/transition`,
   authenticated,
