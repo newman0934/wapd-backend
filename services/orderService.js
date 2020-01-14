@@ -17,11 +17,13 @@ const HashKey = process.env.HASH_KEY // 藍新金鑰
 const HashIV = process.env.HASH_IV // 藍新金鑰
 const TransitionGateWay = 'https://ccore.spgateway.com/API/QueryTradeInfo' // 藍新交易查詢網頁
 const PayGateWay = 'https://ccore.spgateway.com/MPG/mpg_gateway' // 藍新支付網頁
-const ReturnURL = URL + '/api/spgateway/callback?from=ReturnURL'
+const ReturnURL = URL + '/api/spgateway/ReturnURL'
 const NotifyURL = URL + '/api/spgateway/NotifyURL'
-const ClientBackURL = 'http://localhost:8080/#/users/orders' // ATM、WEBATM、條碼繳費完成後的CB URL
+const ClientBackURL = process.env.PORT
+  ? 'https://newman0934.github.io/wapd-frontend/#/users/orders'
+  : 'http://localhost:8080/#/users/orders' // ATM、WEBATM、條碼繳費完成後的CB URL
 
-/* ----- 藍新用 function start ----- */
+/* ---- 藍新用 function start ---- */
 // 把 Object 的資料轉成字串型的資料
 function genDataChain(TradeInfo) {
   let results = []
@@ -111,7 +113,6 @@ function getTradeInfo(Amt, Desc, email, CREDIT, VACC, CVS, CVSCOM) {
 }
 
 // 回傳交易狀態查詢需要的資訊
-// TODO: 實作藍新交易狀態查詢API
 /*
 MerchantID: MerchantID
 Version: 1.1
@@ -480,9 +481,11 @@ const orderService = {
       orderId: order.id
     }
 
-    return res.redirect(
-      `http://localhost:8080/#/users/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
-    )
+    const redirectURL = process.env.PORT
+      ? `https://newman0934.github.io/wapd-frontend/#/users/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
+      : `http://localhost:8080/#/users/paymentcomplete?Status=${resData.Status}&orderId=${resData.orderId}`
+
+    return res.redirect(redirectURL)
   },
 
   notifyURLCallback: async (req, res, callback) => {
