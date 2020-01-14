@@ -28,6 +28,7 @@ const authenticatedAdmin = (req, res, next) => {
 router.get('/', (req, res) => res.redirect('/api/products'))
 router.post('/signin', userController.signIn)
 router.post('/signup', userController.signUp)
+router.get('/categories', categoryController.getCategories)
 router.get('/products', productController.getProducts)
 router.get('/products/:id', productController.getProduct)
 router.post(
@@ -252,14 +253,13 @@ router.post(
   orderController.postCheckout
 )
 router.get(`/orders/:id/payment`, authenticated, orderController.getPayment)
-router.post(`/spgateway/callback`, orderController.spgatewayCallback)
+router.post(`/spgateway/ReturnURL`, orderController.spgatewayCallback)
 router.get(
   `/users/paymentcomplete`,
   authenticated,
   orderController.getPaymentComplete
 )
 
-// TODO: 接收前端請求的路由 POST /admin/orders/transition
 router.post(
   `/admins/orders/transition`,
   authenticated,
