@@ -252,8 +252,6 @@ describe('# Order request', () => {
           .set('Accept', 'application/json')
           .expect(200)
           .end((err, res) => {
-            console.log(res.body)
-            expect(res.body.MerchantId).not.equal(null)
             expect(res.body.total).to.equal(1000)
             expect(res.body.orderId).to.equal('1')
             expect(res.body.email).to.equal('test1@example.com')
