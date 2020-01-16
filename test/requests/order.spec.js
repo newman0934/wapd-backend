@@ -237,32 +237,33 @@ describe('# Order request', () => {
     })
   })
 
-  context('getPayment request', () => {
-    describe('when user is ready to be redirect to spgateway page', () => {
-      before(async () => {
-        await db.Order.create({
-          total_price: 1000,
-          shipping_method: 0
-        })
-      })
-      it('should return a json data', done => {
-        request(app)
-          .get('/api/orders/1/payment')
-          .set('Authorization', 'bearer ' + APItoken)
-          .set('Accept', 'application/json')
-          .expect(200)
-          .end((err, res) => {
-            expect(res.body.total).to.equal(1000)
-            expect(res.body.orderId).to.equal('1')
-            expect(res.body.email).to.equal('test1@example.com')
-            done()
-          })
-      })
-      after(async () => {
-        await db.Order.destroy({ where: {}, truncate: true })
-      })
-    })
-  })
+  // context('getPayment request', () => {
+  //   // 此測試需夾帶藍新敏感參數，故CI/CD先跳過它
+  //   describe('when user is ready to be redirect to spgateway page', () => {
+  //     before(async () => {
+  //       await db.Order.create({
+  //         total_price: 1000,
+  //         shipping_method: 0
+  //       })
+  //     })
+  //     it('should return a json data', done => {
+  //       request(app)
+  //         .get('/api/orders/1/payment')
+  //         .set('Authorization', 'bearer ' + APItoken)
+  //         .set('Accept', 'application/json')
+  //         .expect(200)
+  //         .end((err, res) => {
+  //           expect(res.body.total).to.equal(1000)
+  //           expect(res.body.orderId).to.equal('1')
+  //           expect(res.body.email).to.equal('test1@example.com')
+  //           done()
+  //         })
+  //     })
+  //     after(async () => {
+  //       await db.Order.destroy({ where: {}, truncate: true })
+  //     })
+  //   })
+  // })
 
   context('getPaymentComplete request', () => {
     describe('when user complete his payment and being redirect back to this route', () => {
