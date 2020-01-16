@@ -321,9 +321,9 @@ const adminService = {
       return callback({ status: 'error', message: 'missing props!!' })
     }
     const product = await Product.findByPk(req.params.id, {
-      include: ProductStatus
+      include: { model: ProductStatus, required: false }
     })
-    const defaultProductInfo = product.ProductStatuses[0]
+    // const defaultProductInfo = product.ProductStatuses[0]
     const color = await Color.findOrCreate({
       where: {
         color: req.body.color
@@ -358,8 +358,8 @@ const adminService = {
         stock: 0,
         ProductId: req.params.id,
         ColorId: color[0].id,
-        SizeId: size[0].id,
-        price: defaultProductInfo.price
+        SizeId: size[0].id
+        // price: defaultProductInfo.price
       }
     })
     return callback({ status: 'OK' })
