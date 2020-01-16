@@ -10,7 +10,8 @@ before_install:
   - mysql -e 'CREATE DATABASE IF NOT EXISTS wapd_backend_test default character set utf8mb4
     collate utf8mb4_unicode_ci;'
   - npm install sequelize-cli -g
-  - export JWT_SECRET=alphacamp
+  - export JWT_SECRET=secret
+  - export MERCHANT_ID=MS38807705
 before_script:
   - sequelize db:migrate --env test
 script:
