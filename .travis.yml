@@ -1,0 +1,24 @@
+language: node_js
+node_js:
+  - '12'
+services:
+  - mysql
+env:
+  - NODE_ENV=test
+before_install:
+  - npm install
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS wapd_backend_test default character set
+    utf8mb4 collate utf8mb4_unicode_ci;'
+  - npm install sequelize-cli -g
+  - export JWT_SECRET=secret
+before_script:
+  - sequelize db:migrate --env test
+script:
+  - npm run test
+deploy:
+  provider: heroku
+  api_key:
+    secure: 905a7c2e-0fd2-484b-ab7c-ce00e27cb2e7
+  app: t-wapd-backend
+  on:
+    repo: EasonLin0716/wapd-backend
