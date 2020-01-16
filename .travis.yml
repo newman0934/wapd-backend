@@ -1,0 +1,17 @@
+language: node_js
+node_js:
+  - '12'
+services:
+  - mysql
+env:
+  - NODE_ENV=test
+before_install:
+  - npm install
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS wapd_backend_test default character set utf8mb4
+    collate utf8mb4_unicode_ci;'
+  - npm install sequelize-cli -g
+  - export JWT_SECRET=alphacamp
+before_script:
+  - sequelize db:migrate --env test
+script:
+  - npm run test
