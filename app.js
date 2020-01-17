@@ -1,4 +1,5 @@
 const express = require('express')
+const responseTime = require('response-time')
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
 const methodOverride = require('method-override')
@@ -29,6 +30,11 @@ app.use(
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true // enable set cookie
+  })
+)
+app.use(
+  responseTime((req, res, time) => {
+    console.log(req.method, req.url, Math.floor(time) + 'ms')
   })
 )
 app.use(methodOverride('_method'))
