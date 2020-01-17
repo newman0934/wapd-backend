@@ -385,8 +385,25 @@ const adminService = {
 
   getOrders: async (req, res, callback) => {
     try {
-      const orderResult = await Order.findAll()
-      const orders = orderResult.map(d => ({
+      let offset = 0
+      if (req.query.page) {
+        offset = (req.query.page - 1) * pageLimit
+      }
+
+      const orderResult = await Order.findAndCountAll({
+        offset: offset,
+        limit: pageLimit
+      })
+
+      let page = Number(req.query.page) || 1
+      let pages = Math.ceil(orderResult.count / pageLimit)
+
+      let totalPage = Array.from({ length: pages }).map(
+        (item, index) => index + 1
+      )
+      let prev = page - 1 < 1 ? 1 : page - 1
+      let next = page + 1 > pages ? pages : page + 1
+      const orders = orderResult.rows.map(d => ({
         id: d.dataValues.id,
         UserId: d.dataValues.UserId,
         sn: d.dataValues.sn,
@@ -399,7 +416,13 @@ const adminService = {
         payment_status: d.dataValues.payment_status,
         payment_method: d.dataValues.payment_method
       }))
-      return callback({ orders })
+      return callback({
+        orders,
+        page,
+        totalPage,
+        prev,
+        next
+      })
     } catch (error) {
       console.error(error)
     }
@@ -497,8 +520,29 @@ const adminService = {
 
   getUsers: async (req, res, callback) => {
     try {
-      const users = await User.findAll()
-      return callback({ users })
+      let offset = 0
+      if (req.query.page) {
+        offset = (req.query.page - 1) * pageLimit
+      }
+      const users = await User.findAndCountAll({
+        offset: offset,
+        limit: pageLimit
+      })
+      let page = Number(req.query.page) || 1
+      let pages = Math.ceil(users.count / pageLimit)
+
+      let totalPage = Array.from({ length: pages }).map(
+        (item, index) => index + 1
+      )
+      let prev = page - 1 < 1 ? 1 : page - 1
+      let next = page + 1 > pages ? pages : page + 1
+      return callback({
+        users,
+        page,
+        totalPage,
+        prev,
+        next
+      })
     } catch (error) {
       console.error(error)
     }
