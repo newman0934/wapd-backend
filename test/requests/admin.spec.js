@@ -360,8 +360,8 @@ describe('# Admin request', () => {
         .set('Accept', 'application/json')
         .expect(200)
         .end(async (err, res) => {
-          expect(res.body.users.length).to.equal(1)
-          expect(res.body.users[0].name).to.equal('Admin1')
+          expect(res.body.users.rows.length).to.equal(1)
+          expect(res.body.users.rows[0].name).to.equal('Admin1')
           done()
         })
     })
