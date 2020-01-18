@@ -175,13 +175,13 @@ describe('# Admin request', () => {
     })
   })
 
-  context('postProductStockProps request', () => {
+  context('addProductStockProps request', () => {
     it("should return error if user didn't submit color and size", done => {
       request(app)
         .post('/api/admins/products/1/stocks/')
         .set('Authorization', 'bearer ' + APItoken)
         .set('Accept', 'application/json')
-        .expect(200)
+        .expect(400)
         .end(async (err, res) => {
           expect(res.body.status).to.equal('error')
           expect(res.body.message).to.equal('missing props!!')
@@ -213,7 +213,7 @@ describe('# Admin request', () => {
         .delete('/api/admins/products/1/stocks/9')
         .set('Authorization', 'bearer ' + APItoken)
         .set('Accept', 'application/json')
-        .expect(200)
+        .expect(400)
         .end(async (err, res) => {
           expect(res.body.status).to.equal('error')
           expect(res.body.message).to.equal(
@@ -298,6 +298,18 @@ describe('# Admin request', () => {
   })
 
   context('getOrder request', done => {
+    it('should return no order found', done => {
+      request(app)
+        .get('/api/admins/orders/99')
+        .set('Authorization', 'bearer ' + APItoken)
+        .set('Accept', 'application/json')
+        .expect(400)
+        .end(async (err, res) => {
+          expect(res.body.status).to.equal('error')
+          expect(res.body.message).to.equal('no such order found!!')
+          done()
+        })
+    })
     it('should return a json data', done => {
       request(app)
         .get('/api/admins/orders/1')
@@ -316,20 +328,6 @@ describe('# Admin request', () => {
       await db.ProductStatus.destroy({ where: {}, truncate: true })
       await db.Color.destroy({ where: {}, truncate: true })
       await db.Size.destroy({ where: {}, truncate: true })
-    })
-  })
-
-  context('getOrder request', done => {
-    it('should return a json data', done => {
-      request(app)
-        .get('/api/admins/orders/1')
-        .set('Authorization', 'bearer ' + APItoken)
-        .set('Accept', 'application/json')
-        .expect(200)
-        .end(async (err, res) => {
-          expect(res.body.order.UserId).to.equal(1)
-          done()
-        })
     })
   })
 
@@ -393,7 +391,7 @@ describe('# Admin request', () => {
         .post('/api/admins/products')
         .set('Authorization', 'bearer ' + APItoken)
         .set('Accept', 'application/json')
-        .expect(200)
+        .expect(400)
         .end((err, res) => {
           expect(res.body.status).to.equal('error')
           expect(res.body.message).to.equal('every column is required!!')
@@ -412,7 +410,7 @@ describe('# Admin request', () => {
         })
         .set('Authorization', 'bearer ' + APItoken)
         .set('Accept', 'application/json')
-        .expect(200)
+        .expect(400)
         .end((err, res) => {
           expect(res.body.status).to.equal('error')
           expect(res.body.message).to.equal(
@@ -442,6 +440,110 @@ describe('# Admin request', () => {
     })
   })
 
+  context('putProduct request', () => {
+    before(async () => {
+      await db.Product.create({ name: 'product1' })
+    })
+    it('should return error if no column is filled', done => {
+      request(app)
+        .put('/api/admins/products/1')
+        .set('Authorization', 'bearer ' + APItoken)
+        .set('Accept', 'application/json')
+        .expect(400)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error')
+          expect(res.body.message).to.equal('every column is required!!')
+          done()
+        })
+    })
+    it('should product is existed if same product name is existed', done => {
+      request(app)
+        .put('/api/admins/products/1')
+        .send({
+          name: 'product3',
+          categoryId: 1,
+          originPrice: 100,
+          sellPrice: 200,
+          description: 'Product3 des',
+          status: 'on'
+        })
+        .set('Authorization', 'bearer ' + APItoken)
+        .set('Accept', 'application/json')
+        .expect(400)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error')
+          expect(res.body.message).to.equal(
+            'same product name already existed!!'
+          )
+          done()
+        })
+    })
+    it('should return product was successfully updated!!', done => {
+      request(app)
+        .put('/api/admins/products/1')
+        .send({
+          name: 'product100',
+          categoryId: 1,
+          originPrice: 100,
+          sellPrice: 200,
+          description: 'Product3 des',
+          status: 'on'
+        })
+        .set('Authorization', 'bearer ' + APItoken)
+        .set('Accept', 'application/json')
+        .expect(200)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('success')
+          expect(res.body.message).to.equal(
+            'product was successfully updated!!'
+          )
+          done()
+        })
+    })
+  })
+
+  context('deleteProduct request', () => {
+    describe('when admin is going to delete a product associated with a productStatus', () => {
+      before(async () => {
+        await db.Product.create({ id: 99, name: 'product99' })
+        await db.ProductStatus.create({ ProductId: 99 })
+      })
+      it('should return cannot be deleted', done => {
+        request(app)
+          .delete('/api/admins/products/99')
+          .set('Authorization', 'bearer ' + APItoken)
+          .set('Accept', 'application/json')
+          .expect(400)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('error')
+            expect(res.body.message).to.equal(
+              'product cannot be deleted if is associated to any productstatuses!!'
+            )
+            done()
+          })
+      })
+    })
+    describe('when admin is going to delete a product associated with a productStatus', () => {
+      before(async () => {
+        await db.ProductStatus.destroy({ where: {}, truncate: true })
+      })
+      it('should successfully delete the product', done => {
+        request(app)
+          .delete('/api/admins/products/99')
+          .set('Authorization', 'bearer ' + APItoken)
+          .set('Accept', 'application/json')
+          .expect(400)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('success')
+            expect(res.body.message).to.equal(
+              'product was successfully deleted!!'
+            )
+            done()
+          })
+      })
+    })
+  })
+
   context('deleteImage request', () => {
     describe('when admin is going to delete image', () => {
       before(async () => {
@@ -452,7 +554,7 @@ describe('# Admin request', () => {
           .delete('/api/admins/image/99')
           .set('Authorization', 'bearer ' + APItoken)
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('no such image found!!')

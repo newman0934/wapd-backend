@@ -323,7 +323,6 @@ const adminService = {
     const product = await Product.findByPk(req.params.id, {
       include: { model: ProductStatus, required: false }
     })
-    // const defaultProductInfo = product.ProductStatuses[0]
     const color = await Color.findOrCreate({
       where: {
         color: req.body.color
@@ -334,7 +333,7 @@ const adminService = {
         size: req.body.size
       }
     })
-    // TODO: 確認有沒有符合的商品，如果有就不新增
+
     await ProductStatus.findOrCreate({
       where: {
         ProductId: req.params.id
@@ -359,7 +358,6 @@ const adminService = {
         ProductId: req.params.id,
         ColorId: color[0].id,
         SizeId: size[0].id
-        // price: defaultProductInfo.price
       }
     })
     return callback({ status: 'OK' })
@@ -445,8 +443,6 @@ const adminService = {
       }
     })
 
-    console.log(orderitems)
-
     const order = {
       id: orderResult.dataValues.id,
       UserId: orderResult.dataValues.UserId,
@@ -482,8 +478,6 @@ const adminService = {
 
   putOrder: async (req, res, callback) => {
     const order = await Order.findByPk(req.params.id)
-
-    // TODO: 管理者刪除商品
 
     await order.update(req.body)
 

@@ -93,7 +93,7 @@ describe('# Cart request', () => {
             color: 'Red'
           })
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('please fill every column!!')
@@ -197,7 +197,6 @@ describe('# Cart request', () => {
       await db.CartItem.destroy({ where: {}, truncate: true })
     })
   })
-
   context('putCartQuantity request', () => {
     before(async () => {
       await db.CartItem.create({
@@ -216,7 +215,7 @@ describe('# Cart request', () => {
           quantity: 2
         })
         .set('Authorization', 'bearer ' + APItoken)
-        .expect(200)
+        .expect(400)
         .end(function(err, res) {
           expect(res.body.status).to.equal('error')
           expect(res.body.message).to.equal('no matched cartItem found!!')
@@ -228,7 +227,7 @@ describe('# Cart request', () => {
         .put('/api/users/cart/1')
         .send({})
         .set('Authorization', 'bearer ' + APItoken)
-        .expect(200)
+        .expect(400)
         .end(function(err, res) {
           expect(res.body.status).to.equal('error')
           expect(res.body.message).to.equal('please write quantity!!')
@@ -268,7 +267,7 @@ describe('# Cart request', () => {
         request(app)
           .delete('/api/users/cart/99')
           .set('Authorization', 'bearer ' + APItoken)
-          .expect(200)
+          .expect(400)
           .end(function(err, res) {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal(

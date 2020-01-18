@@ -62,7 +62,7 @@ describe('# Category request', () => {
           .post('/api/admins/categories')
           .set('Authorization', 'bearer ' + APItoken)
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end(async (err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal("category name didn't exist")
@@ -96,7 +96,7 @@ describe('# Category request', () => {
           .put('/api/admins/categories/1')
           .set('Authorization', 'bearer ' + APItoken)
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end(async (err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal("category name didn't exist")
@@ -133,7 +133,7 @@ describe('# Category request', () => {
           .delete('/api/admins/categories/1')
           .set('Authorization', 'bearer ' + APItoken)
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end(async (err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal(
