@@ -66,6 +66,13 @@ const cartService = {
 
   notLoginPostCart: async (req, res, callback) => {
     try {
+      if (+req.body.quantity <= 0) {
+        return callback({
+          status: 'error',
+          message: 'quantity must be greater than 0!!'
+        })
+      }
+
       if (!req.session.tempCartItems) {
         req.session.tempCartItems = []
       }
@@ -73,12 +80,6 @@ const cartService = {
       const product = await Product.findByPk(+req.body.productId)
 
       for (let i = 0; i < req.session.tempCartItems.length; i++) {
-        if (+req.session.tempCartItems[i].quantity <= 0) {
-          return callback({
-            status: 'error',
-            message: 'quantity must be greater than 0!!'
-          })
-        }
         if (
           req.session.tempCartItems[i].ProductId === +req.body.productId &&
           req.session.tempCartItems[i].color === req.body.color &&

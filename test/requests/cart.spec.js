@@ -42,6 +42,25 @@ describe('# Cart request', () => {
   })
   context('notLoginPostCart request', () => {
     describe('if not-login user add product to cart', () => {
+      it('should return quantity must be greater than 0!!', done => {
+        request(app)
+          .post('/api/products/notLoginCart')
+          .send({
+            productId: 1,
+            size: 'S',
+            color: 'Red',
+            quantity: -1
+          })
+          .set('Accept', 'application/json')
+          .expect(200)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('error')
+            expect(res.body.message).to.equal(
+              'quantity must be greater than 0!!'
+            )
+            done()
+          })
+      })
       it('should return item successfully added into cart', done => {
         request(app)
           .post('/api/products/notLoginCart')
@@ -80,6 +99,26 @@ describe('# Cart request', () => {
             APItoken = res.body.token
             expect(res.body.status).to.equal('success')
             expect(res.body.message).to.equal('ok')
+            done()
+          })
+      })
+      it('should return "quantity must be greater than 0!!" if user use devtool or postman to change quantity', done => {
+        request(app)
+          .post('/api/products/cart')
+          .set('Authorization', 'bearer ' + APItoken)
+          .send({
+            productId: 1,
+            size: 'S',
+            color: 'Red',
+            quantity: -1
+          })
+          .set('Accept', 'application/json')
+          .expect(400)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('error')
+            expect(res.body.message).to.equal(
+              'quantity must be greater than 0!!'
+            )
             done()
           })
       })
@@ -198,58 +237,74 @@ describe('# Cart request', () => {
     })
   })
   context('putCartQuantity request', () => {
-    before(async () => {
-      await db.CartItem.create({
-        quantity: 1,
-        color: 'Red',
-        size: 'S',
-        ProductId: 1,
-        UserId: 1
+    describe('when user is editing quantity of cart items', () => {
+      before(async () => {
+        await db.CartItem.create({
+          quantity: 1,
+          color: 'Red',
+          size: 'S',
+          ProductId: 1,
+          UserId: 1
+        })
+        const user = await db.User.findAll({ include: db.CartItem })
       })
-      const user = await db.User.findAll({ include: db.CartItem })
-    })
-    it("should return 'no matched cartItem found!!' if :item_id is wrong", done => {
-      request(app)
-        .put('/api/users/cart/99')
-        .send({
-          quantity: 2
-        })
-        .set('Authorization', 'bearer ' + APItoken)
-        .expect(400)
-        .end(function(err, res) {
-          expect(res.body.status).to.equal('error')
-          expect(res.body.message).to.equal('no matched cartItem found!!')
-          done()
-        })
-    })
-    it("should return 'please write quantity!!' if no quantity is sent", done => {
-      request(app)
-        .put('/api/users/cart/1')
-        .send({})
-        .set('Authorization', 'bearer ' + APItoken)
-        .expect(400)
-        .end(function(err, res) {
-          expect(res.body.status).to.equal('error')
-          expect(res.body.message).to.equal('please write quantity!!')
-          done()
-        })
-    })
-    it('should return cartItem updated successful!!', done => {
-      request(app)
-        .put('/api/users/cart/1')
-        .send({
-          quantity: 2
-        })
-        .set('Authorization', 'bearer ' + APItoken)
-        .expect(200)
-        .end(function(err, res) {
-          expect(res.body.status).to.equal('success')
-          expect(res.body.message).to.equal('cartItem updated successful!!')
-          done()
-        })
-    })
-    after(async () => {
-      await db.CartItem.destroy({ where: {}, truncate: true })
+      it("should return 'no matched cartItem found!!' if :item_id is wrong", done => {
+        request(app)
+          .put('/api/users/cart/99')
+          .send({
+            quantity: 2
+          })
+          .set('Authorization', 'bearer ' + APItoken)
+          .expect(400)
+          .end(function(err, res) {
+            expect(res.body.status).to.equal('error')
+            expect(res.body.message).to.equal('no matched cartItem found!!')
+            done()
+          })
+      })
+      it("should return 'please write quantity!!' if no quantity is sent", done => {
+        request(app)
+          .put('/api/users/cart/1')
+          .send({})
+          .set('Authorization', 'bearer ' + APItoken)
+          .expect(400)
+          .end(function(err, res) {
+            expect(res.body.status).to.equal('error')
+            expect(res.body.message).to.equal('please write quantity!!')
+            done()
+          })
+      })
+      it("should return 'please write quantity!!' if no quantity is sent", done => {
+        request(app)
+          .put('/api/users/cart/1')
+          .send({ quantity: -2 })
+          .set('Authorization', 'bearer ' + APItoken)
+          .expect(400)
+          .end(function(err, res) {
+            expect(res.body.status).to.equal('error')
+            expect(res.body.message).to.equal(
+              'quantity must be greater than 0!!'
+            )
+            done()
+          })
+      })
+      it('should return cartItem updated successful!!', done => {
+        request(app)
+          .put('/api/users/cart/1')
+          .send({
+            quantity: 2
+          })
+          .set('Authorization', 'bearer ' + APItoken)
+          .expect(200)
+          .end(function(err, res) {
+            expect(res.body.status).to.equal('success')
+            expect(res.body.message).to.equal('cartItem updated successful!!')
+            done()
+          })
+      })
+      after(async () => {
+        await db.CartItem.destroy({ where: {}, truncate: true })
+      })
     })
   })
   context('deleteCartProduct request', () => {
