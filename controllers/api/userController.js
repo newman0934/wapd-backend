@@ -81,7 +81,7 @@ const userController = {
         await CartItem.bulkCreate(req.session.tempCartItems)
       }
 
-      return res.json({
+      return res.status(200).json({
         status: 'success',
         message: 'ok',
         token: token,
@@ -105,28 +105,34 @@ const userController = {
 
   signUp: async (req, res) => {
     if (!req.body.email || !req.body.password || !req.body.passwordCheck) {
-      return res.json({ status: 'error', message: '請填妥每一個欄位！' })
+      return res
+        .status(400)
+        .json({ status: 'error', message: '請填妥每一個欄位！' })
     }
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[a-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{6,}$/
 
     if (req.body.password.length < 6) {
-      return res.json({ status: 'error', message: '密碼長度不足！' })
+      return res
+        .status(400)
+        .json({ status: 'error', message: '密碼長度不足！' })
     }
 
     if (!passwordRegex.test(req.body.password)) {
-      return res.json({
+      return res.status(400).json({
         status: 'error',
         message: '密碼不合法，需至少有一小寫字母！'
       })
     }
 
     if (req.body.passwordCheck !== req.body.password) {
-      return res.json({ status: 'error', message: '兩次密碼輸入不同！' })
+      return res
+        .status(400)
+        .json({ status: 'error', message: '兩次密碼輸入不同！' })
     } else {
       const user = await User.findOne({ where: { email: req.body.email } })
       if (user) {
-        return res.json({ status: 'error', message: '信箱重複！' })
+        return res.status(400).json({ status: 'error', message: '信箱重複！' })
       } else {
         const user = await User.create({
           email: req.body.email,
@@ -145,7 +151,7 @@ const userController = {
           await CartItem.bulkCreate(req.session.tempCartItems)
         }
 
-        return res.json({
+        return res.status(200).json({
           status: 'success',
           message: '成功註冊帳號及登入！',
           token: token,
@@ -165,55 +171,70 @@ const userController = {
 
   getUserOrders: (req, res) => {
     userService.getUserOrders(req, res, data => {
-      return res.json(data)
+      return res.status(200).json(data)
     })
   },
 
   getUserOrder: (req, res) => {
     userService.getUserOrder(req, res, data => {
-      return res.json(data)
+      return res.status(200).json(data)
     })
   },
 
   getUserWishlist: (req, res) => {
     userService.getUserWishlist(req, res, data => {
-      return res.json(data)
+      return res.status(200).json(data)
     })
   },
 
   postPasswordChange: (req, res) => {
     userService.postPasswordChange(req, res, data => {
-      return res.json(data)
+      if (data.status === 'error') {
+        return res.status(400).json(data)
+      }
+      return res.status(200).json(data)
     })
   },
 
   postPasswordForget: (req, res) => {
     userService.postPasswordForget(req, res, data => {
-      return res.json(data)
+      if (data.status === 'error') {
+        return res.status(400).json(data)
+      }
+      return res.status(200).json(data)
     })
   },
 
   getPasswordReset: (req, res) => {
     userService.getPasswordReset(req, res, data => {
-      return res.json(data)
+      if (data.status === 'error') {
+        return res.status(400).json(data)
+      }
+      return res.status(200).json(data)
     })
   },
 
   postPasswordReset: (req, res) => {
     userService.postPasswordReset(req, res, data => {
-      return res.json(data)
+      if (data.status === 'error') {
+        return res.status(400).json(data)
+      }
+      return res.status(200).json(data)
     })
   },
 
   getUserEdit: (req, res) => {
     userService.getUserEdit(req, res, data => {
-      return res.json(data)
+      return res.status(200).json(data)
     })
   },
 
   putUser: (req, res) => {
     userService.putUser(req, res, data => {
-      return res.json(data)
+      if (data.status === 'error') {
+        return res.status(400).json(data)
+      }
+      return res.status(200).json(data)
     })
   }
 }

@@ -240,7 +240,7 @@ const orderService = {
         { model: Coupon, required: false }
       ]
     })
-    // console.log(orderResult.Coupon)
+
     if (!orderResult) {
       return callback({
         status: 'error',

@@ -14,13 +14,16 @@ const productController = {
 
   addWishlist: (req, res) => {
     productService.addWishlist(req, res, data => {
-      return res.json(data)
+      if (data.status === 'error') {
+        return res.status(400).json(data)
+      }
+      return res.status(200).json(data)
     })
   },
 
   deleteWishlist: (req, res) => {
     productService.deleteWishlist(req, res, data => {
-      return res.json(data)
+      return res.status(200).json(data)
     })
   }
 }

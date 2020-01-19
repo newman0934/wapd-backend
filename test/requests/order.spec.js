@@ -110,7 +110,7 @@ describe('# Order request', () => {
           .send({ couponCode: 'abc' })
           .set('Authorization', 'bearer ' + APItoken)
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('coupon is not existed!!')
@@ -122,7 +122,7 @@ describe('# Order request', () => {
           .post('/api/users/orders')
           .set('Authorization', 'bearer ' + APItoken)
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('no matched cart items found')
@@ -149,10 +149,103 @@ describe('# Order request', () => {
     })
   })
 
+  context('postCoupon request', () => {
+    describe('when user is trying to add a coupon in order', () => {
+      it('should return not using coupon', done => {
+        request(app)
+          .post('/api/coupon')
+          .set('Authorization', 'bearer ' + APItoken)
+          .set('Accept', 'application/json')
+          .expect(400)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('success')
+            expect(res.body.message).to.equal('not using coupon')
+            done()
+          })
+      })
+      it('should return coupon is not valid', done => {
+        request(app)
+          .post('/api/coupon')
+          .send({ couponCode: 'not_existed_coupon' })
+          .set('Authorization', 'bearer ' + APItoken)
+          .set('Accept', 'application/json')
+          .expect(400)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('error')
+            expect(res.body.message).to.equal('coupon is not existed!!')
+            done()
+          })
+      })
+      it('should return coupon is valid', done => {
+        request(app)
+          .post('/api/coupon')
+          .send({ couponCode: 'coupon' })
+          .set('Authorization', 'bearer ' + APItoken)
+          .set('Accept', 'application/json')
+          .expect(200)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('success')
+            expect(res.body.message).to.equal('coupon is valid!!')
+            done()
+          })
+      })
+    })
+  })
+
+  context('getCheckout', () => {
+    describe('when user is using checkout page', () => {
+      before(async () => {
+        await db.Order.create({
+          id: 10,
+          UserId: 99
+        })
+      })
+      it('should return error if no such order found', done => {
+        request(app)
+          .get('/api/orders/99/checkout')
+          .set('Authorization', 'bearer ' + APItoken)
+          .set('Accept', 'application/json')
+          .expect(400)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('error')
+            expect(res.body.message).to.equal('order does not exist!!')
+            done()
+          })
+      })
+      it('should return error if order does not belong to user', done => {
+        request(app)
+          .get('/api/orders/10/checkout')
+          .set('Authorization', 'bearer ' + APItoken)
+          .set('Accept', 'application/json')
+          .expect(400)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('error')
+            expect(res.body.message).to.equal(
+              'order does not belong to current user!!'
+            )
+            done()
+          })
+      })
+      it('should return a json data', done => {
+        request(app)
+          .get('/api/orders/1/checkout')
+          .set('Authorization', 'bearer ' + APItoken)
+          .set('Accept', 'application/json')
+          .expect(400)
+          .end((err, res) => {
+            expect(res.body.orderItems.length).not.equal(0)
+            done()
+          })
+      })
+      after(async () => {
+        await db.Order.destroy({ where: {}, truncate: true })
+      })
+    })
+  })
+
   context('postCheckout request', () => {
     describe('when user click order confirm', () => {
       before(async () => {
-        await db.Order.destroy({ where: {}, truncate: true })
         await db.Order.bulkCreate([
           {
             UserId: 99,
@@ -176,7 +269,7 @@ describe('# Order request', () => {
           .send({ orderId: 1 })
           .set('Authorization', 'bearer ' + APItoken)
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal(
@@ -191,7 +284,7 @@ describe('# Order request', () => {
           .send({ orderId: 2, total: 900 })
           .set('Authorization', 'bearer ' + APItoken)
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('total is not correct!!4')
@@ -204,7 +297,7 @@ describe('# Order request', () => {
           .send({ orderId: 2, total: 100, deliver: 0 })
           .set('Authorization', 'bearer ' + APItoken)
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('every column must be input')
@@ -278,7 +371,7 @@ describe('# Order request', () => {
           .get('/api/users/paymentcomplete')
           .set('Authorization', 'bearer ' + APItoken)
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('route is invalid!!')
@@ -291,7 +384,7 @@ describe('# Order request', () => {
           .get('/api/users/paymentcomplete?Status=FAILED&orderId=99')
           .set('Authorization', 'bearer ' + APItoken)
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('payment failed!!')

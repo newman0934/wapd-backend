@@ -59,7 +59,7 @@ describe('# Category request', () => {
           .post('/api/admins/coupons')
           .set('Authorization', 'bearer ' + APItoken)
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end(async (err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('must input every column')
