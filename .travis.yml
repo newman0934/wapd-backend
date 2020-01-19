@@ -11,6 +11,8 @@ before_install:
     utf8mb4 collate utf8mb4_unicode_ci;'
   - npm install sequelize-cli -g
   - export JWT_SECRET=secret
+  - export CONFIG_USER_NAME=travis
+  - export CONFIG_USER_PASS=
 before_script:
   - sequelize db:migrate --env test
 script:
