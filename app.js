@@ -60,7 +60,9 @@ app.use((req, res, next) => {
 })
 app.use('/upload', express.static(__dirname + '/upload'))
 
-ordersChecker([0, 10, 0], 7200000)
+if (process.env.NODE_ENV !== 'test') {
+  ordersChecker([0, 10, 0], 7200000)
+}
 
 app.listen(port, () => {
   console.log(`app listening on port ${port}!`)

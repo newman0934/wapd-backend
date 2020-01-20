@@ -17,12 +17,12 @@ async function checkExpired(expireTime) {
       await order.update({
         payment_status: 99
       })
-      return console.log(
+      console.log(
         `order id ${order.id} is expired. payment status updated to 99`
       )
     })
   } else {
-    return console.log(`Orders checked, No expired orders`)
+    console.log(`Orders checked, No expired orders`)
   }
 }
 
