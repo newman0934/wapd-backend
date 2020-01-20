@@ -323,22 +323,21 @@ describe('# User request', () => {
             done()
           })
       })
-      // 每次測試都會寄信，故撰寫階段先註解掉
-      // it('should return email successfully sent to user', done => {
-      //   request(app)
-      //     .post('/api/users/password_forget')
-      //     .send({
-      //       email: 'test1@example.com'
-      //     })
-      //     .set('Authorization', 'bearer ' + APItoken)
-      //     .set('Accept', 'application/json')
-      //     .expect(200)
-      //     .end((err, res) => {
-      //       expect(res.body.status).to.equal('success')
-      //       expect(res.body.message).to.equal('email successfully sent to user')
-      //       done()
-      //     })
-      // })
+      it('should return email successfully sent to user', done => {
+        request(app)
+          .post('/api/users/password_forget')
+          .send({
+            email: 'test1@example.com'
+          })
+          .set('Authorization', 'bearer ' + APItoken)
+          .set('Accept', 'application/json')
+          .expect(200)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('success')
+            expect(res.body.message).to.equal('email successfully sent to user')
+            done()
+          })
+      })
     })
   })
 
