@@ -11,6 +11,7 @@ const app = require('../../app')
 const helpers = require('../../_helpers')
 const db = require('../../models')
 const ordersChecker = require('../../utils/ordersChecker')
+const cryptoHelpers = require('../../utils/cryptoHelpers')
 
 describe('# Utils request', () => {
   context('# ordersChecker request', () => {
@@ -37,6 +38,36 @@ describe('# Utils request', () => {
       })
       after(async () => {
         await db.Order.destroy({ where: {}, truncate: true })
+      })
+    })
+  })
+
+  context('# cryptoHelpers request', () => {
+    let data = ''
+    let transitionValue = ''
+    describe('when user is going through spgateway', () => {
+      it('should return an object', () => {
+        data = cryptoHelpers.getTradeInfo(100, 'Desc', 'Email', 0, 0, 0, 0)
+        expect(data.TradeInfo).not.equal('')
+        expect(data.TradeInfo).not.equal(undefined)
+      })
+    })
+
+    describe('when admin is checking transition data', () => {
+      it('should return an object', () => {
+        transitionValue = cryptoHelpers.getTransitionCheckValue(
+          100,
+          'MerchantOrderNo'
+        )
+        expect(transitionValue).not.equal('')
+        expect(transitionValue).not.equal(undefined)
+      })
+    })
+
+    describe('when server is decrypting data', () => {
+      it('should contains merchantID', () => {
+        const result = cryptoHelpers.create_mpg_aes_decrypt(data.TradeInfo)
+        expect(result).to.include(`MerchantID=${process.env.MERCHANT_ID}`)
       })
     })
   })
