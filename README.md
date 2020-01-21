@@ -38,9 +38,12 @@ HASH_KEY=
 HASH_IV=
 # IMGUR API 金鑰
 IMGUR_CLIENT_ID=
+# 本地資料庫中的帳號密碼
+CONFIG_USER_NAME=root
+CONFIG_USER_PASS=password
 ```
 
-於根目錄開啟 config/config.json，確保您在 MySQL workbench 中的設定檔與 config.json 中相符。
+於根目錄開啟 config/config.js，確保您在 MySQL workbench 中的設定檔與 config.json 中相符。
 
 ```
 {
