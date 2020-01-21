@@ -410,6 +410,37 @@ describe('# Order request', () => {
     })
   })
 
+  context('postTransition request', () => {
+    describe('# when admin is checking a transition', () => {
+      it('should return error if no such transition is existed', done => {
+        request(app)
+          .post('/api/admins/orders/transition')
+          .send({ amt: 100, sn: 123 })
+          .set('Authorization', 'bearer ' + APItoken)
+          .set('Accept', 'application/json')
+          .expect(400)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('error')
+            expect(res.body.message).to.equal('查詢失敗!!')
+            done()
+          })
+      })
+      it('should return success if transition is existed', done => {
+        request(app)
+          .post('/api/admins/orders/transition')
+          .send({ amt: 1362, sn: 1579504105854 })
+          .set('Authorization', 'bearer ' + APItoken)
+          .set('Accept', 'application/json')
+          .expect(400)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('OK')
+            expect(res.body.message).to.equal('資料庫更新成功!!')
+            done()
+          })
+      })
+    })
+  })
+
   after(async () => {
     await db.User.destroy({ where: {}, truncate: true })
     await db.Product.destroy({ where: {}, truncate: true })

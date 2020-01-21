@@ -480,10 +480,12 @@ const orderService = {
           }
         })
         console.log(response)
-        await order.update({
-          payment_method: response.Result.PaymentMethod,
-          payment_status: response.Result.TradeStatus
-        })
+        if (order) {
+          await order.update({
+            payment_method: response.Result.PaymentMethod,
+            payment_status: response.Result.TradeStatus
+          })
+        }
         return callback({
           status: 'OK',
           message: '資料庫更新成功!!',
