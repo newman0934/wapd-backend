@@ -323,7 +323,6 @@ const adminService = {
     const product = await Product.findByPk(req.params.id, {
       include: { model: ProductStatus, required: false }
     })
-    // const defaultProductInfo = product.ProductStatuses[0]
     const color = await Color.findOrCreate({
       where: {
         color: req.body.color
@@ -334,7 +333,7 @@ const adminService = {
         size: req.body.size
       }
     })
-    // TODO: 確認有沒有符合的商品，如果有就不新增
+
     await ProductStatus.findOrCreate({
       where: {
         ProductId: req.params.id
@@ -359,7 +358,6 @@ const adminService = {
         ProductId: req.params.id,
         ColorId: color[0].id,
         SizeId: size[0].id
-        // price: defaultProductInfo.price
       }
     })
     return callback({ status: 'OK' })
@@ -385,8 +383,25 @@ const adminService = {
 
   getOrders: async (req, res, callback) => {
     try {
-      const orderResult = await Order.findAll()
-      const orders = orderResult.map(d => ({
+      let offset = 0
+      if (req.query.page) {
+        offset = (req.query.page - 1) * pageLimit
+      }
+
+      const orderResult = await Order.findAndCountAll({
+        offset: offset,
+        limit: pageLimit
+      })
+
+      let page = Number(req.query.page) || 1
+      let pages = Math.ceil(orderResult.count / pageLimit)
+
+      let totalPage = Array.from({ length: pages }).map(
+        (item, index) => index + 1
+      )
+      let prev = page - 1 < 1 ? 1 : page - 1
+      let next = page + 1 > pages ? pages : page + 1
+      const orders = orderResult.rows.map(d => ({
         id: d.dataValues.id,
         UserId: d.dataValues.UserId,
         sn: d.dataValues.sn,
@@ -399,7 +414,13 @@ const adminService = {
         payment_status: d.dataValues.payment_status,
         payment_method: d.dataValues.payment_method
       }))
-      return callback({ orders })
+      return callback({
+        orders,
+        page,
+        totalPage,
+        prev,
+        next
+      })
     } catch (error) {
       console.error(error)
     }
@@ -421,8 +442,6 @@ const adminService = {
         OrderId: req.params.id
       }
     })
-
-    console.log(orderitems)
 
     const order = {
       id: orderResult.dataValues.id,
@@ -460,8 +479,6 @@ const adminService = {
   putOrder: async (req, res, callback) => {
     const order = await Order.findByPk(req.params.id)
 
-    // TODO: 管理者刪除商品
-
     await order.update(req.body)
 
     return callback({
@@ -497,8 +514,29 @@ const adminService = {
 
   getUsers: async (req, res, callback) => {
     try {
-      const users = await User.findAll()
-      return callback({ users })
+      let offset = 0
+      if (req.query.page) {
+        offset = (req.query.page - 1) * pageLimit
+      }
+      const users = await User.findAndCountAll({
+        offset: offset,
+        limit: pageLimit
+      })
+      let page = Number(req.query.page) || 1
+      let pages = Math.ceil(users.count / pageLimit)
+
+      let totalPage = Array.from({ length: pages }).map(
+        (item, index) => index + 1
+      )
+      let prev = page - 1 < 1 ? 1 : page - 1
+      let next = page + 1 > pages ? pages : page + 1
+      return callback({
+        users,
+        page,
+        totalPage,
+        prev,
+        next
+      })
     } catch (error) {
       console.error(error)
     }

@@ -1,4 +1,5 @@
 const express = require('express')
+const responseTime = require('response-time')
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
 const methodOverride = require('method-override')
@@ -31,6 +32,11 @@ app.use(
     credentials: true // enable set cookie
   })
 )
+app.use(
+  responseTime((req, res, time) => {
+    console.log(req.method, req.url, Math.floor(time) + 'ms')
+  })
+)
 app.use(methodOverride('_method'))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
@@ -54,7 +60,9 @@ app.use((req, res, next) => {
 })
 app.use('/upload', express.static(__dirname + '/upload'))
 
-ordersChecker([0, 10, 0], 7200000)
+if (process.env.NODE_ENV !== 'test') {
+  ordersChecker([0, 10, 0], 7200000)
+}
 
 app.listen(port, () => {
   console.log(`app listening on port ${port}!`)

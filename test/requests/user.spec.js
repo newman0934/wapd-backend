@@ -220,7 +220,7 @@ describe('# User request', () => {
           })
           .set('Authorization', 'bearer ' + APItoken)
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('must input email!!')
@@ -260,7 +260,7 @@ describe('# User request', () => {
           })
           .set('Authorization', 'bearer ' + APItoken)
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('old password does not match!!')
@@ -277,7 +277,7 @@ describe('# User request', () => {
           })
           .set('Authorization', 'bearer ' + APItoken)
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('new passwords does not match!!')
@@ -314,7 +314,7 @@ describe('# User request', () => {
           })
           .set('Authorization', 'bearer ' + APItoken)
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal(
@@ -323,22 +323,21 @@ describe('# User request', () => {
             done()
           })
       })
-      // 每次測試都會寄信，故撰寫階段先註解掉
-      // it('should return email successfully sent to user', done => {
-      //   request(app)
-      //     .post('/api/users/password_forget')
-      //     .send({
-      //       email: 'test1@example.com'
-      //     })
-      //     .set('Authorization', 'bearer ' + APItoken)
-      //     .set('Accept', 'application/json')
-      //     .expect(200)
-      //     .end((err, res) => {
-      //       expect(res.body.status).to.equal('success')
-      //       expect(res.body.message).to.equal('email successfully sent to user')
-      //       done()
-      //     })
-      // })
+      it('should return email successfully sent to user', done => {
+        request(app)
+          .post('/api/users/password_forget')
+          .send({
+            email: 'test1@example.com'
+          })
+          .set('Authorization', 'bearer ' + APItoken)
+          .set('Accept', 'application/json')
+          .expect(200)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('success')
+            expect(res.body.message).to.equal('email successfully sent to user')
+            done()
+          })
+      })
     })
   })
 
@@ -356,7 +355,7 @@ describe('# User request', () => {
         request(app)
           .get('/api/users/password_reset/1/1234abcd')
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('No valid token found!!')
@@ -367,7 +366,7 @@ describe('# User request', () => {
         request(app)
           .get('/api/users/password_reset/2/abcd1234')
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('No valid token found!!')
@@ -400,7 +399,7 @@ describe('# User request', () => {
             email: 'test1@example.com'
           })
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('passwords are different!!')
@@ -417,7 +416,7 @@ describe('# User request', () => {
             userId: 1
           })
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('no token found!!')
@@ -434,7 +433,7 @@ describe('# User request', () => {
             userId: 3
           })
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(400)
           .end((err, res) => {
             expect(res.body.status).to.equal('error')
             expect(res.body.message).to.equal('no token found!!')
@@ -505,79 +504,6 @@ describe('# User request', () => {
       })
     })
 
-    after(async () => {
-      await db.Product.destroy({ where: {}, truncate: true })
-      await db.Favorite.destroy({ where: {}, truncate: true })
-      await db.Image.destroy({ where: {}, truncate: true })
-      await db.Color.destroy({ where: {}, truncate: true })
-      await db.Size.destroy({ where: {}, truncate: true })
-      await db.ProductStatus.destroy({ where: {}, truncate: true })
-    })
-  })
-
-  context('getUserFavorite request', () => {
-    before(async () => {
-      await db.Product.create({
-        name: 'test1',
-        description: 'test1',
-        status: 'on'
-      })
-      await db.Image.create({
-        url: '',
-        ProductId: 1
-      })
-      await db.Color.create({
-        color: ''
-      })
-      await db.Size.create({
-        size: ''
-      })
-      await db.ProductStatus.create({
-        ProductId: 1,
-        ColorId: 1,
-        SizeId: 1
-      })
-    })
-
-    describe('if user add product to favorite', done => {
-      it('should return success', done => {
-        request(app)
-          .post('/api/products/1/wishlist')
-          .set('Authorization', 'bearer ' + APItoken)
-          .expect(200)
-          .end(async function(err, res) {
-            expect(res.body.status).to.equal('success')
-            done()
-          })
-      })
-
-      it('should return "already in user\'s favorite list" if user post again', done => {
-        request(app)
-          .post('/api/products/1/wishlist')
-          .set('Authorization', 'bearer ' + APItoken)
-          .expect(200)
-          .end(async function(err, res) {
-            expect(res.body.status).to.equal('error')
-            expect(res.body.message).to.equal("already in user's favorite list")
-            done()
-          })
-      })
-    })
-  })
-
-  context('deleteWishlist request', () => {
-    describe('if user delete product from favorite', done => {
-      it('should return success', done => {
-        request(app)
-          .delete('/api/products/1/wishlist')
-          .set('Authorization', 'bearer ' + APItoken)
-          .expect(200)
-          .end(async function(err, res) {
-            expect(res.body.status).to.equal('success')
-            done()
-          })
-      })
-    })
     after(async () => {
       await db.Product.destroy({ where: {}, truncate: true })
       await db.Favorite.destroy({ where: {}, truncate: true })

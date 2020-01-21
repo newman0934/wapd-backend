@@ -72,6 +72,33 @@ describe('# Product request', () => {
         }
       ])
     })
+
+    context('Sign-in request', () => {
+      describe('if normal user signin in', () => {
+        before(async () => {
+          await db.User.destroy({ where: {}, truncate: true })
+          await db.User.create({
+            name: 'Test1',
+            email: 'test1@example.com',
+            password: bcrypt.hashSync('12345678', bcrypt.genSaltSync(10), null)
+          })
+        })
+        it('should log in success', done => {
+          request(app)
+            .post('/api/signin')
+            .send({ email: 'test1@example.com', password: '12345678' })
+            .set('Accept', 'application/json')
+            .expect(200)
+            .end((err, res) => {
+              APItoken = res.body.token
+              expect(res.body.status).to.equal('success')
+              expect(res.body.message).to.equal('ok')
+              done()
+            })
+        })
+      })
+    })
+
     context('getProducts request', () => {
       it('should return only 1 product', done => {
         request(app)
@@ -141,6 +168,81 @@ describe('# Product request', () => {
             expect(res.body.message).to.equal('this product does not exist')
             done()
           })
+      })
+    })
+
+    context('addWishlist request', () => {
+      before(async () => {
+        await db.Product.create({
+          name: 'test1',
+          description: 'test1',
+          status: 'on'
+        })
+        await db.Image.create({
+          url: '',
+          ProductId: 1
+        })
+        await db.Color.create({
+          color: ''
+        })
+        await db.Size.create({
+          size: ''
+        })
+        await db.ProductStatus.create({
+          ProductId: 1,
+          ColorId: 1,
+          SizeId: 1
+        })
+      })
+
+      describe('if user add product to favorite', done => {
+        it('should return success', done => {
+          request(app)
+            .post('/api/products/1/wishlist')
+            .set('Authorization', 'bearer ' + APItoken)
+            .expect(200)
+            .end(async function(err, res) {
+              expect(res.body.status).to.equal('success')
+              done()
+            })
+        })
+
+        it('should return "already in user\'s favorite list" if user post again', done => {
+          request(app)
+            .post('/api/products/1/wishlist')
+            .set('Authorization', 'bearer ' + APItoken)
+            .expect(400)
+            .end(async function(err, res) {
+              expect(res.body.status).to.equal('error')
+              expect(res.body.message).to.equal(
+                "already in user's favorite list"
+              )
+              done()
+            })
+        })
+      })
+    })
+
+    context('deleteWishlist request', () => {
+      describe('if user delete product from favorite', done => {
+        it('should return success', done => {
+          request(app)
+            .delete('/api/products/1/wishlist')
+            .set('Authorization', 'bearer ' + APItoken)
+            .expect(200)
+            .end(async function(err, res) {
+              expect(res.body.status).to.equal('success')
+              done()
+            })
+        })
+      })
+      after(async () => {
+        await db.Product.destroy({ where: {}, truncate: true })
+        await db.Favorite.destroy({ where: {}, truncate: true })
+        await db.Image.destroy({ where: {}, truncate: true })
+        await db.Color.destroy({ where: {}, truncate: true })
+        await db.Size.destroy({ where: {}, truncate: true })
+        await db.ProductStatus.destroy({ where: {}, truncate: true })
       })
     })
 

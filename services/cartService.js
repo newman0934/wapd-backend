@@ -66,6 +66,13 @@ const cartService = {
 
   notLoginPostCart: async (req, res, callback) => {
     try {
+      if (+req.body.quantity <= 0) {
+        return callback({
+          status: 'error',
+          message: 'quantity must be greater than 0!!'
+        })
+      }
+
       if (!req.session.tempCartItems) {
         req.session.tempCartItems = []
       }
@@ -119,6 +126,13 @@ const cartService = {
         })
       }
 
+      if (+req.body.quantity <= 0) {
+        return callback({
+          status: 'error',
+          message: 'quantity must be greater than 0!!'
+        })
+      }
+
       const cartItem = await CartItem.findOne({
         where: {
           ProductId: +req.body.productId,
@@ -169,6 +183,13 @@ const cartService = {
       return callback({
         status: 'error',
         message: 'please write quantity!!'
+      })
+    }
+
+    if (+req.body.quantity <= 0) {
+      return callback({
+        status: 'error',
+        message: 'quantity must be greater than 0!!'
       })
     }
 
