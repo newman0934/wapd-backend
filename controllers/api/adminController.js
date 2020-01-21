@@ -118,12 +118,6 @@ const adminController = {
     })
   },
 
-  getCategories: (req, res) => {
-    adminService.getCategories(req, res, data => {
-      return res.status(200).json(data)
-    })
-  },
-
   getUsers: (req, res) => {
     adminService.getUsers(req, res, data => {
       return res.status(200).json(data)

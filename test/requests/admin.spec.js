@@ -350,6 +350,65 @@ describe('# Admin request', () => {
     })
   })
 
+  context('deleteOrderProduct request', () => {
+    describe('# when admin is deleting a product in an existed order', () => {
+      before(async () => {
+        await db.Product.create({ name: 'test1' })
+        await db.Order.create({})
+        await db.OrderItem.create({
+          OrderId: 1,
+          color: 'red',
+          size: 'S',
+          product_name: 'test1'
+        })
+      })
+      it('should return error if no such order item found', done => {
+        request(app)
+          .delete('/api/admins/orders/1/product')
+          .send({
+            productName: 'test99',
+            color: 'red',
+            size: 'S'
+          })
+          .set('Authorization', 'bearer ' + APItoken)
+          .set('Accept', 'application/json')
+          .expect(200)
+          .end(async (err, res) => {
+            expect(res.body.status).to.equal('error')
+            expect(res.body.message).to.equal('no such orderItem found!!')
+            done()
+          })
+      })
+      it('should successfully delete the order item', done => {
+        request(app)
+          .delete('/api/admins/orders/1/product')
+          .send({
+            productName: 'test1',
+            color: 'red',
+            size: 'S'
+          })
+          .set('Authorization', 'bearer ' + APItoken)
+          .set('Accept', 'application/json')
+          .expect(200)
+          .end(async (err, res) => {
+            expect(res.body.status).to.equal('success')
+            expect(res.body.message).to.equal(
+              'orderItem successfully deleted!!'
+            )
+            const orderitem = await db.OrderItem.findAll({})
+            expect(orderitem.length).to.equal(0)
+            done()
+          })
+      })
+
+      after(async () => {
+        await db.Product.destroy({ where: {}, truncate: true })
+        await db.Order.destroy({ where: {}, truncate: true })
+        await db.OrderItem.destroy({ where: {}, truncate: true })
+      })
+    })
+  })
+
   context('getUsers request', done => {
     it('should return a json data', done => {
       request(app)
