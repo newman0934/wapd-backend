@@ -1,6 +1,6 @@
 # wapd-backend
 
-為男裝服飾打造的 Vue.js/Node.js Express 前後端分離專案，採用 MySQL 作為資料庫，此為後端伺服器並仍處於開發階段，伺服器已布署於 [heroku](https://wapd-backend.herokuapp.com/api/) 上，您可以 [在此看見](https://newman0934.github.io/wapd-frontend/#/index) 開發中前端網頁目前的成品。
+為男裝服飾打造的 Vue.js/Node.js Express 前後端分離專案，採用 MySQL 作為資料庫，此為後端伺服器專案，伺服器已布署於 [heroku](https://wapd-backend.herokuapp.com/api/) 上，您可以 [在此看見](https://newman0934.github.io/wapd-frontend/#/index) 前端網頁目前的成品。
 
 ## 資料庫架構
 
@@ -38,10 +38,12 @@ HASH_KEY=
 HASH_IV=
 # IMGUR API 金鑰
 IMGUR_CLIENT_ID=
-# 本地資料庫中的帳號密碼
+# 本地資料庫中的帳號密碼(此為範例，請更改為您的設定)
 CONFIG_USER_NAME=root
 CONFIG_USER_PASS=password
 ```
+
+您可以在根目錄 .env.example 中找到 .env 檔案的範例
 
 於根目錄開啟 config/config.js，確保您在 MySQL workbench 中的設定檔與 config.json 中相符。
 
@@ -79,6 +81,16 @@ npm run dev
 
 進行自動化測試，請輸入：
 
+```
+npm run test
+```
+
+進行覆蓋率測試，請輸入：
+
+```
+npm run coverage
+```
+
 ## API 文件
 
 若要查看 API 文件，可於本地 /api-docs 觀看，或是於 [heroku](https://wapd-backend.herokuapp.com/api-docs/) 觀看
@@ -95,4 +107,4 @@ npm run dev
 
 [Eason Lin](https://github.com/EasonLin0716)
 
-此專案仍處於開發階段， 2020 年 1 月下旬初版釋出後會完善這份文件。若您對這份專案有任何更好的建議，請不吝聯繫我們，謝謝您
+對於這份專案有任何可以建議或改進的地方，請不吝告知我們，謝謝您！
