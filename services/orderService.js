@@ -431,9 +431,8 @@ const orderService = {
       from: `wapd official <${process.env.EMAIL_ACCOUNT}>`,
       to: buyer.email, // 收件人
       subject: `【wapd】訂單 ${orderResult.id} 建立成功`,
-      text: `親愛的 ${buyer.name} 您好：
-      您購買的商品已收到款項，如有任何問題請聯繫我們，謝謝您
-      `
+      html: `<h3>親愛的 ${buyer.name ||
+        '顧客'} 您好：</h3><p>您購買的商品已收到款項，如有任何問題請聯繫我們，在此祝您有美好的一天！</p><p>*此為系統發送信件，請勿直接回覆</p><p>Regards,</p><p>Wapd Official</p>`
     }
     transporter.sendMail(mailOptions, function(error, info) {
       if (error) {
