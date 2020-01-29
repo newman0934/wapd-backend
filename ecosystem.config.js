@@ -3,15 +3,8 @@ module.exports = {
     {
       name: 'app',
       script: './app.js',
-      instances: 2,
-      autorestart: true,
-      watch: true,
-      max_memory_restart: '500M',
-      node_args: [
-        '--optimize_for_size',
-        '--max_old_space_size=128',
-        '--gc_interval=100'
-      ],
+      instances: 4,
+      exec_mode: 'cluster',
       env: {
         NODE_ENV: 'development'
       },
