@@ -21,5 +21,3 @@ deploy:
   api_key:
     secure: 905a7c2e-0fd2-484b-ab7c-ce00e27cb2e7
   app: t-wapd-backend
-  on:
-    repo: EasonLin0716/wapd-backend
