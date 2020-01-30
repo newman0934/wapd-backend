@@ -4,7 +4,7 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert(
       'Orders',
-      Array.from({ length: 2000 }).map((item, index) => ({
+      Array.from({ length: 20 }).map((item, index) => ({
         id: index + 1,
         total_price: faker.commerce.price(),
         shipping_method: Math.round(Math.random()),

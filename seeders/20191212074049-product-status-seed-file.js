@@ -4,7 +4,7 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert(
       'ProductStatuses',
-      Array.from({ length: 2000 }).map((item, index) => ({
+      Array.from({ length: 20 }).map((item, index) => ({
         id: index + 1,
         sales: Math.floor(Math.random() * 10),
         stock: Math.floor(Math.random() * 10),
