@@ -7,10 +7,21 @@ const flash = require('connect-flash')
 const db = require('./models')
 const cors = require('cors')
 const ordersChecker = require('./utils/ordersChecker')
+const rateLimit = require('express-rate-limit')
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
+if (process.env.PORT) {
+  app.set('trust proxy', 1)
+}
+const apiLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message:
+    'Too many accounts created from this IP, please try again after a few moments'
+})
+
 const passport = require('./config/passport')
 
 const app = express()
@@ -59,6 +70,7 @@ app.use((req, res, next) => {
   next()
 })
 app.use('/upload', express.static(__dirname + '/upload'))
+app.use('/api/', apiLimiter)
 
 if (process.env.NODE_ENV !== 'test') {
   ordersChecker([0, 10, 0], 7200000)
