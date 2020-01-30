@@ -41,7 +41,7 @@ app.use(
       'https://easonlin0716.github.io'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true // enable set cookie
+    credentials: true
   })
 )
 app.use(
