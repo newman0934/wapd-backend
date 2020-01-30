@@ -54,13 +54,19 @@ const cryptoHelpers = {
     console.log(Amt, Desc, email, CVSCOM)
     console.log('==========')
 
+    const generatedMerchantOrderNo = Number(
+      Date.now()
+        .toString()
+        .slice(-6) + Math.floor(Math.random() * 100 * Desc)
+    )
+
     data = {
       // 這是要給藍新的資料
       MerchantID: MerchantID, // 商店代號
       RespondType: 'JSON', // 回傳格式
       TimeStamp: Date.now(), // 時間戳記
       Version: 1.5, // 串接程式版本
-      MerchantOrderNo: Date.now(), // 商店訂單編號
+      MerchantOrderNo: generatedMerchantOrderNo, // 商店訂單編號
       LoginType: 0, // 智付通會員
       OrderComment: 'OrderComment', // 商店備註
       Amt: Amt, // 訂單金額
