@@ -12,9 +12,7 @@ const rateLimit = require('express-rate-limit')
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
-if (process.env.PORT) {
-  app.set('trust proxy', 1)
-}
+
 const apiLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
   max: 300, // limit each IP to 100 requests per windowMs
@@ -31,6 +29,9 @@ const port = process.env.PORT
   ? 3030
   : 3000
 const bodyParser = require('body-parser')
+if (process.env.PORT) {
+  app.set('trust proxy', 1)
+}
 app.use('/api-docs', express.static('public'))
 app.use(
   cors({
