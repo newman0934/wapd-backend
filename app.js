@@ -30,7 +30,7 @@ const port = process.env.PORT
   : 3000
 const bodyParser = require('body-parser')
 
-// app.set('trust proxy', 1)
+app.set('trust proxy', 1)
 
 app.use('/api-docs', express.static('public'))
 app.use(
