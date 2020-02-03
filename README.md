@@ -1,10 +1,16 @@
 # wapd-backend
 
-為男裝服飾打造的 Vue.js/Node.js Express 前後端分離專案，採用 MySQL 作為資料庫，此為後端伺服器專案，伺服器已布署於 [heroku](https://wapd-backend.herokuapp.com/api/) 上，您可以 [在此看見](https://newman0934.github.io/wapd-frontend/#/index) 前端網頁目前的成品。
+[![](https://coveralls.io/repos/github/EasonLin0716/wapd-backend/badge.svg)](https://travis-ci.org/EasonLin0716/wapd-backend) ![](https://heroku-badge.herokuapp.com/?app=t-wapd-backend&root=api-docs) ![](https://travis-ci.org/EasonLin0716/wapd-backend.svg?branch=master)
+
+為男裝服飾打造的 Vue.js/Node.js Express 前後端分離專案，採用 MySQL 作為資料庫，此為後端伺服器專案，伺服器已布署於 [heroku](https://wapd-backend.herokuapp.com/api/) 上，您可以 [在此看見](https://newman0934.github.io/wapd-frontend/#/index) 我們的成品。
 
 ## 資料庫架構
 
 關於 ERD，可參考[資料庫架構規劃](https://drive.google.com/file/d/1TCItglC5sX0VC8NGjZSR_zfzqQeeoraD/view)
+
+## API 文件
+
+若要查看 API 文件，可在安裝後於本地 /api-docs 觀看，或是於 [heroku](https://wapd-backend.herokuapp.com/api-docs/) 直接觀看 API 文件
 
 ## 安裝
 
@@ -90,10 +96,6 @@ npm run test
 ```
 npm run coverage
 ```
-
-## API 文件
-
-若要查看 API 文件，可於本地 /api-docs 觀看，或是於 [heroku](https://wapd-backend.herokuapp.com/api-docs/) 觀看
 
 ## 專案分工
 
