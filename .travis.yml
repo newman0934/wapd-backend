@@ -15,7 +15,7 @@ before_install:
 before_script:
   - sequelize db:migrate --env test
 script:
-  - npm run coverage
+  - npm run test
 deploy:
   provider: heroku
   api_key:
@@ -24,3 +24,4 @@ deploy:
     master: t-wapd-backend
   on:
     repo: EasonLin0716/wapd-backend
+after_success: npm run coverage
