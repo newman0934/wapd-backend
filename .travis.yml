@@ -24,3 +24,4 @@ deploy:
     master: t-wapd-backend
   on:
     repo: EasonLin0716/wapd-backend
+after_success: npm run coverage
