@@ -99,217 +99,193 @@ const userService = {
   },
 
   postPasswordChange: async (req, res, callback) => {
-    try {
-      const user = await User.findByPk(req.user.id)
-      if (!user) {
-        return callback({
-          status: 'error',
-          message: 'no such user found!!',
-          currentUserId: req.user.id
-        })
-      }
-      // 舊密碼輸入錯誤
-      if (!bcrypt.compareSync(req.body.usedPassword, user.password)) {
-        return callback({
-          status: 'error',
-          message: 'old password does not match!!',
-          currentUserId: req.user.id
-        })
-      }
-      // 新密碼不吻合
-      if (req.body.newPassword !== req.body.passwordCheck) {
-        return callback({
-          status: 'error',
-          message: 'new passwords does not match!!',
-          currentUserId: req.user.id
-        })
-      }
-      // 密碼更新
-      await user.update({
-        password: bcrypt.hashSync(
-          req.body.newPassword,
-          bcrypt.genSaltSync(10),
-          null
-        )
-      })
-
+    const user = await User.findByPk(req.user.id)
+    if (!user) {
       return callback({
-        status: 'success',
-        message: 'password successfully changed'
+        status: 'error',
+        message: 'no such user found!!',
+        currentUserId: req.user.id
       })
-    } catch (error) {
-      console.error(error)
     }
+    // 舊密碼輸入錯誤
+    if (!bcrypt.compareSync(req.body.usedPassword, user.password)) {
+      return callback({
+        status: 'error',
+        message: 'old password does not match!!',
+        currentUserId: req.user.id
+      })
+    }
+    // 新密碼不吻合
+    if (req.body.newPassword !== req.body.passwordCheck) {
+      return callback({
+        status: 'error',
+        message: 'new passwords does not match!!',
+        currentUserId: req.user.id
+      })
+    }
+    // 密碼更新
+    await user.update({
+      password: bcrypt.hashSync(
+        req.body.newPassword,
+        bcrypt.genSaltSync(10),
+        null
+      )
+    })
+
+    return callback({
+      status: 'success',
+      message: 'password successfully changed'
+    })
   },
 
   postPasswordForget: async (req, res, callback) => {
-    try {
-      // 使用者填入的 email
-      const receiverEmail = req.body.email
-      const randomToken = Math.random()
-        .toString(32)
-        .slice(-8)
+    // 使用者填入的 email
+    const receiverEmail = req.body.email
+    const randomToken = Math.random()
+      .toString(32)
+      .slice(-8)
 
-      const user = await User.findOne({
-        where: {
-          email: receiverEmail
-        }
-      })
-      // 如果查無 email 就提示對方此信箱尚未註冊
-      if (!user) {
-        return callback({
-          status: 'error',
-          message: 'This email is not registered yet!!'
-        })
+    const user = await User.findOne({
+      where: {
+        email: receiverEmail
       }
-      // 建立要發送至信箱的 token
-      const token = await Token.create({
-        token: randomToken,
-        UserId: user.id,
-        isUsed: false
+    })
+    // 如果查無 email 就提示對方此信箱尚未註冊
+    if (!user) {
+      return callback({
+        status: 'error',
+        message: 'This email is not registered yet!!'
       })
-      // 信件內容
-      const mailOptions = {
-        from: `wapd official <${process.env.EMAIL_ACCOUNT}>`,
-        to: receiverEmail,
-        subject: `【wapd】忘記密碼認證函`,
-        text: `您好：
+    }
+    // 建立要發送至信箱的 token
+    const token = await Token.create({
+      token: randomToken,
+      UserId: user.id,
+      isUsed: false
+    })
+    // 信件內容
+    const mailOptions = {
+      from: `wapd official <${process.env.EMAIL_ACCOUNT}>`,
+      to: receiverEmail,
+      subject: `【wapd】忘記密碼認證函`,
+      text: `您好：
       我們收到了您忘記密碼的請求，請點選以下連結重設密碼：
       ${domain}users/password_reset/${token.id}/${randomToken}/
       為了您帳號的安全，請勿將此連結洩漏給任何人，感謝您`
-      }
-      // 寄信
-      transporter.sendMail(mailOptions, function(error, info) {
-        if (error) {
-          console.log(error)
-        } else {
-          console.log('Email sent: ' + info.response)
-        }
-      })
-
-      return callback({
-        status: 'success',
-        message: 'email successfully sent to user'
-      })
-    } catch (error) {
-      console.error(error)
     }
+    // 寄信
+    transporter.sendMail(mailOptions, function(error, info) {
+      if (error) {
+        console.log(error)
+      } else {
+        console.log('Email sent: ' + info.response)
+      }
+    })
+
+    return callback({
+      status: 'success',
+      message: 'email successfully sent to user'
+    })
   },
 
   getPasswordReset: async (req, res, callback) => {
-    try {
-      // 透過 params 尋找 token
-      const token = await Token.findOne({
-        where: {
-          id: req.params.token_id,
-          token: req.params.token,
-          isUsed: false
-        }
-      })
-      // 如果不符合就回傳 error
-      if (!token) {
-        return callback({
-          status: 'error',
-          message: 'No valid token found!!'
-        })
+    // 透過 params 尋找 token
+    const token = await Token.findOne({
+      where: {
+        id: req.params.token_id,
+        token: req.params.token,
+        isUsed: false
       }
-      // 如果符合就回傳 UserId
+    })
+    // 如果不符合就回傳 error
+    if (!token) {
       return callback({
-        status: 'success',
-        message: 'token is valid!!',
-        userId: token.UserId,
-        token: token.token
+        status: 'error',
+        message: 'No valid token found!!'
       })
-    } catch (error) {
-      console.error(error)
     }
+    // 如果符合就回傳 UserId
+    return callback({
+      status: 'success',
+      message: 'token is valid!!',
+      userId: token.UserId,
+      token: token.token
+    })
   },
 
   postPasswordReset: async (req, res, callback) => {
-    try {
-      // 檢查 req.body.password 及 req.body.passwordCheck 是否相同
-      if (req.body.password !== req.body.passwordCheck) {
-        return callback({
-          status: 'error',
-          message: 'passwords are different!!'
-        })
-      }
-      // 先驗證 token (防Postman)
-      const token = await Token.findOne({
-        where: {
-          token: req.body.token,
-          UserId: req.body.userId,
-          isUsed: false
-        }
-      })
-      if (!token) {
-        return callback({
-          status: 'error',
-          message: 'no token found!!'
-        })
-      }
-      // 取得使用者 id，並加密密碼
-      const user = await User.findByPk(req.body.userId)
-      await user.update({
-        password: bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10))
-      })
-      await token.update({
-        isUsed: true
-      })
-      // 回傳成功訊息
+    // 檢查 req.body.password 及 req.body.passwordCheck 是否相同
+    if (req.body.password !== req.body.passwordCheck) {
       return callback({
-        status: 'success',
-        message: 'user password reset successfully!!',
-        UserId: req.body.userId
+        status: 'error',
+        message: 'passwords are different!!'
       })
-    } catch (error) {
-      console.error(error)
     }
+    // 先驗證 token (防Postman)
+    const token = await Token.findOne({
+      where: {
+        token: req.body.token,
+        UserId: req.body.userId,
+        isUsed: false
+      }
+    })
+    if (!token) {
+      return callback({
+        status: 'error',
+        message: 'no token found!!'
+      })
+    }
+    // 取得使用者 id，並加密密碼
+    const user = await User.findByPk(req.body.userId)
+    await user.update({
+      password: bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10))
+    })
+    await token.update({
+      isUsed: true
+    })
+    // 回傳成功訊息
+    return callback({
+      status: 'success',
+      message: 'user password reset successfully!!',
+      UserId: req.body.userId
+    })
   },
 
   getUserEdit: async (req, res, callback) => {
-    try {
-      const userResult = await User.findByPk(req.user.id)
-      const user = {
-        id: userResult.dataValues.id,
-        email: userResult.dataValues.email,
-        name: userResult.dataValues.name,
-        phone: userResult.dataValues.phone,
-        address: userResult.dataValues.address
-      }
-
-      return callback({ user })
-    } catch (error) {
-      console.error(error)
+    const userResult = await User.findByPk(req.user.id)
+    const user = {
+      id: userResult.dataValues.id,
+      email: userResult.dataValues.email,
+      name: userResult.dataValues.name,
+      phone: userResult.dataValues.phone,
+      address: userResult.dataValues.address
     }
+
+    return callback({ user })
   },
 
   putUser: async (req, res, callback) => {
-    try {
-      const user = await User.findByPk(helpers.getUser(req).id)
-      if (!user) {
-        return callback({
-          status: 'error',
-          message: 'user not found!!'
-        })
-      }
-
-      if (!req.body.email) {
-        return callback({
-          status: 'error',
-          message: 'must input email!!'
-        })
-      }
-
-      await user.update(req.body)
-
+    const user = await User.findByPk(helpers.getUser(req).id)
+    if (!user) {
       return callback({
-        status: 'success',
-        message: 'user successfully edited'
+        status: 'error',
+        message: 'user not found!!'
       })
-    } catch (error) {
-      console.error(error)
     }
+
+    if (!req.body.email) {
+      return callback({
+        status: 'error',
+        message: 'must input email!!'
+      })
+    }
+
+    await user.update(req.body)
+
+    return callback({
+      status: 'success',
+      message: 'user successfully edited'
+    })
   }
 }
 

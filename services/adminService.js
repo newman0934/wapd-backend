@@ -18,80 +18,72 @@ const path = require('path')
 
 const adminService = {
   getProducts: async (req, res, callback) => {
-    try {
-      let offset = 0
-      let whereQuery = {}
-      let categoryId = ''
-      if (req.query.page) {
-        offset = (req.query.page - 1) * pageLimit
-      }
-      if (req.query.categoryId) {
-        categoryId = Number(req.query.categoryId)
-        whereQuery['CategoryId'] = categoryId
-      }
-      // 若有 categoryId 會查詢對應類別的商品
-      const productResult = await Product.findAndCountAll({
-        include: [Image, Category],
-        where: whereQuery,
-        offset: offset,
-        limit: pageLimit,
-        distinct: true
-      })
-      let page = Number(req.query.page) || 1
-      let pages = Math.ceil(productResult.count / pageLimit)
-      let totalPage = Array.from({ length: pages }).map(
-        (item, index) => index + 1
-      )
-      let prev = page - 1 < 1 ? 1 : page - 1
-      let next = page + 1 > pages ? pages : page + 1
-
-      const categories = await Category.findAll()
-
-      const products = productResult.rows.map(d => ({
-        id: d.dataValues.id,
-        name: d.dataValues.name,
-        category: d.dataValues.Category.category,
-        sell_price: d.dataValues.sell_price,
-        status: d.dataValues.status,
-        images: d.dataValues.Images
-      }))
-
-      return callback({
-        products,
-        categories,
-        categoryId: +req.query.categoryId,
-        page,
-        totalPage,
-        prev,
-        next
-      })
-    } catch (error) {
-      console.error(error)
+    let offset = 0
+    let whereQuery = {}
+    let categoryId = ''
+    if (req.query.page) {
+      offset = (req.query.page - 1) * pageLimit
     }
+    if (req.query.categoryId) {
+      categoryId = Number(req.query.categoryId)
+      whereQuery['CategoryId'] = categoryId
+    }
+    // 若有 categoryId 會查詢對應類別的商品
+    const productResult = await Product.findAndCountAll({
+      include: [Image, Category],
+      where: whereQuery,
+      offset: offset,
+      limit: pageLimit,
+      distinct: true
+    })
+    let page = Number(req.query.page) || 1
+    let pages = Math.ceil(productResult.count / pageLimit)
+    let totalPage = Array.from({ length: pages }).map(
+      (item, index) => index + 1
+    )
+    let prev = page - 1 < 1 ? 1 : page - 1
+    let next = page + 1 > pages ? pages : page + 1
+
+    const categories = await Category.findAll()
+
+    const products = productResult.rows.map(d => ({
+      id: d.dataValues.id,
+      name: d.dataValues.name,
+      category: d.dataValues.Category.category,
+      sell_price: d.dataValues.sell_price,
+      status: d.dataValues.status,
+      images: d.dataValues.Images
+    }))
+
+    return callback({
+      products,
+      categories,
+      categoryId: +req.query.categoryId,
+      page,
+      totalPage,
+      prev,
+      next
+    })
   },
 
   getProduct: async (req, res, callback) => {
-    try {
-      const productResult = await Product.findByPk(req.params.id, {
-        include: [Category, Image]
-      })
+    const productResult = await Product.findByPk(req.params.id, {
+      include: [Category, Image]
+    })
 
-      const product = {
-        id: productResult.dataValues.id,
-        name: productResult.dataValues.name,
-        description: productResult.dataValues.description,
-        origin_price: productResult.dataValues.origin_price,
-        sell_price: productResult.dataValues.sell_price,
-        CategoryId: productResult.dataValues.CategoryId,
-        category: productResult.dataValues.Category.category,
-        status: productResult.dataValues.status,
-        images: productResult.dataValues.Images
-      }
-
-      return callback({ product })
-    } catch (error) {
-      console.error(error)
+    const product = {
+      id: productResult.dataValues.id,
+      name: productResult.dataValues.name,
+      description: productResult.dataValues.description,
+      origin_price: productResult.dataValues.origin_price,
+      sell_price: productResult.dataValues.sell_price,
+      CategoryId: productResult.dataValues.CategoryId,
+      category: productResult.dataValues.Category.category,
+      status: productResult.dataValues.status,
+      images: productResult.dataValues.Images
     }
+
+    return callback({ product })
   },
 
   addProduct: async (req, res, callback) => {
@@ -249,23 +241,19 @@ const adminService = {
   },
 
   getProductStocks: async (req, res, callback) => {
-    try {
-      const result = await Product.findByPk(req.params.id, {
-        include: { model: ProductStatus, include: [Size, Color] }
-      })
+    const result = await Product.findByPk(req.params.id, {
+      include: { model: ProductStatus, include: [Size, Color] }
+    })
 
-      const productStatus = result.ProductStatuses.map(d => ({
-        id: d.dataValues.id,
-        stock: d.dataValues.stock,
-        size: d.dataValues.Size.size,
-        color: d.dataValues.Color.color,
-        ProductId: d.dataValues.ProductId
-      }))
+    const productStatus = result.ProductStatuses.map(d => ({
+      id: d.dataValues.id,
+      stock: d.dataValues.stock,
+      size: d.dataValues.Size.size,
+      color: d.dataValues.Color.color,
+      ProductId: d.dataValues.ProductId
+    }))
 
-      return callback({ productStatus })
-    } catch (error) {
-      console.error(error)
-    }
+    return callback({ productStatus })
   },
 
   getProductStockEdit: async (req, res, callback) => {
@@ -382,48 +370,44 @@ const adminService = {
   },
 
   getOrders: async (req, res, callback) => {
-    try {
-      let offset = 0
-      if (req.query.page) {
-        offset = (req.query.page - 1) * pageLimit
-      }
-
-      const orderResult = await Order.findAndCountAll({
-        offset: offset,
-        limit: pageLimit
-      })
-
-      let page = Number(req.query.page) || 1
-      let pages = Math.ceil(orderResult.count / pageLimit)
-
-      let totalPage = Array.from({ length: pages }).map(
-        (item, index) => index + 1
-      )
-      let prev = page - 1 < 1 ? 1 : page - 1
-      let next = page + 1 > pages ? pages : page + 1
-      const orders = orderResult.rows.map(d => ({
-        id: d.dataValues.id,
-        UserId: d.dataValues.UserId,
-        sn: d.dataValues.sn,
-        total_price: d.dataValues.total_price,
-        shipping_status: d.dataValues.shipping_status,
-        shipping_method: d.dataValues.shipping_method,
-        receiver_name: d.dataValues.receiver_name,
-        phone: d.dataValues.phone,
-        address: d.dataValues.address,
-        payment_status: d.dataValues.payment_status,
-        payment_method: d.dataValues.payment_method
-      }))
-      return callback({
-        orders,
-        page,
-        totalPage,
-        prev,
-        next
-      })
-    } catch (error) {
-      console.error(error)
+    let offset = 0
+    if (req.query.page) {
+      offset = (req.query.page - 1) * pageLimit
     }
+
+    const orderResult = await Order.findAndCountAll({
+      offset: offset,
+      limit: pageLimit
+    })
+
+    let page = Number(req.query.page) || 1
+    let pages = Math.ceil(orderResult.count / pageLimit)
+
+    let totalPage = Array.from({ length: pages }).map(
+      (item, index) => index + 1
+    )
+    let prev = page - 1 < 1 ? 1 : page - 1
+    let next = page + 1 > pages ? pages : page + 1
+    const orders = orderResult.rows.map(d => ({
+      id: d.dataValues.id,
+      UserId: d.dataValues.UserId,
+      sn: d.dataValues.sn,
+      total_price: d.dataValues.total_price,
+      shipping_status: d.dataValues.shipping_status,
+      shipping_method: d.dataValues.shipping_method,
+      receiver_name: d.dataValues.receiver_name,
+      phone: d.dataValues.phone,
+      address: d.dataValues.address,
+      payment_status: d.dataValues.payment_status,
+      payment_method: d.dataValues.payment_method
+    }))
+    return callback({
+      orders,
+      page,
+      totalPage,
+      prev,
+      next
+    })
   },
 
   getOrder: async (req, res, callback) => {
@@ -513,59 +497,51 @@ const adminService = {
   },
 
   getUsers: async (req, res, callback) => {
-    try {
-      let offset = 0
-      if (req.query.page) {
-        offset = (req.query.page - 1) * pageLimit
-      }
-      const users = await User.findAndCountAll({
-        offset: offset,
-        limit: pageLimit
-      })
-      let page = Number(req.query.page) || 1
-      let pages = Math.ceil(users.count / pageLimit)
-
-      let totalPage = Array.from({ length: pages }).map(
-        (item, index) => index + 1
-      )
-      let prev = page - 1 < 1 ? 1 : page - 1
-      let next = page + 1 > pages ? pages : page + 1
-      return callback({
-        users,
-        page,
-        totalPage,
-        prev,
-        next
-      })
-    } catch (error) {
-      console.error(error)
+    let offset = 0
+    if (req.query.page) {
+      offset = (req.query.page - 1) * pageLimit
     }
+    const users = await User.findAndCountAll({
+      offset: offset,
+      limit: pageLimit
+    })
+    let page = Number(req.query.page) || 1
+    let pages = Math.ceil(users.count / pageLimit)
+
+    let totalPage = Array.from({ length: pages }).map(
+      (item, index) => index + 1
+    )
+    let prev = page - 1 < 1 ? 1 : page - 1
+    let next = page + 1 > pages ? pages : page + 1
+    return callback({
+      users,
+      page,
+      totalPage,
+      prev,
+      next
+    })
   },
 
   getUserOrders: async (req, res, callback) => {
-    try {
-      const userOrderResult = await User.findByPk(req.params.id, {
-        include: Order
-      })
-      const users = {
-        id: userOrderResult.dataValues.id,
-        email: userOrderResult.dataValues.email,
-        name: userOrderResult.dataValues.name,
-        phone: userOrderResult.dataValues.phone,
-        address: userOrderResult.dataValues.address,
-        role: userOrderResult.dataValues.role,
-        orders: userOrderResult.dataValues.Orders.map(d => ({
-          total_price: d.dataValues.total_price,
-          payment_status: d.dataValues.payment_status,
-          shipping_status: d.dataValues.shipping_status,
-          sn: d.dataValues.sn
-        }))
-      }
-
-      return callback({ users })
-    } catch (error) {
-      console.error(error)
+    const userOrderResult = await User.findByPk(req.params.id, {
+      include: Order
+    })
+    const users = {
+      id: userOrderResult.dataValues.id,
+      email: userOrderResult.dataValues.email,
+      name: userOrderResult.dataValues.name,
+      phone: userOrderResult.dataValues.phone,
+      address: userOrderResult.dataValues.address,
+      role: userOrderResult.dataValues.role,
+      orders: userOrderResult.dataValues.Orders.map(d => ({
+        total_price: d.dataValues.total_price,
+        payment_status: d.dataValues.payment_status,
+        shipping_status: d.dataValues.shipping_status,
+        sn: d.dataValues.sn
+      }))
     }
+
+    return callback({ users })
   }
 }
 

@@ -3,12 +3,8 @@ const { Category, Product } = db
 
 const categoryService = {
   getCategories: async (req, res, callback) => {
-    try {
-      const categories = await Category.findAll()
-      return callback({ categories })
-    } catch (error) {
-      console.error(error)
-    }
+    const categories = await Category.findAll()
+    return callback({ categories })
   },
   addCategory: async (req, res, callback) => {
     if (!req.body.category) {
