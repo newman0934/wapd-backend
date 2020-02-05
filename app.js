@@ -3,7 +3,6 @@ const responseTime = require('response-time')
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
 const methodOverride = require('method-override')
-const flash = require('connect-flash')
 const db = require('./models')
 const cors = require('cors')
 const ordersChecker = require('./utils/ordersChecker')
@@ -61,12 +60,9 @@ app.use(
     saveUninitialized: true
   })
 )
-app.use(flash())
 app.use(passport.initialize())
 app.use(passport.session())
 app.use((req, res, next) => {
-  res.locals.success_messages = req.flash('success_messages')
-  res.locals.error_messages = req.flash('error_messages')
   res.locals.userAuth = req.session.user
   next()
 })
