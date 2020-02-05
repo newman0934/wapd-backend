@@ -393,7 +393,7 @@ const adminService = {
       UserId: d.dataValues.UserId,
       sn: d.dataValues.sn,
       total_price: d.dataValues.total_price,
-      shipping_status: d.dataValues.shipping_status,
+      shipping_status: 0,
       shipping_method: d.dataValues.shipping_method,
       receiver_name: d.dataValues.receiver_name,
       phone: d.dataValues.phone,
