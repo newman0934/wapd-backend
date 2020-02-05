@@ -1,7 +1,6 @@
 const express = require('express')
 const responseTime = require('response-time')
 const session = require('express-session')
-const cookieParser = require('cookie-parser')
 const methodOverride = require('method-override')
 const db = require('./models')
 const cors = require('cors')
@@ -51,7 +50,6 @@ app.use(
 app.use(methodOverride('_method'))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
-app.use(cookieParser())
 app.use(
   session({
     secret: 'wapd',
